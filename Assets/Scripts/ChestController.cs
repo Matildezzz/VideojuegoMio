@@ -2,48 +2,52 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InventoryController : MonoBehaviour
+public class ChestController : MonoBehaviour
 {
     private ItemDictionary itemDictionary;
+
     public GameObject inventoryPanel;
     public GameObject slotPrefab;
-    public int slotCount;
+    public int slotCount = 12;
     public GameObject[] itemPrefabs;
 
-    public static InventoryController Instance { get; private set; }
-
     private Dictionary<int, int> itemsCountCache = new Dictionary<int, int>();
-    public event Action OnInventoryChanged;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
+    public event Action OnChestChanged;
 
     private void Start()
     {
         itemDictionary = FindFirstObjectByType<ItemDictionary>();
 
+        BuildEmptySlots();
+
+        for (int i = 0; i < itemPrefabs.Length; i++)
+        {
+            if (itemPrefabs[i] == null)
+            {
+                continue;
+            }
+
+            Item item = itemPrefabs[i].GetComponent<Item>();
+            int amount = item != null ? item.quantity : 1;
+
+            AddItem(itemPrefabs[i], amount);
+        }
+
+        RebuildItemCounts();
+    }
+
+    private void BuildEmptySlots()
+    {
+        foreach (Transform child in inventoryPanel.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
         for (int i = 0; i < slotCount; i++)
         {
             Slot slot = Instantiate(slotPrefab, inventoryPanel.transform).GetComponent<Slot>();
             ConfigureSlot(slot, i);
-
-            if (i < itemPrefabs.Length && itemPrefabs[i] != null)
-            {
-                GameObject item = Instantiate(itemPrefabs[i], slot.transform);
-                item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                slot.currentItem = item;
-            }
         }
-
-        RebuildItemCounts();
     }
 
     private void ConfigureSlot(Slot slot, int index)
@@ -87,17 +91,7 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        OnInventoryChanged?.Invoke();
-    }
-
-    public Dictionary<int, int> GetItemCounts()
-    {
-        return itemsCountCache;
-    }
-
-    public bool AddItem(GameObject itemPrefab)
-    {
-        return AddItem(itemPrefab, 1);
+        OnChestChanged?.Invoke();
     }
 
     public bool AddItem(GameObject itemPrefab, int amount)
@@ -159,7 +153,7 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        Debug.Log("Inventory is full");
+        Debug.Log("Chest is full");
         return false;
     }
 
@@ -216,108 +210,5 @@ public class InventoryController : MonoBehaviour
 
         RebuildItemCounts();
         return removed > 0;
-    }
-
-    public List<InventorySaveData> GetInventoryItems()
-    {
-        List<InventorySaveData> invData = new List<InventorySaveData>();
-
-        foreach (Transform slotTransform in inventoryPanel.transform)
-        {
-            Slot slot = slotTransform.GetComponent<Slot>();
-
-            if (slot != null && slot.currentItem != null)
-            {
-                Item item = slot.currentItem.GetComponent<Item>();
-
-                if (item != null)
-                {
-                    invData.Add(new InventorySaveData
-                    {
-                        itemID = item.ID,
-                        slotIndex = slotTransform.GetSiblingIndex(),
-                        quantity = item.quantity
-                    });
-                }
-            }
-        }
-
-        return invData;
-    }
-
-    public void SetInventoryItems(List<InventorySaveData> inventorySaveData)
-    {
-        foreach (Transform child in inventoryPanel.transform)
-        {
-            Destroy(child.gameObject);
-        }
-
-        for (int i = 0; i < slotCount; i++)
-        {
-            Slot slot = Instantiate(slotPrefab, inventoryPanel.transform).GetComponent<Slot>();
-            ConfigureSlot(slot, i);
-        }
-
-        foreach (InventorySaveData data in inventorySaveData)
-        {
-            if (data.slotIndex < 0 || data.slotIndex >= inventoryPanel.transform.childCount)
-            {
-                continue;
-            }
-
-            Slot slot = inventoryPanel.transform.GetChild(data.slotIndex).GetComponent<Slot>();
-            GameObject itemPrefab = itemDictionary.GetItemPrefab(data.itemID);
-
-            if (itemPrefab != null)
-            {
-                GameObject item = Instantiate(itemPrefab, slot.transform);
-                item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-                Item itemComponent = item.GetComponent<Item>();
-
-                if (itemComponent != null)
-                {
-                    itemComponent.quantity = data.quantity;
-                    itemComponent.UpdateQuantityDisplay();
-                }
-
-                slot.currentItem = item;
-            }
-        }
-
-        RebuildItemCounts();
-    }
-
-    public void RemoveItemsFromInventory(int itemID, int amountToRemove)
-    {
-        foreach (Transform slotTransform in inventoryPanel.transform)
-        {
-            if (amountToRemove <= 0)
-            {
-                break;
-            }
-
-            Slot slot = slotTransform.GetComponent<Slot>();
-
-            if (slot != null && slot.currentItem != null)
-            {
-                Item item = slot.currentItem.GetComponent<Item>();
-
-                if (item != null && item.ID == itemID)
-                {
-                    int removed = Mathf.Min(amountToRemove, item.quantity);
-                    item.RemoveFromStack(removed);
-                    amountToRemove -= removed;
-
-                    if (item.quantity == 0)
-                    {
-                        Destroy(slot.currentItem);
-                        slot.currentItem = null;
-                    }
-                }
-            }
-        }
-
-        RebuildItemCounts();
     }
 }
