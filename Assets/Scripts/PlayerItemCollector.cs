@@ -4,7 +4,7 @@ public class PlayerItemCollector : MonoBehaviour
 {
     private InventoryController inventoryController;
 
-    void Start()
+    private void Start()
     {
         inventoryController = FindFirstObjectByType<InventoryController>();
     }
@@ -16,18 +16,19 @@ public class PlayerItemCollector : MonoBehaviour
             return;
         }
 
-        Item item = collision.GetComponent<Item>();
+        WorldItem worldItem = collision.GetComponent<WorldItem>();
 
-        if (item == null)
+        if (worldItem == null || worldItem.itemData == null)
         {
+            Debug.Log("No se encontró WorldItem o ItemData en " + collision.name);
             return;
         }
 
-        bool itemAdded = inventoryController.AddItem(item.GetInventoryPrefab(), item.quantity);
+        bool itemAdded = inventoryController.AddItemByData(worldItem.itemData, worldItem.quantity);
 
         if (itemAdded)
         {
-            item.ShowPopUp();
+            worldItem.ShowPopUp();
             Destroy(collision.gameObject);
         }
     }

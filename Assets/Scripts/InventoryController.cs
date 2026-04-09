@@ -64,31 +64,44 @@ public class InventoryController : MonoBehaviour
     }
 
     public void RebuildItemCounts()
+{
+    itemsCountCache.Clear();
+
+    foreach (Transform slotTransform in inventoryPanel.transform)
     {
-        itemsCountCache.Clear();
+        Slot slot = slotTransform.GetComponent<Slot>();
 
-        foreach (Transform slotTransform in inventoryPanel.transform)
+        if (slot == null || slot.currentItem == null)
         {
-            Slot slot = slotTransform.GetComponent<Slot>();
-
-            if (slot != null && slot.currentItem != null)
-            {
-                Item item = slot.currentItem.GetComponent<Item>();
-
-                if (item != null)
-                {
-                    if (!itemsCountCache.ContainsKey(item.ID))
-                    {
-                        itemsCountCache[item.ID] = 0;
-                    }
-
-                    itemsCountCache[item.ID] += item.quantity;
-                }
-            }
+            continue;
         }
 
-        OnInventoryChanged?.Invoke();
+        InventoryItemUI uiItem = slot.currentItem.GetComponent<InventoryItemUI>();
+        if (uiItem != null && uiItem.itemData != null)
+        {
+            if (!itemsCountCache.ContainsKey(uiItem.itemData.ID))
+            {
+                itemsCountCache[uiItem.itemData.ID] = 0;
+            }
+
+            itemsCountCache[uiItem.itemData.ID] += uiItem.quantity;
+            continue;
+        }
+
+        Item item = slot.currentItem.GetComponent<Item>();
+        if (item != null)
+        {
+            if (!itemsCountCache.ContainsKey(item.ID))
+            {
+                itemsCountCache[item.ID] = 0;
+            }
+
+            itemsCountCache[item.ID] += item.quantity;
+        }
     }
+
+    OnInventoryChanged?.Invoke();
+}
 
     public Dictionary<int, int> GetItemCounts()
     {
@@ -328,6 +341,97 @@ public class InventoryController : MonoBehaviour
         itemComponent.quantity = amount;
         itemComponent.UpdateQuantityDisplay();
     }
+
+    newItem.transform.SetAsLastSibling();
+    return newItem;
+}
+public bool AddItemByData(ItemData itemData, int amount = 1)
+{
+    if (itemData == null)
+    {
+        return false;
+    }
+
+    foreach (Transform slotTransform in inventoryPanel.transform)
+    {
+        Slot slot = slotTransform.GetComponent<Slot>();
+
+        if (slot != null && slot.currentItem != null)
+        {
+            InventoryItemUI slotItem = slot.currentItem.GetComponent<InventoryItemUI>();
+
+            if (slotItem != null && slotItem.itemData != null && slotItem.itemData.ID == itemData.ID)
+            {
+                slotItem.AddToStack(amount);
+                RebuildItemCounts();
+                return true;
+            }
+        }
+    }
+
+    foreach (Transform slotTransform in inventoryPanel.transform)
+    {
+        Slot slot = slotTransform.GetComponent<Slot>();
+
+        if (slot != null && slot.currentItem == null)
+        {
+            GameObject newItem = CreateUIItemInSlot(itemData, slotTransform, amount);
+            slot.currentItem = newItem;
+            RebuildItemCounts();
+            return true;
+        }
+    }
+
+    Debug.Log("Inventory is full");
+    return false;
+}
+private GameObject CreateUIItemInSlot(ItemData itemData, Transform slotTransform, int amount)
+{
+    if (itemData == null)
+    {
+        return null;
+    }
+
+    if (itemData.inventoryPrefab == null)
+    {
+        Debug.LogWarning("El item " + itemData.itemName + " no tiene inventoryPrefab asignado en su ItemData.");
+        return null;
+    }
+
+    GameObject newItem = Instantiate(itemData.inventoryPrefab, slotTransform);
+
+    RectTransform rt = newItem.GetComponent<RectTransform>();
+    if (rt != null)
+    {
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.localScale = Vector3.one;
+        rt.sizeDelta = new Vector2(80f, 80f);
+    }
+
+    CanvasGroup canvasGroup = newItem.GetComponent<CanvasGroup>();
+    if (canvasGroup == null)
+    {
+        newItem.AddComponent<CanvasGroup>();
+    }
+
+    ItemDragHandler dragHandler = newItem.GetComponent<ItemDragHandler>();
+    if (dragHandler == null)
+    {
+        newItem.AddComponent<ItemDragHandler>();
+    }
+
+    InventoryItemUI itemUI = newItem.GetComponent<InventoryItemUI>();
+    if (itemUI == null)
+    {
+        itemUI = newItem.AddComponent<InventoryItemUI>();
+    }
+
+    itemUI.itemData = itemData;
+    itemUI.quantity = amount;
+    itemUI.RefreshUI();
 
     newItem.transform.SetAsLastSibling();
     return newItem;

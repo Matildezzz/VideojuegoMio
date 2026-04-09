@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Slot : MonoBehaviour, IPointerClickHandler
+public class Slot : MonoBehaviour, IPointerClickHandler, IDropHandler
 {
     public GameObject currentItem;
 
@@ -16,5 +16,17 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         }
 
         ChestInteraction.CurrentOpenChest.HandleSlotClick(this, eventData.button);
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        ItemDragHandler dragHandler = eventData.pointerDrag != null
+            ? eventData.pointerDrag.GetComponent<ItemDragHandler>()
+            : null;
+
+        if (dragHandler != null)
+        {
+            dragHandler.DropOnSlot(this);
+        }
     }
 }

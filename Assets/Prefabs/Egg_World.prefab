@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8796854916087481051}
   - component: {fileID: 3357830632014117666}
   - component: {fileID: 778267600780472346}
-  - component: {fileID: 649323834703171583}
+  - component: {fileID: -1678504489127600690}
   m_Layer: 0
   m_Name: Egg_World
   m_TagString: Item
@@ -76,8 +76,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 143747853
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -4929179470246120729, guid: 4ab602b6acae7324698961042e08d25a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -141,7 +141,7 @@ MonoBehaviour:
   bounceHeight: 0.3
   bounceDuration: 0.4
   bounceCount: 2
---- !u!114 &649323834703171583
+--- !u!114 &-1678504489127600690
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,14 +150,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1836824800585820699}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 065efda90b92bdb4ea33c44b48775809, type: 3}
+  m_Script: {fileID: 11500000, guid: 314219554795466448923af40d9763e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ID: 1
-  Name: Egg
+  itemData: {fileID: 11400000, guid: e55f15a1e8cbd634f862a9d0674359f7, type: 2}
   quantity: 1
-  inventoryPrefab: {fileID: 7339008753774127229, guid: 6edbd02114481ae45b8c9aca6f92dbd9, type: 3}
-  worldPrefab: {fileID: 1836824800585820699}
-  inventoryIcon: {fileID: -4929179470246120729, guid: 4ab602b6acae7324698961042e08d25a, type: 3}
-  buyPrice: 10
-  sellPriceMultiplier: 0.5
+  spriteRenderer: {fileID: 8796854916087481051}
