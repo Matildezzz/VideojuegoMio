@@ -7,6 +7,9 @@ public class Item : MonoBehaviour
     public int ID;
     public string Name;
     public int quantity = 1;
+    
+    public Sprite worldSprite;
+    public Sprite inventorySprite;
 
     private TMP_Text quantityText;
 
