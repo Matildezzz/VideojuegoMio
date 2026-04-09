@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class PlayerItemCollector : MonoBehaviour
 {
+    private HotbarController hotbarController;
     private InventoryController inventoryController;
 
     private void Start()
     {
+        hotbarController = FindFirstObjectByType<HotbarController>();
         inventoryController = FindFirstObjectByType<InventoryController>();
     }
 
@@ -24,7 +26,17 @@ public class PlayerItemCollector : MonoBehaviour
             return;
         }
 
-        bool itemAdded = inventoryController.AddItemByData(worldItem.itemData, worldItem.quantity);
+        bool itemAdded = false;
+
+        if (hotbarController != null)
+        {
+            itemAdded = hotbarController.AddItemByData(worldItem.itemData, worldItem.quantity);
+        }
+
+        if (!itemAdded && inventoryController != null)
+        {
+            itemAdded = inventoryController.AddItemByData(worldItem.itemData, worldItem.quantity);
+        }
 
         if (itemAdded)
         {
