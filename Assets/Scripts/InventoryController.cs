@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryController : MonoBehaviour
 {
@@ -37,8 +38,7 @@ public class InventoryController : MonoBehaviour
 
             if (i < itemPrefabs.Length && itemPrefabs[i] != null)
             {
-                GameObject item = Instantiate(itemPrefabs[i], slot.transform);
-                item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                GameObject item = CreateUIItemInSlot(itemPrefabs[i], slot.transform, 1);
                 slot.currentItem = item;
             }
         }
@@ -142,17 +142,7 @@ public class InventoryController : MonoBehaviour
 
             if (slot != null && slot.currentItem == null)
             {
-                GameObject newItem = Instantiate(itemPrefab, slotTransform);
-                newItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-                Item newItemComponent = newItem.GetComponent<Item>();
-
-                if (newItemComponent != null)
-                {
-                    newItemComponent.quantity = amount;
-                    newItemComponent.UpdateQuantityDisplay();
-                }
-
+                GameObject newItem = CreateUIItemInSlot(itemPrefab, slotTransform, amount);
                 slot.currentItem = newItem;
                 RebuildItemCounts();
                 return true;
@@ -270,17 +260,7 @@ public class InventoryController : MonoBehaviour
 
             if (itemPrefab != null)
             {
-                GameObject item = Instantiate(itemPrefab, slot.transform);
-                item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-                Item itemComponent = item.GetComponent<Item>();
-
-                if (itemComponent != null)
-                {
-                    itemComponent.quantity = data.quantity;
-                    itemComponent.UpdateQuantityDisplay();
-                }
-
+                GameObject item = CreateUIItemInSlot(itemPrefab, slot.transform, data.quantity);
                 slot.currentItem = item;
             }
         }
@@ -320,4 +300,36 @@ public class InventoryController : MonoBehaviour
 
         RebuildItemCounts();
     }
+
+    private GameObject CreateUIItemInSlot(GameObject itemPrefab, Transform slotTransform, int amount)
+{
+    GameObject newItem = Instantiate(itemPrefab, slotTransform);
+
+    RectTransform rt = newItem.GetComponent<RectTransform>();
+    if (rt != null)
+    {
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.localScale = Vector3.one;
+        rt.sizeDelta = new Vector2(80f, 80f);
+    }
+
+    Image image = newItem.GetComponent<Image>();
+    if (image != null)
+    {
+        image.preserveAspect = true;
+    }
+
+    Item itemComponent = newItem.GetComponent<Item>();
+    if (itemComponent != null)
+    {
+        itemComponent.quantity = amount;
+        itemComponent.UpdateQuantityDisplay();
+    }
+
+    newItem.transform.SetAsLastSibling();
+    return newItem;
+}
 }

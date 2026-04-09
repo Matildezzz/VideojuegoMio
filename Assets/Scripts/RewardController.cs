@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class RewardController : MonoBehaviour
 {
-    public static RewardController Instance {get; private set;}
+    public static RewardController Instance { get; private set; }
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class RewardController : MonoBehaviour
     {
         if (quest?.questRewards == null) return;
 
-        foreach(var reward in quest.questRewards)
+        foreach (var reward in quest.questRewards)
         {
             switch (reward.type)
             {
@@ -34,20 +34,34 @@ public class RewardController : MonoBehaviour
 
     public void GiveItemReward(int itemID, int amount)
     {
-        var itemPrefab = FindAnyObjectByType<ItemDictionary>()?.GetItemPrefab(itemID);
+        GameObject itemPrefab = FindAnyObjectByType<ItemDictionary>()?.GetItemPrefab(itemID);
 
-        if(itemPrefab == null) return;
+        if (itemPrefab == null)
+        {
+            return;
+        }
 
-        for(int i = 0; i < amount ; i++)
+        Item item = itemPrefab.GetComponent<Item>();
+        GameObject worldPrefab = item != null ? item.GetWorldPrefab() : itemPrefab;
+
+        for (int i = 0; i < amount; i++)
         {
             if (!InventoryController.Instance.AddItem(itemPrefab))
             {
-                GameObject dropItem = Instantiate(itemPrefab, transform.position + Vector3.down, Quaternion.identity);
-                dropItem.GetComponent<BounceEffect>().StartBounce();
+                GameObject dropItem = Instantiate(worldPrefab, transform.position + Vector3.down, Quaternion.identity);
+
+                BounceEffect bounce = dropItem.GetComponent<BounceEffect>();
+                if (bounce != null)
+                {
+                    bounce.StartBounce();
+                }
             }
             else
             {
-                itemPrefab.GetComponent<Item>().ShowPopUp();
+                if (item != null)
+                {
+                    item.ShowPopUp();
+                }
             }
         }
     }
