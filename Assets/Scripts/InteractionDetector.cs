@@ -6,20 +6,30 @@ public class InteractionDetector : MonoBehaviour
     private IInteractable interactableInRange = null; // Closest Interactable
     public GameObject interactionIcon;
 
-    void Start()
-    {
-        interactionIcon.SetActive(false);    
-    }
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (!context.performed || interactableInRange == null)
         {
-            interactableInRange?.Interact();
-            if (!interactableInRange.CanInteract())
+            return;
+        }
+
+        interactableInRange.Interact();
+
+        if (interactableInRange == null || !interactableInRange.CanInteract())
+        {
+            if (interactionIcon != null)
             {
                 interactionIcon.SetActive(false);
             }
+        }
+    }
+
+    private void Start()
+    {
+        if (interactionIcon != null)
+        {
+            interactionIcon.SetActive(false);
         }
     }
     private void OnTriggerEnter2D(Collider2D collision)
