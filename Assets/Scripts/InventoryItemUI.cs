@@ -22,15 +22,18 @@ public class InventoryItemUI : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (itemData != null && iconImage != null)
+        bool hasItem = itemData != null;
+
+        if (iconImage != null)
         {
-            //iconImage.sprite = itemData.inventoryIcon;
+            iconImage.enabled = hasItem;
+            iconImage.sprite = hasItem ? itemData.Icon : null;
             iconImage.preserveAspect = true;
         }
 
         if (quantityText != null)
         {
-            quantityText.text = quantity.ToString();
+            quantityText.text = hasItem ? quantity.ToString() : string.Empty;
         }
     }
 

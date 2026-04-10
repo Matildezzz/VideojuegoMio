@@ -3,53 +3,107 @@ using UnityEngine;
 
 public class QuestController : MonoBehaviour
 {
-    public static QuestController Instance {get; private set;}
+    public static QuestController Instance { get; private set; }
+
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private ItemDatabase itemDatabase;
+    [SerializeField] private QuestUI questUI;
+
     public List<QuestProgress> activeQuests = new();
-    private QuestUI questUI;
     public List<string> handinQuestIDs = new();
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        questUI = FindAnyObjectByType<QuestUI>();
-        InventoryController.Instance.OnInventoryChanged += CheckInventoryForQuests;
+        if (playerInventory == null)
+        {
+            playerInventory = FindAnyObjectByType<PlayerInventory>();
+        }
+
+        if (questUI == null)
+        {
+            questUI = FindAnyObjectByType<QuestUI>();
+        }
+
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged += CheckInventoryForQuests;
+        }
+        else
+        {
+            Debug.LogWarning("QuestController: falta asignar PlayerInventory.");
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogWarning("QuestController: falta asignar ItemDatabase.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (playerInventory != null)
+        {
+            playerInventory.OnInventoryChanged -= CheckInventoryForQuests;
+        }
     }
 
     public void AcceptQuest(Quest quest)
     {
-        if(IsQuestActive(quest.questID)) return;
+        if (quest == null || IsQuestActive(quest.questID))
+        {
+            return;
+        }
 
         activeQuests.Add(new QuestProgress(quest));
-
         CheckInventoryForQuests();
-        questUI.UpdateQuestUI();
+        questUI?.UpdateQuestUI();
     }
 
-    public bool IsQuestActive(string questID) => activeQuests.Exists(q => q.QuestID == questID);
+    public bool IsQuestActive(string questID)
+    {
+        return activeQuests.Exists(q => q.QuestID == questID);
+    }
 
     public void CheckInventoryForQuests()
     {
-        Dictionary<int,int> itemCounts = InventoryController.Instance.GetItemCounts();
-
-        foreach(QuestProgress quest in activeQuests)
+        if (playerInventory == null || itemDatabase == null)
         {
-            foreach(QuestObjective questObjective in quest.objectives)
+            return;
+        }
+
+        foreach (QuestProgress quest in activeQuests)
+        {
+            foreach (QuestObjective questObjective in quest.objectives)
             {
-                if(questObjective.type != ObjectiveType.CollectItem) continue;
-                if(!int.TryParse(questObjective.objectiveID, out int itemID)) continue;
-
-                int newAmount = itemCounts.TryGetValue(itemID, out int count) ? Mathf.Min(count, questObjective.requiredAmount) : 0;
-
-                if(questObjective.currentAmount != newAmount)
+                if (questObjective.type != ObjectiveType.CollectItem)
                 {
-                    questObjective.currentAmount = newAmount;
+                    continue;
                 }
+
+                if (string.IsNullOrWhiteSpace(questObjective.objectiveID))
+                {
+                    questObjective.currentAmount = 0;
+                    continue;
+                }
+
+                ItemData itemData = itemDatabase.GetItemById(questObjective.objectiveID);
+                int count = itemData != null ? playerInventory.CountItem(itemData) : 0;
+
+                questObjective.currentAmount = Mathf.Min(count, questObjective.requiredAmount);
             }
         }
 
-        questUI.UpdateQuestUI();
+        questUI?.UpdateQuestUI();
     }
 
     public bool IsQuestCompleted(string questID)
@@ -60,20 +114,17 @@ public class QuestController : MonoBehaviour
 
     public void HandInQuest(string questID)
     {
-        // Try remove required items
         if (!RemoveRequiredItemsFromInventory(questID))
         {
-            // Quest couldnt be completed - missing items
             return;
         }
 
-        // Remove quest from quest log
         QuestProgress quest = activeQuests.Find(q => q.QuestID == questID);
-        if(quest != null)
+        if (quest != null)
         {
             handinQuestIDs.Add(questID);
             activeQuests.Remove(quest);
-            questUI.UpdateQuestUI();
+            questUI?.UpdateQuestUI();
         }
     }
 
@@ -84,35 +135,57 @@ public class QuestController : MonoBehaviour
 
     public bool RemoveRequiredItemsFromInventory(string questID)
     {
-        QuestProgress quest = activeQuests.Find(q => q.QuestID == questID);
-        if(quest == null) return false;
-
-        Dictionary<int,int> requiredItems = new();
-
-        // Item requirements from objectives;
-        foreach(QuestObjective objective in quest.objectives)
+        if (playerInventory == null || itemDatabase == null)
         {
-            if(objective.type == ObjectiveType.CollectItem && int.TryParse(objective.objectiveID, out int itemID))
-            {
-                requiredItems[itemID] = objective.requiredAmount;
-            }
+            return false;
         }
 
-        // Verify we have items
-        Dictionary<int,int> itemCounts = InventoryController.Instance.GetItemCounts();
-        foreach(var item in requiredItems)
+        QuestProgress quest = activeQuests.Find(q => q.QuestID == questID);
+        if (quest == null)
         {
-            if(itemCounts.GetValueOrDefault(item.Key) < item.Value)
+            return false;
+        }
+
+        Dictionary<ItemData, int> requiredItems = new();
+
+        foreach (QuestObjective objective in quest.objectives)
+        {
+            if (objective.type != ObjectiveType.CollectItem)
             {
-                // Not enough items to complete the quest
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(objective.objectiveID))
+            {
+                continue;
+            }
+
+            ItemData itemData = itemDatabase.GetItemById(objective.objectiveID);
+            if (itemData == null)
+            {
+                Debug.LogWarning("QuestController: objectiveID no existe en ItemDatabase -> " + objective.objectiveID);
+                return false;
+            }
+
+            if (!requiredItems.ContainsKey(itemData))
+            {
+                requiredItems[itemData] = 0;
+            }
+
+            requiredItems[itemData] += objective.requiredAmount;
+        }
+
+        foreach (var itemRequirement in requiredItems)
+        {
+            if (!playerInventory.HasItem(itemRequirement.Key, itemRequirement.Value))
+            {
                 return false;
             }
         }
 
-        // Remove required items from inventory
-        foreach(var itemRequirement in requiredItems)
+        foreach (var itemRequirement in requiredItems)
         {
-            InventoryController.Instance.RemoveItemsFromInventory(itemRequirement.Key, itemRequirement.Value);
+            playerInventory.RemoveItem(itemRequirement.Key, itemRequirement.Value);
         }
 
         return true;
@@ -120,9 +193,8 @@ public class QuestController : MonoBehaviour
 
     public void LoadQuestProgress(List<QuestProgress> savedQuests)
     {
-        activeQuests = savedQuests ?? new();
-
+        activeQuests = savedQuests ?? new List<QuestProgress>();
         CheckInventoryForQuests();
-        questUI.UpdateQuestUI();
+        questUI?.UpdateQuestUI();
     }
 }

@@ -17,6 +17,10 @@ public abstract class ItemData : ScriptableObject
     [Header("Categoria")]
     [SerializeField] private ItemCategory category = ItemCategory.None;
 
+    [Header("Economia")]
+    [SerializeField] private int buyPrice = 10;
+    [SerializeField, Range(0f, 1f)] private float sellPriceMultiplier = 0.5f;
+
     public string ItemId => itemId;
     public string DisplayName => displayName;
     public Sprite Icon => icon;
@@ -24,6 +28,12 @@ public abstract class ItemData : ScriptableObject
     public bool Stackable => stackable;
     public int MaxStack => maxStack;
     public ItemCategory Category => category;
+    public int BuyPrice => buyPrice;
+
+    public int GetSellPrice()
+    {
+        return Mathf.RoundToInt(buyPrice * sellPriceMultiplier);
+    }
 
 #if UNITY_EDITOR
     protected virtual void OnValidate()
@@ -37,6 +47,13 @@ public abstract class ItemData : ScriptableObject
         {
             maxStack = 1;
         }
+
+        if (buyPrice < 0)
+        {
+            buyPrice = 0;
+        }
+
+        sellPriceMultiplier = Mathf.Clamp01(sellPriceMultiplier);
     }
 #endif
 }

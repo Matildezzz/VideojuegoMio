@@ -1,67 +1,45 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(InventoryItemUI))]
 public class ShopItemHandler : MonoBehaviour, IPointerClickHandler
 {
     private bool isShopItem;
-    public Slot originalInventorySlot;
+    private ItemData itemData;
+    private InventoryUISlotSource originalSource = InventoryUISlotSource.Backpack;
+    private int originalSlotIndex = -1;
 
-    public void Initialise(bool shopItem) => isShopItem = shopItem;
+    public void Initialise(
+        bool shopItem,
+        ItemData data,
+        InventoryUISlotSource source = InventoryUISlotSource.Backpack,
+        int slotIndex = -1)
+    {
+        isShopItem = shopItem;
+        itemData = data;
+        originalSource = source;
+        originalSlotIndex = slotIndex;
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button != PointerEventData.InputButton.Right)
         {
-            if(isShopItem) BuyItem();
-            else SellItem();
-        }
-    }
-
-    private void BuyItem()
-    {
-        Item item = GetComponent<Item>();
-        ShopSlot slot = GetComponentInParent<ShopSlot>();
-        if(!item || !slot) return;
-
-        if(CurrencyController.Instance.GetGold() < slot.itemPrice)
-        {
-            // Message to say not enough gold
-            Debug.Log("Not enough gold!");
             return;
         }
 
-        GameObject itemPrefab = FindAnyObjectByType<ItemDictionary>().GetItemPrefab(item.ID);
-        if (InventoryController.Instance.AddItem(itemPrefab))
+        if (ShopController.Instance == null || itemData == null)
         {
-            CurrencyController.Instance.SpendGold(slot.itemPrice);
-            ShopController.Instance.RefreshPlayerInventoryDisplay();
-            ShopController.Instance.RemoveItemFromShop(item.ID, 1);
+            return;
+        }
+
+        if (isShopItem)
+        {
+            ShopController.Instance.TryBuyItem(itemData, 1);
         }
         else
         {
-            Debug.Log("Inventory full!");
+            ShopController.Instance.TrySellItem(itemData, originalSource, originalSlotIndex, 1);
         }
-    }
-
-    private void SellItem()
-    {
-        Item item = GetComponent<Item>();
-        ShopSlot slot = GetComponentInParent<ShopSlot>();
-        if(!item || !slot || !originalInventorySlot) return;
-
-        Item invItem = originalInventorySlot.currentItem?.GetComponent<Item>();
-        if(!invItem) return;
-
-        if(invItem.quantity > 1) invItem.RemoveFromStack(1);
-        else
-        {
-            Destroy(originalInventorySlot.currentItem);
-            originalInventorySlot.currentItem = null;
-        }
-
-        InventoryController.Instance.RebuildItemCounts();
-        CurrencyController.Instance.AddGold(slot.itemPrice);
-        ShopController.Instance.RefreshPlayerInventoryDisplay();
-        ShopController.Instance.AddItemToShop(item.ID, 1);
     }
 }

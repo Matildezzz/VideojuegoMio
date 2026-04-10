@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName ="Quest/Quest")]
-
 public class Quest : ScriptableObject
 {
     public string questID;
@@ -12,7 +11,6 @@ public class Quest : ScriptableObject
     public List<QuestObjective> objectives;
     public List<QuestReward> questRewards;
 
-    // Called when scriptable obj is created
     private void OnValidate()
     {
         if (string.IsNullOrEmpty(questID))
@@ -23,56 +21,66 @@ public class Quest : ScriptableObject
 }
 
 [System.Serializable]
-    public class QuestObjective
+public class QuestObjective
+{
+    public string objectiveID;
+    public string description;
+    public ObjectiveType type;
+    public int requiredAmount;
+    public int currentAmount;
+
+    public bool IsCompleted => currentAmount >= requiredAmount;
+}
+
+public enum ObjectiveType
+{
+    CollectItem,
+    DefeatEnemy,
+    ReachLocation,
+    TalkNPC,
+    Custom
+}
+
+[System.Serializable]
+public class QuestProgress
+{
+    public Quest quest;
+    public List<QuestObjective> objectives;
+
+    public QuestProgress(Quest quest)
     {
-        public string objectiveID; // Match with item ID that you need to collect, enemy ID that u need to kill etc
-        public string description;
-        public ObjectiveType type;
-        public int requiredAmount;
-        public int currentAmount;
+        this.quest = quest;
+        objectives = new List<QuestObjective>();
 
-        public bool IsCompleted => currentAmount >= requiredAmount;
-
+        foreach (var obj in quest.objectives)
+        {
+            objectives.Add(new QuestObjective
+            {
+                objectiveID = obj.objectiveID,
+                description = obj.description,
+                type = obj.type,
+                requiredAmount = obj.requiredAmount,
+                currentAmount = 0
+            });
+        }
     }
 
-    public enum ObjectiveType {CollectItem, DefeatEnemy, ReachLocation, TalkNPC, Custom}
-
-    [System.Serializable]
-    public class QuestProgress
-    {
-        public Quest quest;
-        public List<QuestObjective> objectives;
-
-        public QuestProgress(Quest quest)
-        {
-            this.quest = quest;
-            objectives = new List<QuestObjective>();
-
-            // Deep copy to avoid modifiying original
-            foreach(var obj in quest.objectives)
-            {
-                objectives.Add(new QuestObjective
-                {
-                    objectiveID = obj.objectiveID,
-                    description = obj.description,
-                    type = obj.type,
-                    requiredAmount = obj.requiredAmount,
-                    currentAmount = 0
-                });
-            }
-        }
-
-        public bool IsCompleted => objectives.TrueForAll(o => o.IsCompleted);
-
-        public string QuestID => quest.questID;
+    public bool IsCompleted => objectives.TrueForAll(o => o.IsCompleted);
+    public string QuestID => quest.questID;
 }
 
 [System.Serializable]
 public class QuestReward
 {
     public RewardType type;
-    public int rewardID; // ItemID etc
+    public string rewardItemId;
     public int amount = 1;
 }
 
-public enum RewardType {Item, Gold, Experience, Custom}
+public enum RewardType
+{
+    Item,
+    Gold,
+    Experience,
+    Custom
+}

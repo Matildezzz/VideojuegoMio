@@ -14,46 +14,49 @@ public class ShopNPC : MonoBehaviour, IInteractable
     [System.Serializable]
     public class ShopStockItem
     {
-        public int itemID;
+        public string itemId;
         public int quantity;
     }
 
-    void Start()
+    private void Start()
     {
         InitializeShop();
     }
 
     private void InitializeShop()
     {
-        if(isInitialized) return;
+        if (isInitialized)
+        {
+            return;
+        }
 
-        // Default stock (overwritten by save system if save exists)
         currentShopStock = new List<ShopStockItem>();
-        foreach(var item in defaultShopStock)
+
+        foreach (var item in defaultShopStock)
         {
             currentShopStock.Add(new ShopStockItem
             {
-                itemID = item.itemID,
+                itemId = item.itemId,
                 quantity = item.quantity
             });
         }
+
         isInitialized = true;
     }
-    
+
     public bool CanInteract()
     {
-        // Shops only open in the day or at night?
-        // return Timemanager.isDay()
-
-        // return questmanager.isCompleted(questID)
         return true;
     }
 
     public void Interact()
     {
-        if (ShopController.Instance == null) return;
+        if (ShopController.Instance == null)
+        {
+            return;
+        }
 
-        if (ShopController.Instance.shopPanel.activeSelf) // Is the panel visible rn?
+        if (ShopController.Instance.shopPanel.activeSelf)
         {
             ShopController.Instance.CloseShop();
         }
@@ -68,33 +71,55 @@ public class ShopNPC : MonoBehaviour, IInteractable
         return currentShopStock;
     }
 
-    // Used when loading save
     public void SetStock(List<ShopStockItem> stock)
     {
-        currentShopStock = stock;
+        currentShopStock = stock ?? new List<ShopStockItem>();
     }
 
-    public void AddToStock(int itemID, int quantity)
+    public void AddToStock(string itemId, int quantity)
     {
-        ShopStockItem existing = currentShopStock.Find(s => s.itemID == itemID);
+        if (string.IsNullOrWhiteSpace(itemId) || quantity <= 0)
+        {
+            return;
+        }
+
+        ShopStockItem existing = currentShopStock.Find(s => s.itemId == itemId);
+
         if (existing != null)
         {
             existing.quantity += quantity;
         }
         else
         {
-            currentShopStock.Add(new ShopStockItem {itemID = itemID, quantity = quantity});
+            currentShopStock.Add(new ShopStockItem
+            {
+                itemId = itemId,
+                quantity = quantity
+            });
         }
     }
-    
-    public bool RemoveFromShopStock(int itemID, int quantity)
+
+    public bool RemoveFromShopStock(string itemId, int quantity)
     {
-        ShopStockItem existing = currentShopStock.Find(s => s.itemID == itemID);
-        if (existing != null && existing.quantity >= quantity)
+        if (string.IsNullOrWhiteSpace(itemId) || quantity <= 0)
         {
-            existing.quantity -= quantity;
-            return true;
+            return false;
         }
-        return false;
+
+        ShopStockItem existing = currentShopStock.Find(s => s.itemId == itemId);
+
+        if (existing == null || existing.quantity < quantity)
+        {
+            return false;
+        }
+
+        existing.quantity -= quantity;
+
+        if (existing.quantity <= 0)
+        {
+            currentShopStock.Remove(existing);
+        }
+
+        return true;
     }
 }
