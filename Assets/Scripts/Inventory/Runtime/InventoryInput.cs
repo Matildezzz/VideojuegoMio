@@ -100,7 +100,7 @@ public sealed class InventoryInput : MonoBehaviour
             return;
         }
 
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.iKey.wasPressedThisFrame)
         {
             if (inventoryUIController != null)
             {

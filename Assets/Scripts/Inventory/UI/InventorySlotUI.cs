@@ -7,6 +7,10 @@ using UnityEngine.UI;
 public sealed class InventorySlotUI : MonoBehaviour, IPointerClickHandler
 {
     [Header("UI")]
+    [SerializeField] private Image slotBackgroundImage;
+    [SerializeField] private Sprite normalBackgroundSprite;
+    [SerializeField] private Sprite selectedBackgroundSprite;
+
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text amountText;
     [SerializeField] private GameObject selectedHighlight;
@@ -43,6 +47,18 @@ public sealed class InventorySlotUI : MonoBehaviour, IPointerClickHandler
         if (amountText != null)
         {
             amountText.text = hasItem ? slot.Amount.ToString() : string.Empty;
+        }
+
+        if (slotBackgroundImage != null)
+        {
+            if (isSelected && selectedBackgroundSprite != null)
+            {
+                slotBackgroundImage.sprite = selectedBackgroundSprite;
+            }
+            else if (normalBackgroundSprite != null)
+            {
+                slotBackgroundImage.sprite = normalBackgroundSprite;
+            }
         }
 
         if (selectedHighlight != null)
