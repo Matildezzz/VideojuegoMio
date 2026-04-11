@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2217541430f879742a41f1e7799bd780, type: 3}
   m_Name: OldWomanDialogue
   m_EditorClassIdentifier: 
-  npcName: 
-  npcPortrait: {fileID: 0}
-  dialogueLines: []
-  autoProgressLines: 
-  endDialogueLines: 
+  npcName: Maryending
+  npcPortrait: {fileID: -7527145504033472756, guid: c10854e5418c21f45a20c20011772af5, type: 3}
+  dialogueLines:
+  - Hola. Bienvenido al pueblo.
+  - De momento solo estoy de charla.
+  autoProgressLines: 0000
+  endDialogueLines: 0001
   autoProgressDelay: 1.5
   typingSpeed: 0.05
   voiceSound: {fileID: 0}

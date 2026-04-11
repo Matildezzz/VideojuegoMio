@@ -91,10 +91,17 @@ public class TimeManager : MonoBehaviour
 
     public void SetTime(int newDay, int newHour, int newMinute)
     {
+        int previousDay = day;
+
         day = Mathf.Max(1, newDay);
         hour = Mathf.Clamp(newHour, 0, 23);
         minute = Mathf.Clamp(newMinute, 0, 59);
         timer = 0f;
+
+        if (day != previousDay)
+        {
+            OnDayChanged?.Invoke(day);
+        }
 
         NotifyTimeChanged();
     }

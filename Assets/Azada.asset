@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e13755cf85638f143af79d8f23c50b24, type: 3}
+  m_Name: Azada
+  m_EditorClassIdentifier: 
+  itemId: azada
+  displayName: Azada
+  icon: {fileID: 5827638716017627413, guid: e916ba07d67a7b94b93ff3a507d1792f, type: 3}
+  worldPrefab: {fileID: 0}
+  stackable: 0
+  maxStack: 1
+  category: 2
+  buyPrice: 10
+  sellPriceMultiplier: 0.5
+  toolType: 3
