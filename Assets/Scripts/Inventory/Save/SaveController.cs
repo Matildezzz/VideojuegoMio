@@ -57,6 +57,14 @@ public sealed class SaveController : MonoBehaviour
         GameSaveData gameSave = new GameSaveData();
 
         gameSave.playerInventory = BuildPlayerInventorySaveData(playerInventory);
+        gameSave.hasPlayerPosition = true;
+        gameSave.playerPosition = playerInventory.transform.position;
+
+        if (CurrencyController.Instance != null)
+        {
+            gameSave.hasPlayerGold = true;
+            gameSave.playerGold = CurrencyController.Instance.GetGold();
+        }
 
         RefreshChestReferences();
 
@@ -120,6 +128,16 @@ public sealed class SaveController : MonoBehaviour
         }
 
         LoadPlayerInventory(playerInventory, gameSave.playerInventory);
+
+        if (gameSave.hasPlayerPosition)
+        {
+            playerInventory.transform.position = gameSave.playerPosition;
+        }
+
+        if (gameSave.hasPlayerGold && CurrencyController.Instance != null)
+        {
+            CurrencyController.Instance.SetGold(gameSave.playerGold);
+        }
 
         RefreshChestReferences();
 

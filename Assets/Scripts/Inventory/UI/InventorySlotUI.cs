@@ -4,7 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class InventorySlotUI : MonoBehaviour, IPointerClickHandler
+public sealed class InventorySlotUI : MonoBehaviour,
+    IPointerClickHandler,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler,
+    IDropHandler
 {
     [Header("UI")]
     [SerializeField] private Image slotBackgroundImage;
@@ -18,18 +23,32 @@ public sealed class InventorySlotUI : MonoBehaviour, IPointerClickHandler
 
     private InventoryUISlotSource slotSource;
     private int slotIndex;
+
     private Action<InventoryUISlotSource, int, PointerEventData> clickCallback;
+    private Action<InventoryUISlotSource, int, PointerEventData> beginDragCallback;
+    private Action<PointerEventData> dragCallback;
+    private Action<InventoryUISlotSource, int, PointerEventData> endDragCallback;
+    private Action<InventoryUISlotSource, int, PointerEventData> dropCallback;
 
     public void Bind(
         InventoryUISlotSource source,
         int index,
         InventorySlot slot,
         bool isSelected,
-        Action<InventoryUISlotSource, int, PointerEventData> onClick)
+        Action<InventoryUISlotSource, int, PointerEventData> onClick,
+        Action<InventoryUISlotSource, int, PointerEventData> onBeginDrag = null,
+        Action<PointerEventData> onDrag = null,
+        Action<InventoryUISlotSource, int, PointerEventData> onEndDrag = null,
+        Action<InventoryUISlotSource, int, PointerEventData> onDrop = null)
     {
         slotSource = source;
         slotIndex = index;
+
         clickCallback = onClick;
+        beginDragCallback = onBeginDrag;
+        dragCallback = onDrag;
+        endDragCallback = onEndDrag;
+        dropCallback = onDrop;
 
         Refresh(slot, isSelected);
     }
@@ -75,5 +94,25 @@ public sealed class InventorySlotUI : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         clickCallback?.Invoke(slotSource, slotIndex, eventData);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        beginDragCallback?.Invoke(slotSource, slotIndex, eventData);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        dragCallback?.Invoke(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        endDragCallback?.Invoke(slotSource, slotIndex, eventData);
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        dropCallback?.Invoke(slotSource, slotIndex, eventData);
     }
 }
