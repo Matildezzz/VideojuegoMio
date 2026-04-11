@@ -1,48 +1,102 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class DialogueController : MonoBehaviour
 {
-    public static DialogueController Instance {get; private set; } // Singleton Instance
-    public GameObject dialoguePanel;
-    public TMP_Text dialogueText, nameText;
-    public Image portraitImage;
-    public Transform choiceContainer;
-    public GameObject choiceButtonPrefab;
+    public static DialogueController Instance { get; private set; }
 
-    void Awake()
+    [Header("Referencias")]
+    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField] private TMP_Text nameText;
+    [SerializeField] private Image portraitImage;
+    [SerializeField] private Transform choiceContainer;
+    [SerializeField] private GameObject choiceButtonPrefab;
+
+    private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject); // Make sure only one instance
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        ShowDialogueUI(false);
     }
 
     public void ShowDialogueUI(bool show)
     {
-        dialoguePanel.SetActive(show); // Toggle UI visability
+        if (dialoguePanel != null)
+        {
+            dialoguePanel.SetActive(show);
+        }
     }
 
     public void SetNPCInfo(string npcName, Sprite portrait)
     {
-        nameText.text = npcName;
-        portraitImage.sprite = portrait;
+        if (nameText != null)
+        {
+            nameText.text = npcName;
+        }
+
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = portrait;
+            portraitImage.enabled = portrait != null;
+        }
     }
 
     public void SetDialogueText(string text)
     {
-        dialogueText.text = text;
+        if (dialogueText != null)
+        {
+            dialogueText.text = text;
+        }
     }
 
     public void ClearChoices()
     {
-        foreach (Transform child in choiceContainer) Destroy(child.gameObject);
+        if (choiceContainer == null)
+        {
+            return;
+        }
+
+        foreach (Transform child in choiceContainer)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
-    public GameObject CreateChoiceButton(string choiceText, UnityEngine.Events.UnityAction onClick)
+    public GameObject CreateChoiceButton(string choiceText, UnityAction onClick)
     {
+        if (choiceContainer == null || choiceButtonPrefab == null)
+        {
+            return null;
+        }
+
         GameObject choiceButton = Instantiate(choiceButtonPrefab, choiceContainer);
-        choiceButton.GetComponentInChildren<TMP_Text>().text = choiceText;
-        choiceButton.GetComponent<Button>().onClick.AddListener(onClick);
+
+        TMP_Text buttonText = choiceButton.GetComponentInChildren<TMP_Text>();
+        if (buttonText != null)
+        {
+            buttonText.text = choiceText;
+        }
+
+        Button button = choiceButton.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(onClick);
+        }
+
         return choiceButton;
     }
 }

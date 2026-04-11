@@ -1,21 +1,32 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class NPC : MonoBehaviour, IInteractable
 {
-    public NPCDialogue dialogueData;
+    [SerializeField] private NPCDialogue dialogueData;
+
     private DialogueController dialogueUI;
     private int dialogueIndex;
-    private bool isTyping, isDialogueActive;
+    private bool isTyping;
+    private bool isDialogueActive;
 
-    private enum QuestState {NotStarted, InProgress, Completed}
+    private enum QuestState
+    {
+        NotStarted,
+        InProgress,
+        Completed
+    }
+
     private QuestState questState = QuestState.NotStarted;
 
     private void Start()
     {
         dialogueUI = DialogueController.Instance;
+
+        if (dialogueUI == null)
+        {
+            Debug.LogWarning("NPC: no se encontró DialogueController en la escena.");
+        }
     }
 
     public bool CanInteract()
@@ -25,10 +36,16 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // If no dialogue data or the game is paused and no dialogue is active
-        if(dialogueData == null || (PauseController.IsGamePaused && !isDialogueActive))
+        if (dialogueData == null || dialogueUI == null)
+        {
             return;
-            
+        }
+
+        if (PauseController.IsGamePaused && !isDialogueActive)
+        {
+            return;
+        }
+
         if (isDialogueActive)
         {
             NextLine();
@@ -39,13 +56,17 @@ public class NPC : MonoBehaviour, IInteractable
         }
     }
 
-    void StartDialogue()
+    private void StartDialogue()
     {
-        // Sync with quest data
+        if (dialogueData.dialogueLines == null || dialogueData.dialogueLines.Length == 0)
+        {
+            Debug.LogWarning("NPC: el diálogo no tiene líneas.");
+            return;
+        }
+
         SyncQuestState();
 
-        // Set dialogue line based on QuestState
-        if(questState == QuestState.NotStarted)
+        if (questState == QuestState.NotStarted)
         {
             dialogueIndex = 0;
         }
@@ -53,10 +74,12 @@ public class NPC : MonoBehaviour, IInteractable
         {
             dialogueIndex = dialogueData.questInProgressIndex;
         }
-        else if (questState == QuestState.Completed)
+        else
         {
             dialogueIndex = dialogueData.questCompletedIndex;
         }
+
+        dialogueIndex = Mathf.Clamp(dialogueIndex, 0, dialogueData.dialogueLines.Length - 1);
 
         isDialogueActive = true;
 
@@ -69,12 +92,16 @@ public class NPC : MonoBehaviour, IInteractable
 
     private void SyncQuestState()
     {
-        if(dialogueData.quest == null) return;
+        questState = QuestState.NotStarted;
+
+        if (dialogueData == null || dialogueData.quest == null || QuestController.Instance == null)
+        {
+            return;
+        }
 
         string questID = dialogueData.quest.questID;
 
-        // Future update add completing quest and handing in!
-        if(QuestController.Instance.IsQuestCompleted(questID) || QuestController.Instance.IsQuestHandedIn(questID))
+        if (QuestController.Instance.IsQuestCompleted(questID) || QuestController.Instance.IsQuestHandedIn(questID))
         {
             questState = QuestState.Completed;
         }
@@ -82,104 +109,121 @@ public class NPC : MonoBehaviour, IInteractable
         {
             questState = QuestState.InProgress;
         }
+    }
+
+    private void NextLine()
+    {
+        if (dialogueData == null || dialogueData.dialogueLines == null || dialogueData.dialogueLines.Length == 0)
+        {
+            EndDialogue();
+            return;
+        }
+
+        if (isTyping)
+        {
+            StopAllCoroutines();
+            dialogueUI.SetDialogueText(dialogueData.dialogueLines[dialogueIndex]);
+            isTyping = false;
+            return;
+        }
+
+        dialogueUI.ClearChoices();
+
+        if (dialogueData.endDialogueLines != null &&
+            dialogueIndex < dialogueData.endDialogueLines.Length &&
+            dialogueData.endDialogueLines[dialogueIndex])
+        {
+            EndDialogue();
+            return;
+        }
+
+        if (dialogueData.choices != null)
+        {
+            foreach (DialogueChoice dialogueChoice in dialogueData.choices)
+            {
+                if (dialogueChoice != null && dialogueChoice.dialogueIndex == dialogueIndex)
+                {
+                    DisplayChoice(dialogueChoice);
+                    return;
+                }
+            }
+        }
+
+        dialogueIndex++;
+
+        if (dialogueIndex < dialogueData.dialogueLines.Length)
+        {
+            DisplayCurrentLine();
+        }
         else
         {
-            questState = QuestState.NotStarted;
+            EndDialogue();
         }
     }
 
-    void NextLine()
-{
-    if (isTyping)
-    {
-        // Skip typing animation and show the full line
-        StopAllCoroutines();
-        dialogueUI.SetDialogueText(dialogueData.dialogueLines[dialogueIndex]);
-        isTyping = false;
-        return;
-    }
-
-    // Clear choices
-    dialogueUI.ClearChoices();
-
-    // Check endDialogueLines
-    if(dialogueData.endDialogueLines.Length > dialogueIndex && dialogueData.endDialogueLines[dialogueIndex])
-    {
-        EndDialogue();
-        return;
-    }
-
-    // Check if choices & display
-    foreach(DialogueChoice dialogueChoice in dialogueData.choices)
-    {
-        if(dialogueChoice.dialogueIndex == dialogueIndex)
-            {
-                DisplayChoice(dialogueChoice);
-                return;
-            }
-    }
-
-    dialogueIndex++;
-
-    if (dialogueIndex < dialogueData.dialogueLines.Length)
-    {
-        // If another line type next line
-        DisplayCurrentLine();
-    }
-    else
-    {
-        EndDialogue();
-    }
-}
-
-    IEnumerator TypeLine()
+    private IEnumerator TypeLine()
     {
         isTyping = true;
         dialogueUI.SetDialogueText("");
 
-        foreach (char letter in dialogueData.dialogueLines[dialogueIndex])
+        string currentLine = dialogueData.dialogueLines[dialogueIndex];
+
+        for (int i = 0; i < currentLine.Length; i++)
         {
-            dialogueUI.SetDialogueText(dialogueUI.dialogueText.text += letter);
-            SoundEffectManager.PlayVoice(dialogueData.voiceSound, dialogueData.voicePitch);
-            yield return new WaitForSeconds(dialogueData.typingSpeed);
+            dialogueUI.SetDialogueText(currentLine.Substring(0, i + 1));
+
+            if (dialogueData.voiceSound != null)
+            {
+                SoundEffectManager.PlayVoice(dialogueData.voiceSound, dialogueData.voicePitch);
+            }
+
+            yield return new WaitForSecondsRealtime(dialogueData.typingSpeed);
         }
 
         isTyping = false;
 
-        if (dialogueData.autoProgressLines.Length > dialogueIndex && dialogueData.autoProgressLines[dialogueIndex])
+        if (dialogueData.autoProgressLines != null &&
+            dialogueIndex < dialogueData.autoProgressLines.Length &&
+            dialogueData.autoProgressLines[dialogueIndex])
         {
-            yield return new WaitForSeconds(dialogueData.autoProgressDelay);
+            yield return new WaitForSecondsRealtime(dialogueData.autoProgressDelay);
             NextLine();
         }
     }
 
-    void DisplayChoice(DialogueChoice choice)
+    private void DisplayChoice(DialogueChoice choice)
     {
-        for(int i = 0; i < choice.choices.Length; i++)
+        if (choice.choices == null || choice.nextDialogueIndexes == null || choice.givesQuest == null)
+        {
+            return;
+        }
+
+        int amount = Mathf.Min(choice.choices.Length, choice.nextDialogueIndexes.Length, choice.givesQuest.Length);
+
+        for (int i = 0; i < amount; i++)
         {
             int nextIndex = choice.nextDialogueIndexes[i];
             bool givesQuest = choice.givesQuest[i];
-            dialogueUI.CreateChoiceButton(choice.choices[i], () => ChooseOption(nextIndex, givesQuest));
+            string choiceText = choice.choices[i];
+
+            dialogueUI.CreateChoiceButton(choiceText, () => ChooseOption(nextIndex, givesQuest));
         }
     }
 
-    void ChooseOption(int nextIndex, bool givesQuest)
+    private void ChooseOption(int nextIndex, bool givesQuest)
     {
-        if (givesQuest)
+        if (givesQuest && dialogueData.quest != null && QuestController.Instance != null)
         {
-            if (givesQuest && dialogueData.quest != null)
-            {
-                QuestController.Instance.AcceptQuest(dialogueData.quest);
-                questState = QuestState.InProgress;
-            }
+            QuestController.Instance.AcceptQuest(dialogueData.quest);
+            questState = QuestState.InProgress;
         }
 
         dialogueIndex = nextIndex;
         dialogueUI.ClearChoices();
-        DisplayCurrentLine();    
+        DisplayCurrentLine();
     }
 
-    void DisplayCurrentLine()
+    private void DisplayCurrentLine()
     {
         StopAllCoroutines();
         StartCoroutine(TypeLine());
@@ -187,21 +231,43 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void EndDialogue()
     {
-        if(questState == QuestState.Completed && !QuestController.Instance.IsQuestHandedIn(dialogueData.quest.questID))
+        if (questState == QuestState.Completed &&
+            dialogueData != null &&
+            dialogueData.quest != null &&
+            QuestController.Instance != null &&
+            !QuestController.Instance.IsQuestHandedIn(dialogueData.quest.questID))
         {
             HandleQuestCompletion(dialogueData.quest);
         }
 
         StopAllCoroutines();
         isDialogueActive = false;
-        dialogueUI.SetDialogueText("");
-        dialogueUI.ShowDialogueUI(false);
+
+        if (dialogueUI != null)
+        {
+            dialogueUI.SetDialogueText("");
+            dialogueUI.ClearChoices();
+            dialogueUI.ShowDialogueUI(false);
+        }
+
         PauseController.SetPause(false);
     }
 
-    void HandleQuestCompletion(Quest quest)
+    private void HandleQuestCompletion(Quest quest)
     {
-        RewardController.Instance.GiveQuestReward(quest);
-        QuestController.Instance.HandInQuest(quest.questID);
+        if (quest == null)
+        {
+            return;
+        }
+
+        if (RewardController.Instance != null)
+        {
+            RewardController.Instance.GiveQuestReward(quest);
+        }
+
+        if (QuestController.Instance != null)
+        {
+            QuestController.Instance.HandInQuest(quest.questID);
+        }
     }
 }
