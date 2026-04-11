@@ -28,6 +28,10 @@ public class ScreenFader : MonoBehaviour
             return;
         }
 
+        canvasGroup.gameObject.SetActive(true);
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+
         if (vcam == null)
         {
             Debug.LogError("ScreenFader: vcam no está asignada.");
@@ -47,6 +51,9 @@ public class ScreenFader : MonoBehaviour
 
     async Task Fade(float targetTransparency)
     {
+        canvasGroup.gameObject.SetActive(true);
+        canvasGroup.blocksRaycasts = targetTransparency > 0f;
+
         float start = canvasGroup.alpha;
         float t = 0f;
 
