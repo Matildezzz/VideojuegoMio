@@ -1,6 +1,6 @@
-using UnityEngine;
+using System;
 
-[SerializeField]
+[Serializable]
 public class SlotSaveData
 {
     public string itemId;
