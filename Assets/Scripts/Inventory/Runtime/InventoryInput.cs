@@ -25,6 +25,11 @@ public sealed class InventoryInput : MonoBehaviour
             return;
         }
 
+        if (PauseController.IsGamePaused)
+        {
+            return;
+        }
+
         HandleHotbarNumberKeys();
         HandleMouseWheel();
         HandleUseSelectedItem();

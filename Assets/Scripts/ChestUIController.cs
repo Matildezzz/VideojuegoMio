@@ -39,6 +39,11 @@ public sealed class ChestUIController : MonoBehaviour
     {
         UnsubscribePlayer();
         UnsubscribeChest();
+
+        if (IsOpen)
+        {
+            PauseController.SetPause(false);
+        }
     }
 
     public void OpenChest(ChestInventory chest)
@@ -76,6 +81,7 @@ public sealed class ChestUIController : MonoBehaviour
             chestUIRoot.SetActive(true);
         }
 
+        PauseController.SetPause(true);
         RefreshAll();
     }
 
@@ -99,6 +105,8 @@ public sealed class ChestUIController : MonoBehaviour
         {
             chestUIRoot.SetActive(false);
         }
+
+        PauseController.SetPause(false);
     }
 
     private void SubscribePlayer()
