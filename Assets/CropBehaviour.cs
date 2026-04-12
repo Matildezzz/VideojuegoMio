@@ -107,6 +107,40 @@ public sealed class CropBehaviour : MonoBehaviour
         return receiver.TryAddItem(harvestItem, amount);
     }
 
+    public CropSaveData CaptureSaveData()
+    {
+        CropSaveData saveData = new CropSaveData();
+        saveData.stageIndex = stageIndex;
+        saveData.wateredDaysInCurrentStage = wateredDaysInCurrentStage;
+        saveData.dryDaysWithoutWater = dryDaysWithoutWater;
+        saveData.isHarvestable = isHarvestable;
+        saveData.isWithered = isWithered;
+        return saveData;
+    }
+
+    public void RestoreFromSaveData(CropSaveData saveData)
+    {
+        if (saveData == null)
+        {
+            OnPlanted();
+            return;
+        }
+
+        int maxStage = 0;
+        if (stageSprites != null && stageSprites.Length > 0)
+        {
+            maxStage = stageSprites.Length - 1;
+        }
+
+        stageIndex = Mathf.Clamp(saveData.stageIndex, 0, maxStage);
+        wateredDaysInCurrentStage = Mathf.Max(0, saveData.wateredDaysInCurrentStage);
+        dryDaysWithoutWater = Mathf.Max(0, saveData.dryDaysWithoutWater);
+        isWithered = saveData.isWithered;
+        isHarvestable = !isWithered && saveData.isHarvestable;
+
+        RefreshVisual();
+    }
+
     private int GetRequiredWateredDaysForCurrentStage()
     {
         if (wateredDaysPerStage == null || wateredDaysPerStage.Length == 0)

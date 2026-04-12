@@ -8,6 +8,7 @@ public sealed class SaveController : MonoBehaviour
     [SerializeField] private PlayerInventory playerInventory;
     [SerializeField] private ItemDatabase itemDatabase;
     [SerializeField] private ChestInventory[] chests;
+    [SerializeField] private FarmPlot[] farmPlots;
 
     [Header("Save")]
     [SerializeField] private string fileName = "saveData.json";
@@ -26,6 +27,11 @@ public sealed class SaveController : MonoBehaviour
         if (chests == null || chests.Length == 0)
         {
             chests = FindObjectsByType<ChestInventory>(FindObjectsSortMode.None);
+        }
+
+        if (farmPlots == null || farmPlots.Length == 0)
+        {
+            RefreshFarmPlotReferences();
         }
     }
 
@@ -84,6 +90,28 @@ public sealed class SaveController : MonoBehaviour
             gameSave.chests.Add(chestSave);
         }
 
+        if (TimeManager.Instance != null)
+        {
+            gameSave.hasTimeData = true;
+            gameSave.day = TimeManager.Instance.Day;
+            gameSave.hour = TimeManager.Instance.Hour;
+            gameSave.minute = TimeManager.Instance.Minute;
+        }
+
+        RefreshFarmPlotReferences();
+
+        for (int i = 0; i < farmPlots.Length; i++)
+        {
+            FarmPlot farmPlot = farmPlots[i];
+
+            if (farmPlot == null)
+            {
+                continue;
+            }
+
+            gameSave.farmPlots.Add(farmPlot.CaptureSaveData());
+        }
+
         string json = JsonUtility.ToJson(gameSave, true);
         File.WriteAllText(SavePath, json);
 
@@ -138,6 +166,64 @@ public sealed class SaveController : MonoBehaviour
         {
             CurrencyController.Instance.SetGold(gameSave.playerGold);
         }
+
+        if (gameSave.hasTimeData && TimeManager.Instance != null)
+        {
+            TimeManager.Instance.LoadTime(gameSave.day, gameSave.hour, gameSave.minute);
+        }
+
+        RefreshFarmPlotReferences();
+
+        Dictionary<string, FarmPlot> farmPlotMap = new Dictionary<string, FarmPlot>();
+
+        for (int i = 0; i < farmPlots.Length; i++)
+        {
+            FarmPlot farmPlot = farmPlots[i];
+
+            if (farmPlot == null)
+            {
+                continue;
+            }
+
+            farmPlot.ResetPlotState();
+
+            string plotKey = farmPlot.SaveKey;
+
+            if (string.IsNullOrWhiteSpace(plotKey))
+            {
+                continue;
+            }
+
+            if (farmPlotMap.ContainsKey(plotKey))
+            {
+                Debug.LogWarning("SaveController: FarmPlot duplicado con key -> " + plotKey);
+                continue;
+            }
+
+            farmPlotMap.Add(plotKey, farmPlot);
+        }
+
+    if (gameSave.farmPlots != null)
+    {
+        for (int i = 0; i < gameSave.farmPlots.Count; i++)
+        {
+            FarmPlotSaveData farmPlotSave = gameSave.farmPlots[i];
+
+            if (farmPlotSave == null || string.IsNullOrWhiteSpace(farmPlotSave.plotKey))
+            {
+                continue;
+            }
+
+            FarmPlot farmPlot;
+            if (!farmPlotMap.TryGetValue(farmPlotSave.plotKey, out farmPlot))
+            {
+                Debug.LogWarning("SaveController: no se encontró la parcela -> " + farmPlotSave.plotKey);
+                continue;
+            }
+
+            farmPlot.RestoreFromSaveData(farmPlotSave, itemDatabase);
+        }
+    }
 
         RefreshChestReferences();
 
@@ -347,4 +433,11 @@ public sealed class SaveController : MonoBehaviour
     {
         chests = FindObjectsByType<ChestInventory>(FindObjectsSortMode.None);
     }
+
+    private void RefreshFarmPlotReferences()
+    {
+        farmPlots = FindObjectsByType<FarmPlot>(FindObjectsSortMode.None);
+    }
+
+    
 }

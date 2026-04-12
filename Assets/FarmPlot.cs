@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public sealed class FarmPlot : MonoBehaviour, IInteractable
 {
@@ -15,6 +16,9 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
     private CropBehaviour currentCrop;
     private bool isTilled;
     private bool isWateredToday;
+    private string plantedSeedItemId = string.Empty;
+
+    public string SaveKey => BuildSaveKey();
 
     private void Awake()
     {
@@ -99,6 +103,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
         currentCrop = crop;
         currentCrop.OnPlanted();
+        plantedSeedItemId = seed.ItemId;
         isWateredToday = false;
         RefreshSoilVisual();
 
@@ -174,6 +179,89 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         RefreshSoilVisual();
     }
 
+    public FarmPlotSaveData CaptureSaveData()
+    {
+        FarmPlotSaveData saveData = new FarmPlotSaveData();
+        saveData.plotKey = SaveKey;
+        saveData.isTilled = isTilled;
+        saveData.isWateredToday = isWateredToday;
+        saveData.hasCrop = currentCrop != null;
+        saveData.seedItemId = plantedSeedItemId;
+
+        if (currentCrop != null)
+        {
+            saveData.crop = currentCrop.CaptureSaveData();
+        }
+
+        return saveData;
+    }
+
+    public void RestoreFromSaveData(FarmPlotSaveData saveData, ItemDatabase itemDatabase)
+    {
+        ResetPlotState();
+
+        if (saveData == null)
+        {
+            return;
+        }
+
+        isTilled = saveData.isTilled || saveData.hasCrop;
+        isWateredToday = saveData.isWateredToday;
+        plantedSeedItemId = saveData.seedItemId;
+
+        if (saveData.hasCrop && !string.IsNullOrWhiteSpace(saveData.seedItemId))
+        {
+            ItemData itemData = itemDatabase.GetItemById(saveData.seedItemId);
+            SeedItemData seed = itemData as SeedItemData;
+
+            if (seed == null || seed.CropPrefab == null)
+            {
+                Debug.LogWarning("FarmPlot: no se pudo reconstruir el cultivo para la semilla -> " + saveData.seedItemId);
+                RefreshSoilVisual();
+                return;
+            }
+
+            GameObject cropObject = Instantiate(seed.CropPrefab, cropAnchor.position, Quaternion.identity, cropAnchor);
+            cropObject.transform.localPosition = Vector3.zero;
+
+            CropBehaviour crop = cropObject.GetComponent<CropBehaviour>();
+            if (crop == null)
+            {
+                Debug.LogWarning("FarmPlot: el CropPrefab no tiene CropBehaviour al restaurar.");
+                Destroy(cropObject);
+                RefreshSoilVisual();
+                return;
+            }
+
+            currentCrop = crop;
+            currentCrop.RestoreFromSaveData(saveData.crop);
+        }
+
+        RefreshSoilVisual();
+    }
+
+    public void ResetPlotState()
+    {
+        if (currentCrop != null)
+        {
+            if (Application.isPlaying)
+            {
+                Destroy(currentCrop.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(currentCrop.gameObject);
+            }
+
+            currentCrop = null;
+        }
+
+        isTilled = false;
+        isWateredToday = false;
+        plantedSeedItemId = string.Empty;
+        RefreshSoilVisual();
+    }
+
     private void ClearCrop()
     {
         if (currentCrop != null)
@@ -182,6 +270,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             currentCrop = null;
         }
 
+        plantedSeedItemId = string.Empty;
         isWateredToday = false;
         RefreshSoilVisual();
     }
@@ -200,5 +289,19 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         }
 
         soilRenderer.sprite = isWateredToday ? tilledWetSprite : tilledDrySprite;
+    }
+
+    private string BuildSaveKey()
+    {
+        Vector3 position = transform.position;
+        int x = Mathf.RoundToInt(position.x * 100f);
+        int y = Mathf.RoundToInt(position.y * 100f);
+        int z = Mathf.RoundToInt(position.z * 100f);
+
+        string sceneName = gameObject.scene.IsValid()
+            ? gameObject.scene.name
+            : SceneManager.GetActiveScene().name;
+
+        return sceneName + "_" + x + "_" + y + "_" + z;
     }
 }

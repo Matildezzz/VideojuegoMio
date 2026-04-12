@@ -113,5 +113,15 @@ public class TimeManager : MonoBehaviour
             AdvanceOneMinute();
         }
     }
+
+    public void LoadTime(int newDay, int newHour, int newMinute)
+    {
+        day = Mathf.Max(1, newDay);
+        hour = Mathf.Clamp(newHour, 0, 23);
+        minute = Mathf.Clamp(newMinute, 0, 59);
+        timer = 0f;
+
+        NotifyTimeChanged();
+    }
 }
 
