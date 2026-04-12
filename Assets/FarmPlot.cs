@@ -76,20 +76,21 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             + TimeManager.Instance.Minute;
     }
 
-    private void OnEnable()
+    private void Start()
     {
         if (TimeManager.Instance != null)
         {
             TimeManager.Instance.OnDayChanged += HandleDayChanged;
         }
-    }
+        else
+        {
+            Debug.LogWarning("FarmPlot: no se encontró TimeManager al iniciar.");
+        }
 
-    private void Start()
-    {
         RefreshSoilVisual();
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (TimeManager.Instance != null)
         {
@@ -222,15 +223,15 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
     private void HandleDayChanged(int newDay)
     {
+        Debug.Log("FarmPlot -> cambio de día recibido. Día: " + newDay);
+
         if (currentCrop != null)
         {
+            Debug.Log("FarmPlot -> avanzando cultivo. Regado hoy: " + isWateredToday);
             currentCrop.AdvanceDay(isWateredToday);
         }
 
         isWateredToday = false;
-        isCurrentlyWet = false;
-        wetUntilTotalMinutes = -1;
-
         RefreshSoilVisual();
     }
 

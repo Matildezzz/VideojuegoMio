@@ -46,6 +46,8 @@ public sealed class CropBehaviour : MonoBehaviour
 
     public void AdvanceDay(bool wasWateredToday)
     {
+        Debug.Log("CropBehaviour -> AdvanceDay. wasWateredToday = " + wasWateredToday + ", stageIndex actual = " + stageIndex);
+
         if (isHarvestable || isWithered)
         {
             return;
@@ -61,6 +63,8 @@ public sealed class CropBehaviour : MonoBehaviour
 
                 int requiredDays = GetRequiredWateredDaysForCurrentStage();
 
+                Debug.Log("CropBehaviour -> wateredDaysInCurrentStage = " + wateredDaysInCurrentStage + ", requiredDays = " + requiredDays);
+
                 if (wateredDaysInCurrentStage >= requiredDays)
                 {
                     wateredDaysInCurrentStage = 0;
@@ -72,6 +76,7 @@ public sealed class CropBehaviour : MonoBehaviour
                         isHarvestable = true;
                     }
 
+                    Debug.Log("CropBehaviour -> nuevo stageIndex = " + stageIndex);
                     RefreshVisual();
                 }
             }
