@@ -18,6 +18,11 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
     private bool isWateredToday;
     private string plantedSeedItemId = string.Empty;
 
+    [SerializeField] private int wetDurationHours = 6;
+
+    private bool isCurrentlyWet;
+    private int wetUntilTotalMinutes = -1;
+
     public string SaveKey => BuildSaveKey();
 
     private void Awake()
@@ -31,6 +36,44 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         {
             playerInventory = FindFirstObjectByType<PlayerInventory>();
         }
+    }
+
+    private void Update()
+    {
+        UpdateWetStateOverTime();
+    }
+
+    private void UpdateWetStateOverTime()
+    {
+        if (!isCurrentlyWet)
+        {
+            return;
+        }
+
+        if (TimeManager.Instance == null)
+        {
+            return;
+        }
+
+        int currentTotalMinutes = GetCurrentTotalMinutes();
+
+        if (currentTotalMinutes >= wetUntilTotalMinutes)
+        {
+            isCurrentlyWet = false;
+            RefreshSoilVisual();
+        }
+    }
+
+    private int GetCurrentTotalMinutes()
+    {
+        if (TimeManager.Instance == null)
+        {
+            return 0;
+        }
+
+        return ((TimeManager.Instance.Day - 1) * 1440)
+            + (TimeManager.Instance.Hour * 60)
+            + TimeManager.Instance.Minute;
     }
 
     private void OnEnable()
@@ -74,6 +117,8 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
         isTilled = true;
         isWateredToday = false;
+        isCurrentlyWet = false;
+        wetUntilTotalMinutes = -1;
         RefreshSoilVisual();
         return true;
     }
@@ -122,12 +167,19 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             return false;
         }
 
-        if (isWateredToday)
+        if (isCurrentlyWet)
         {
             return false;
         }
 
-        isWateredToday = true;
+        if (!isWateredToday)
+        {
+            isWateredToday = true;
+        }
+
+        isCurrentlyWet = true;
+        wetUntilTotalMinutes = GetCurrentTotalMinutes() + (Mathf.Max(1, wetDurationHours) * 60);
+
         RefreshSoilVisual();
         return true;
     }
@@ -176,6 +228,9 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         }
 
         isWateredToday = false;
+        isCurrentlyWet = false;
+        wetUntilTotalMinutes = -1;
+
         RefreshSoilVisual();
     }
 
@@ -185,6 +240,8 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         saveData.plotKey = SaveKey;
         saveData.isTilled = isTilled;
         saveData.isWateredToday = isWateredToday;
+        saveData.isCurrentlyWet = isCurrentlyWet;
+        saveData.wetUntilTotalMinutes = wetUntilTotalMinutes;
         saveData.hasCrop = currentCrop != null;
         saveData.seedItemId = plantedSeedItemId;
 
@@ -207,6 +264,8 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
         isTilled = saveData.isTilled || saveData.hasCrop;
         isWateredToday = saveData.isWateredToday;
+        isCurrentlyWet = saveData.isCurrentlyWet;
+        wetUntilTotalMinutes = saveData.wetUntilTotalMinutes;
         plantedSeedItemId = saveData.seedItemId;
 
         if (saveData.hasCrop && !string.IsNullOrWhiteSpace(saveData.seedItemId))
@@ -237,6 +296,16 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             currentCrop.RestoreFromSaveData(saveData.crop);
         }
 
+        if (TimeManager.Instance != null && isCurrentlyWet)
+        {
+            int currentTotalMinutes = GetCurrentTotalMinutes();
+
+            if (currentTotalMinutes >= wetUntilTotalMinutes)
+            {
+                isCurrentlyWet = false;
+            }
+        }
+
         RefreshSoilVisual();
     }
 
@@ -258,6 +327,8 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
         isTilled = false;
         isWateredToday = false;
+        isCurrentlyWet = false;
+        wetUntilTotalMinutes = -1;
         plantedSeedItemId = string.Empty;
         RefreshSoilVisual();
     }
@@ -266,12 +337,22 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
     {
         if (currentCrop != null)
         {
-            Destroy(currentCrop.gameObject);
+            if (Application.isPlaying)
+            {
+                Destroy(currentCrop.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(currentCrop.gameObject);
+            }
+
             currentCrop = null;
         }
 
         plantedSeedItemId = string.Empty;
         isWateredToday = false;
+        isCurrentlyWet = false;
+        wetUntilTotalMinutes = -1;
         RefreshSoilVisual();
     }
 
@@ -288,7 +369,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             return;
         }
 
-        soilRenderer.sprite = isWateredToday ? tilledWetSprite : tilledDrySprite;
+        soilRenderer.sprite = isCurrentlyWet ? tilledWetSprite : tilledDrySprite;
     }
 
     private string BuildSaveKey()
