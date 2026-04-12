@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: semTrigo
   displayName: Semilla de Trigo
   icon: {fileID: 5196230094273877852, guid: f62c17ad3afd2a845a6a929b30b9e550, type: 3}
-  worldPrefab: {fileID: 6198014508684152257, guid: 08a05c8f537742c46a24bb22b38b1a39, type: 3}
+  worldPrefab: {fileID: 1836824800585820699, guid: 27d234bbb20261542a56a630bea835b7, type: 3}
   stackable: 1
   maxStack: 99
   category: 5
