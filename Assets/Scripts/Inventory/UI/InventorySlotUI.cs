@@ -61,6 +61,7 @@ public sealed class InventorySlotUI : MonoBehaviour,
         {
             iconImage.enabled = hasItem;
             iconImage.sprite = hasItem ? slot.Item.Icon : null;
+            iconImage.preserveAspect = true;
         }
 
         if (amountText != null)
