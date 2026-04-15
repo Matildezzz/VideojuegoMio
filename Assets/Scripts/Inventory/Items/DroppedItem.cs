@@ -67,9 +67,25 @@ public sealed class DroppedItem : MonoBehaviour
 
     private void RefreshVisual()
     {
-        if (iconRenderer != null && itemData != null)
+        if (iconRenderer == null)
+        {
+            iconRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        if (iconRenderer == null)
+        {
+            return;
+        }
+
+        if (itemData != null && itemData.Icon != null)
         {
             iconRenderer.sprite = itemData.Icon;
+            iconRenderer.enabled = true;
+        }
+        else
+        {
+            iconRenderer.sprite = null;
+            iconRenderer.enabled = false;
         }
     }
 }

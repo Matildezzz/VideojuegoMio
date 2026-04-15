@@ -11,10 +11,6 @@ public class MuseumPedestal : MonoBehaviour
     [Header("Opcional UI")]
     [SerializeField] private Image displayImage;
 
-    [Header("Estados")]
-    [SerializeField] private GameObject donatedVisual;
-    [SerializeField] private GameObject missingVisual;
-
     private void Start()
     {
         Refresh();
@@ -46,26 +42,18 @@ public class MuseumPedestal : MonoBehaviour
         bool donated = MuseumController.Instance != null && MuseumController.Instance.IsDonated(requiredItem);
         bool hasIcon = requiredItem.Icon != null;
 
-        if (donatedVisual != null)
-        {
-            donatedVisual.SetActive(donated);
-        }
-
-        if (missingVisual != null)
-        {
-            missingVisual.SetActive(!donated);
-        }
-
         if (displayImage != null)
         {
             displayImage.sprite = requiredItem.Icon;
-            displayImage.enabled = donated && hasIcon;
+            displayImage.enabled = hasIcon;
+            displayImage.color = donated ? Color.white : new Color(1f, 1f, 1f, 0.45f);
         }
 
         if (worldDisplaySprite != null)
         {
             worldDisplaySprite.sprite = requiredItem.Icon;
-            worldDisplaySprite.enabled = donated && hasIcon;
+            worldDisplaySprite.enabled = hasIcon;
+            worldDisplaySprite.color = donated ? Color.white : new Color(1f, 1f, 1f, 0.45f);
         }
     }
 }
