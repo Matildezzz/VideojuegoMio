@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MapTransition : MonoBehaviour
 {
@@ -47,7 +49,6 @@ public class MapTransition : MonoBehaviour
         }
 
         _ = FadeTransition(collision.gameObject);
-        MapController_Manual.Instance?.HighlightArea(mapBoundry.name);
     }
 
     private async Task FadeTransition(GameObject player)
@@ -55,34 +56,73 @@ public class MapTransition : MonoBehaviour
         isTransitioning = true;
         lastTransitionTime = Time.unscaledTime;
 
-        PauseController.SetPause(true);
+        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        PlayerInput playerInput = player.GetComponent<PlayerInput>();
+        PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
 
-        if (ScreenFader.Instance != null)
+        try
         {
-            await ScreenFader.Instance.FadeOut();
-        }
+            PauseController.SetPause(true);
 
-        if (confiner != null && mapBoundry != null)
+            if (playerInput != null)
+            {
+                playerInput.DeactivateInput();
+            }
+
+            if (playerMovement != null)
+            {
+                playerMovement.ForceStop();
+            }
+
+            if (ScreenFader.Instance != null)
+            {
+                await ScreenFader.Instance.FadeOut();
+            }
+
+            if (confiner != null && mapBoundry != null)
+            {
+                confiner.BoundingShape2D = mapBoundry;
+                confiner.InvalidateBoundingShapeCache();
+            }
+
+            UpdatePlayerPosition(player, rb);
+            Physics2D.SyncTransforms();
+
+            await Task.Yield();
+            await Task.Yield();
+
+            if (ScreenFader.Instance != null)
+            {
+                await ScreenFader.Instance.FadeIn();
+            }
+
+            if (mapBoundry != null)
+            {
+                MapController_Manual.Instance?.HighlightArea(mapBoundry.name);
+            }
+        }
+        catch (Exception e)
         {
-            confiner.BoundingShape2D = mapBoundry;
-            confiner.InvalidateBoundingShapeCache();
+            Debug.LogError($"Error en transición '{name}': {e}");
         }
-
-        UpdatePlayerPosition(player);
-
-        await Task.Yield();
-        await Task.Yield();
-
-        if (ScreenFader.Instance != null)
+        finally
         {
-            await ScreenFader.Instance.FadeIn();
-        }
+            if (playerMovement != null)
+            {
+                playerMovement.ForceStop();
+            }
 
-        PauseController.SetPause(false);
-        isTransitioning = false;
+            if (playerInput != null)
+            {
+                playerInput.ActivateInput();
+            }
+
+            PauseController.SetPause(false);
+            isTransitioning = false;
+        }
     }
 
-    private void UpdatePlayerPosition(GameObject player)
+    private void UpdatePlayerPosition(GameObject player, Rigidbody2D rb)
     {
         Vector2 targetPos = player.transform.position;
 
@@ -108,27 +148,23 @@ public class MapTransition : MonoBehaviour
                     break;
 
                 case Direction.Left:
-                    newPos.x += additivePos;
+                    newPos.x -= additivePos;
                     break;
 
                 case Direction.Right:
-                    newPos.x -= additivePos;
+                    newPos.x += additivePos;
                     break;
             }
 
             targetPos = newPos;
         }
 
-        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.position = targetPos;
         }
-        else
-        {
-            player.transform.position = targetPos;
-        }
+
+        player.transform.position = targetPos;
     }
 }

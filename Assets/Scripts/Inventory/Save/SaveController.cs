@@ -112,6 +112,11 @@ public sealed class SaveController : MonoBehaviour
             gameSave.farmPlots.Add(farmPlot.CaptureSaveData());
         }
 
+        if (MuseumController.Instance != null)
+        {
+            gameSave.museumDonatedItemIds = new List<string>(MuseumController.Instance.DonatedItemIds);
+        }
+
         string json = JsonUtility.ToJson(gameSave, true);
         File.WriteAllText(SavePath, json);
 
@@ -172,6 +177,11 @@ public sealed class SaveController : MonoBehaviour
             TimeManager.Instance.LoadTime(gameSave.day, gameSave.hour, gameSave.minute);
         }
 
+        if (MuseumController.Instance != null)
+        {
+            MuseumController.Instance.LoadDonations(gameSave.museumDonatedItemIds);
+        }
+
         RefreshFarmPlotReferences();
 
         Dictionary<string, FarmPlot> farmPlotMap = new Dictionary<string, FarmPlot>();
@@ -203,27 +213,27 @@ public sealed class SaveController : MonoBehaviour
             farmPlotMap.Add(plotKey, farmPlot);
         }
 
-    if (gameSave.farmPlots != null)
-    {
-        for (int i = 0; i < gameSave.farmPlots.Count; i++)
+        if (gameSave.farmPlots != null)
         {
-            FarmPlotSaveData farmPlotSave = gameSave.farmPlots[i];
-
-            if (farmPlotSave == null || string.IsNullOrWhiteSpace(farmPlotSave.plotKey))
+            for (int i = 0; i < gameSave.farmPlots.Count; i++)
             {
-                continue;
-            }
+                FarmPlotSaveData farmPlotSave = gameSave.farmPlots[i];
 
-            FarmPlot farmPlot;
-            if (!farmPlotMap.TryGetValue(farmPlotSave.plotKey, out farmPlot))
-            {
-                Debug.LogWarning("SaveController: no se encontró la parcela -> " + farmPlotSave.plotKey);
-                continue;
-            }
+                if (farmPlotSave == null || string.IsNullOrWhiteSpace(farmPlotSave.plotKey))
+                {
+                    continue;
+                }
 
-            farmPlot.RestoreFromSaveData(farmPlotSave, itemDatabase);
+                FarmPlot farmPlot;
+                if (!farmPlotMap.TryGetValue(farmPlotSave.plotKey, out farmPlot))
+                {
+                    Debug.LogWarning("SaveController: no se encontró la parcela -> " + farmPlotSave.plotKey);
+                    continue;
+                }
+
+                farmPlot.RestoreFromSaveData(farmPlotSave, itemDatabase);
+            }
         }
-    }
 
         RefreshChestReferences();
 
@@ -438,6 +448,4 @@ public sealed class SaveController : MonoBehaviour
     {
         farmPlots = FindObjectsByType<FarmPlot>(FindObjectsSortMode.None);
     }
-
-    
 }

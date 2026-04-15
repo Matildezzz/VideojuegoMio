@@ -47,7 +47,13 @@ public class PlayerMovement : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        if(context.canceled)
+        if (PauseController.IsGamePaused)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
+        if (context.canceled)
         {
             StopMovementAnimations();
         }
@@ -55,7 +61,6 @@ public class PlayerMovement : MonoBehaviour
         moveInput = context.ReadValue<Vector2>();
         animator.SetFloat("InputX", moveInput.x);
         animator.SetFloat("InputY", moveInput.y);
-        
     }
 
     void StartFootsteps()
@@ -80,5 +85,36 @@ public class PlayerMovement : MonoBehaviour
         animator.SetBool("isWalking", false);
         animator.SetFloat("LastInputX", moveInput.x);
         animator.SetFloat("LastInputY", moveInput.y);
+    }
+
+    public void ForceStop()
+    {
+        Vector2 lastInput = moveInput;
+
+        moveInput = Vector2.zero;
+
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("isWalking", false);
+            animator.SetFloat("LastInputX", lastInput.x);
+            animator.SetFloat("LastInputY", lastInput.y);
+        }
+
+        StopFootsteps();
     }
 }
