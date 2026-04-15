@@ -10,12 +10,11 @@ public class MapTransition : MonoBehaviour
     [SerializeField] private Direction direction;
     [SerializeField] private Transform teleportTargetPosition;
     [SerializeField] private float additivePos = 2f;
-    [SerializeField] private float transitionCooldown = 0.2f;
+    [SerializeField] private float extraBlockTime = 0.15f;
 
     private CinemachineConfiner2D confiner;
-    private bool isTransitioning = false;
 
-    private static float lastTransitionTime = -999f;
+    private static bool globalTransitionInProgress = false;
 
     private enum Direction
     {
@@ -33,32 +32,41 @@ public class MapTransition : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player"))
+        if (globalTransitionInProgress)
         {
             return;
         }
 
-        if (isTransitioning)
+        Rigidbody2D hitRb = collision.attachedRigidbody;
+        GameObject player = hitRb != null ? hitRb.gameObject : collision.gameObject;
+
+        if (player == null || !player.CompareTag("Player"))
         {
             return;
         }
 
-        if (Time.unscaledTime - lastTransitionTime < transitionCooldown)
-        {
-            return;
-        }
-
-        _ = FadeTransition(collision.gameObject);
+        _ = FadeTransition(player, hitRb);
     }
 
-    private async Task FadeTransition(GameObject player)
+    private async Task FadeTransition(GameObject player, Rigidbody2D rb)
     {
-        isTransitioning = true;
-        lastTransitionTime = Time.unscaledTime;
+        if (globalTransitionInProgress)
+        {
+            return;
+        }
 
-        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        globalTransitionInProgress = true;
+
+        if (rb == null)
+        {
+            rb = player.GetComponent<Rigidbody2D>();
+        }
+
         PlayerInput playerInput = player.GetComponent<PlayerInput>();
         PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+
+        Vector2 startPos = player.transform.position;
+        Vector2 targetPos = GetTargetPosition(startPos);
 
         try
         {
@@ -79,14 +87,15 @@ public class MapTransition : MonoBehaviour
                 await ScreenFader.Instance.FadeOut();
             }
 
+            TeleportPlayer(player, rb, targetPos);
+
+            Debug.Log($"{name}: TP REAL de {startPos} a {player.transform.position}");
+
             if (confiner != null && mapBoundry != null)
             {
                 confiner.BoundingShape2D = mapBoundry;
                 confiner.InvalidateBoundingShapeCache();
             }
-
-            UpdatePlayerPosition(player, rb);
-            Physics2D.SyncTransforms();
 
             await Task.Yield();
             await Task.Yield();
@@ -118,53 +127,66 @@ public class MapTransition : MonoBehaviour
             }
 
             PauseController.SetPause(false);
-            isTransitioning = false;
+
+            if (extraBlockTime > 0f)
+            {
+                float end = Time.unscaledTime + extraBlockTime;
+                while (Time.unscaledTime < end)
+                {
+                    await Task.Yield();
+                }
+            }
+
+            globalTransitionInProgress = false;
         }
     }
 
-    private void UpdatePlayerPosition(GameObject player, Rigidbody2D rb)
+    private Vector2 GetTargetPosition(Vector2 currentPos)
     {
-        Vector2 targetPos = player.transform.position;
-
         if (direction == Direction.Teleport)
         {
             if (teleportTargetPosition != null)
             {
-                targetPos = teleportTargetPosition.position;
+                return teleportTargetPosition.position;
             }
+
+            return currentPos;
         }
-        else
+
+        Vector2 newPos = currentPos;
+
+        switch (direction)
         {
-            Vector2 newPos = player.transform.position;
+            case Direction.Up:
+                newPos.y += additivePos;
+                break;
 
-            switch (direction)
-            {
-                case Direction.Up:
-                    newPos.y += additivePos;
-                    break;
+            case Direction.Down:
+                newPos.y -= additivePos;
+                break;
 
-                case Direction.Down:
-                    newPos.y -= additivePos;
-                    break;
+            case Direction.Left:
+                newPos.x -= additivePos;
+                break;
 
-                case Direction.Left:
-                    newPos.x -= additivePos;
-                    break;
-
-                case Direction.Right:
-                    newPos.x += additivePos;
-                    break;
-            }
-
-            targetPos = newPos;
+            case Direction.Right:
+                newPos.x += additivePos;
+                break;
         }
 
+        return newPos;
+    }
+
+    private void TeleportPlayer(GameObject player, Rigidbody2D rb, Vector2 targetPos)
+    {
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
             rb.position = targetPos;
         }
 
         player.transform.position = targetPos;
+        Physics2D.SyncTransforms();
     }
 }
