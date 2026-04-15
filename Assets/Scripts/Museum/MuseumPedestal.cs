@@ -4,7 +4,14 @@ using UnityEngine.UI;
 public class MuseumPedestal : MonoBehaviour
 {
     [SerializeField] private MuseumItemData requiredItem;
+
+    [Header("Visual en mundo")]
+    [SerializeField] private SpriteRenderer worldDisplaySprite;
+
+    [Header("Opcional UI")]
     [SerializeField] private Image displayImage;
+
+    [Header("Estados")]
     [SerializeField] private GameObject donatedVisual;
     [SerializeField] private GameObject missingVisual;
 
@@ -37,6 +44,7 @@ public class MuseumPedestal : MonoBehaviour
         }
 
         bool donated = MuseumController.Instance != null && MuseumController.Instance.IsDonated(requiredItem);
+        bool hasIcon = requiredItem.Icon != null;
 
         if (donatedVisual != null)
         {
@@ -50,8 +58,14 @@ public class MuseumPedestal : MonoBehaviour
 
         if (displayImage != null)
         {
-            displayImage.enabled = donated && requiredItem.Icon != null;
             displayImage.sprite = requiredItem.Icon;
+            displayImage.enabled = donated && hasIcon;
+        }
+
+        if (worldDisplaySprite != null)
+        {
+            worldDisplaySprite.sprite = requiredItem.Icon;
+            worldDisplaySprite.enabled = donated && hasIcon;
         }
     }
 }
