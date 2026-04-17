@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -65,6 +66,13 @@ public sealed class SaveController : MonoBehaviour
         gameSave.playerInventory = BuildPlayerInventorySaveData(playerInventory);
         gameSave.hasPlayerPosition = true;
         gameSave.playerPosition = playerInventory.transform.position;
+
+        CinemachineConfiner2D confiner = FindFirstObjectByType<CinemachineConfiner2D>();
+        if (confiner != null && confiner.BoundingShape2D != null)
+        {
+            gameSave.hasCameraBoundary = true;
+            gameSave.cameraBoundaryName = confiner.BoundingShape2D.name;
+        }
 
         if (CurrencyController.Instance != null)
         {
@@ -165,6 +173,8 @@ public sealed class SaveController : MonoBehaviour
         if (gameSave.hasPlayerPosition)
         {
             playerInventory.transform.position = gameSave.playerPosition;
+            Physics2D.SyncTransforms();
+            RestoreCameraBoundary(gameSave);
         }
 
         if (gameSave.hasPlayerGold && CurrencyController.Instance != null)
@@ -437,6 +447,71 @@ public sealed class SaveController : MonoBehaviour
 
             slot.Clear();
         }
+    }
+
+    private void RestoreCameraBoundary(GameSaveData gameSave)
+    {
+        CinemachineConfiner2D confiner = FindFirstObjectByType<CinemachineConfiner2D>();
+
+        if (confiner == null)
+        {
+            return;
+        }
+
+        PolygonCollider2D boundary = null;
+
+        if (gameSave != null && gameSave.hasCameraBoundary && !string.IsNullOrWhiteSpace(gameSave.cameraBoundaryName))
+        {
+            PolygonCollider2D[] colliders = FindObjectsByType<PolygonCollider2D>(FindObjectsSortMode.None);
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                PolygonCollider2D candidate = colliders[i];
+
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                if (candidate.name == gameSave.cameraBoundaryName)
+                {
+                    boundary = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (boundary == null)
+        {
+            Vector2 playerPosition = playerInventory.transform.position;
+            PolygonCollider2D[] colliders = FindObjectsByType<PolygonCollider2D>(FindObjectsSortMode.None);
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                PolygonCollider2D candidate = colliders[i];
+
+                if (candidate == null || !candidate.isTrigger)
+                {
+                    continue;
+                }
+
+                if (candidate.OverlapPoint(playerPosition))
+                {
+                    boundary = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (boundary == null)
+        {
+            Debug.LogWarning("SaveController: no se pudo restaurar el boundary de cámara tras cargar la partida.");
+            return;
+        }
+
+        confiner.BoundingShape2D = boundary;
+        confiner.InvalidateBoundingShapeCache();
+        MapController_Manual.Instance?.HighlightArea(boundary.name);
     }
 
     private void RefreshChestReferences()

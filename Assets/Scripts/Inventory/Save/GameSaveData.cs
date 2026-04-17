@@ -11,6 +11,9 @@ public class GameSaveData
     public bool hasPlayerPosition;
     public Vector3 playerPosition;
 
+    public bool hasCameraBoundary;
+    public string cameraBoundaryName;
+
     public bool hasPlayerGold;
     public int playerGold;
 
