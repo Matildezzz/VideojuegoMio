@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e13755cf85638f143af79d8f23c50b24, type: 3}
   m_Name: NewToolItem
   m_EditorClassIdentifier: 
-  itemId: 
-  displayName: 
+  itemId: weapon
+  displayName: Weapon
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
-  stackable: 1
-  maxStack: 99
-  category: 0
+  stackable: 0
+  maxStack: 1
+  category: 2
   buyPrice: 10
   sellPriceMultiplier: 0.5
-  toolType: 0
-  weaponDamage: 1
+  toolType: 6
+  weaponDamage: 2
   weaponRange: 0.65
   weaponCooldown: 0.35

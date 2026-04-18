@@ -1,25 +1,75 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    public GameObject menuCanvas;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private GameObject menuCanvas;
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private bool openWithEscape = true;
+
+    private void Start()
     {
-        menuCanvas.SetActive(false);
+        if (menuCanvas != null)
+        {
+            menuCanvas.SetActive(false);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Keyboard.current == null || menuCanvas == null)
         {
-            if (!menuCanvas.activeSelf && PauseController.IsGamePaused)
-            {
-                return;
-            }
-            menuCanvas.SetActive(!menuCanvas.activeSelf);
-            PauseController.SetPause(menuCanvas.activeSelf);
+            return;
         }
+
+        bool keyPressed = openWithEscape
+            ? Keyboard.current.escapeKey.wasPressedThisFrame
+            : Keyboard.current.tabKey.wasPressedThisFrame;
+
+        if (keyPressed)
+        {
+            ToggleMenu();
+        }
+    }
+
+    public void ToggleMenu()
+    {
+        if (!menuCanvas.activeSelf && PauseController.IsGamePaused)
+        {
+            return;
+        }
+
+        bool open = !menuCanvas.activeSelf;
+        menuCanvas.SetActive(open);
+        PauseController.SetPause(open);
+    }
+
+    public void ResumeGame()
+    {
+        if (menuCanvas == null)
+        {
+            return;
+        }
+
+        menuCanvas.SetActive(false);
+        PauseController.SetPause(false);
+    }
+
+    public void BackToMainMenu()
+    {
+        PauseController.SetPause(false);
+        SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    public void QuitGame()
+    {
+        PauseController.SetPause(false);
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
