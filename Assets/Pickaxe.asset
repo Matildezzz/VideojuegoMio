@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e13755cf85638f143af79d8f23c50b24, type: 3}
   m_Name: Pickaxe
   m_EditorClassIdentifier: 
-  itemId: 
-  displayName: 
-  icon: {fileID: 0}
+  itemId: pickaxe
+  displayName: Pickaxe
+  icon: {fileID: -3521486985499402948, guid: 417c730914f8e414aa70afc8d0738c47, type: 3}
   worldPrefab: {fileID: 0}
-  stackable: 1
-  maxStack: 99
-  category: 0
-  buyPrice: 10
-  sellPriceMultiplier: 0.5
-  toolType: 0
+  stackable: 0
+  maxStack: 1
+  category: 2
+  buyPrice: 0
+  sellPriceMultiplier: 0
+  toolType: 2

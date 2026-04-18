@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: coal
   displayName: Coal
   icon: {fileID: 3853099316662946274, guid: 417c730914f8e414aa70afc8d0738c47, type: 3}
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 6484518569418406499, guid: c354bee755e439a499b63efb5b1320f3, type: 3}
   stackable: 1
   maxStack: 99
   category: 4

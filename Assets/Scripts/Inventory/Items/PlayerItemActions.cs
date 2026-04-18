@@ -3,8 +3,7 @@ using UnityEngine;
 public sealed class PlayerItemActions : MonoBehaviour
 {
     [Header("References")]
-    //[SerializeField] private PlayerHealth playerHealth;
-    //[SerializeField] private PlayerEnergy playerEnergy;
+    [SerializeField] private PlayerToolAnimator toolAnimator;
 
     private ISeedUser seedUser;
     private IToolUser toolUser;
@@ -12,19 +11,14 @@ public sealed class PlayerItemActions : MonoBehaviour
 
     private void Awake()
     {
-        /*if (playerHealth == null)
-        {
-            playerHealth = GetComponent<PlayerHealth>();
-        }
-
-        if (playerEnergy == null)
-        {
-            playerEnergy = GetComponent<PlayerEnergy>();
-        }*/
-
         seedUser = GetComponent<ISeedUser>();
         toolUser = GetComponent<IToolUser>();
         placeableUser = GetComponent<IPlaceableUser>();
+
+        if (toolAnimator == null)
+        {
+            toolAnimator = GetComponent<PlayerToolAnimator>();
+        }
     }
 
     public bool TryUse(ItemData item, GameObject user)
@@ -60,19 +54,6 @@ public sealed class PlayerItemActions : MonoBehaviour
     private bool TryUseConsumable(ConsumableItemData consumable)
     {
         bool changedSomething = false;
-
-        /*if (playerHealth != null && consumable.HealthRestore > 0)
-        {
-            playerHealth.Heal(consumable.HealthRestore);
-            changedSomething = true;
-        }
-
-        if (playerEnergy != null && consumable.EnergyRestore > 0)
-        {
-            playerEnergy.RestoreEnergy(consumable.EnergyRestore);
-            changedSomething = true;
-        }*/
-
         return changedSomething;
     }
 
@@ -93,7 +74,14 @@ public sealed class PlayerItemActions : MonoBehaviour
             return false;
         }
 
-        return toolUser.TryUseTool(tool);
+        bool used = toolUser.TryUseTool(tool);
+
+        if (used && toolAnimator != null)
+        {
+            toolAnimator.PlayToolAnimation(tool);
+        }
+
+        return used;
     }
 
     private bool TryUsePlaceable(PlaceableItemData placeable)

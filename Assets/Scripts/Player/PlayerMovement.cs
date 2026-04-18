@@ -10,36 +10,36 @@ public class PlayerMovement : MonoBehaviour
     private bool playingFootsteps = false;
     public float footstepSpeed = 0.5f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private bool movementLocked = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
-        if (PauseController.IsGamePaused)
+        if (PauseController.IsGamePaused || movementLocked)
         {
-            if(rb.linearVelocity != Vector2.zero)
+            if (rb.linearVelocity != Vector2.zero)
             {
-                rb.linearVelocity = Vector2.zero; // Stop movement
+                rb.linearVelocity = Vector2.zero;
             }
-            
+
             animator.SetBool("isWalking", false);
             StopFootsteps();
             return;
         }
-        
+
         rb.linearVelocity = moveInput * moveSpeed;
         animator.SetBool("isWalking", rb.linearVelocity.magnitude > 0);
 
-        //StartFootsteps
         if (rb.linearVelocity.magnitude > 0 && !playingFootsteps)
         {
             StartFootsteps();
-        }else if (rb.linearVelocity.magnitude == 0)
+        }
+        else if (rb.linearVelocity.magnitude == 0)
         {
             StopFootsteps();
         }
@@ -47,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        if (PauseController.IsGamePaused)
+        if (PauseController.IsGamePaused || movementLocked)
         {
             moveInput = Vector2.zero;
             return;
@@ -67,8 +67,8 @@ public class PlayerMovement : MonoBehaviour
     {
         playingFootsteps = true;
         InvokeRepeating(nameof(PlayFootstep), 0, footstepSpeed);
-        ;
     }
+
     void StopFootsteps()
     {
         playingFootsteps = false;
@@ -116,5 +116,15 @@ public class PlayerMovement : MonoBehaviour
         }
 
         StopFootsteps();
+    }
+
+    public void SetMovementLocked(bool locked)
+    {
+        movementLocked = locked;
+
+        if (locked)
+        {
+            ForceStop();
+        }
     }
 }
