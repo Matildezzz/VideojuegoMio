@@ -197,4 +197,36 @@ public class QuestController : MonoBehaviour
         CheckInventoryForQuests();
         questUI?.UpdateQuestUI();
     }
+
+    public void RegisterEnemyDefeated(string enemyId)
+    {
+        if (string.IsNullOrWhiteSpace(enemyId))
+        {
+            return;
+        }
+
+        foreach (QuestProgress quest in activeQuests)
+        {
+            foreach (QuestObjective questObjective in quest.objectives)
+            {
+                if (questObjective.type != ObjectiveType.DefeatEnemy)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(questObjective.objectiveID) &&
+                    questObjective.objectiveID != enemyId)
+                {
+                    continue;
+                }
+
+                questObjective.currentAmount = Mathf.Min(
+                    questObjective.currentAmount + 1,
+                    questObjective.requiredAmount
+                );
+            }
+        }
+
+        questUI?.UpdateQuestUI();
+    }
 }

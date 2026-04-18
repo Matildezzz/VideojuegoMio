@@ -11,6 +11,7 @@ public sealed class PlayerToolAnimator : MonoBehaviour
     [SerializeField] private float hoeDuration = 0.25f;
     [SerializeField] private float pickaxeDuration = 0.3f;
     [SerializeField] private float wateringCanDuration = 0.35f;
+    [SerializeField] private float weaponDuration = 0.28f;
     [SerializeField] private float defaultDuration = 0.25f;
     [SerializeField] private bool lockMovementWhileAnimating = true;
 
@@ -22,6 +23,7 @@ public sealed class PlayerToolAnimator : MonoBehaviour
     private const int HoeAnimatorValue = 0;
     private const int PickaxeAnimatorValue = 1;
     private const int WateringCanAnimatorValue = 2;
+    private const int WeaponAnimatorValue = 3;
     private const int DefaultAnimatorValue = 99;
 
     private void Awake()
@@ -90,6 +92,9 @@ public sealed class PlayerToolAnimator : MonoBehaviour
             case ToolType.WateringCan:
                 return WateringCanAnimatorValue;
 
+            case ToolType.Weapon:
+                return WeaponAnimatorValue;
+
             default:
                 return DefaultAnimatorValue;
         }
@@ -107,6 +112,9 @@ public sealed class PlayerToolAnimator : MonoBehaviour
 
             case ToolType.WateringCan:
                 return wateringCanDuration;
+
+            case ToolType.Weapon:
+                return weaponDuration;
 
             default:
                 return defaultDuration;
