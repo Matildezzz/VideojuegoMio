@@ -67,7 +67,7 @@ public class InteractionDetector : MonoBehaviour
 
         if (gifted)
         {
-            Debug.Log("Amistad actual con " + friendship.NpcId + ": " + friendship.FriendshipPoints);
+            Debug.Log("Amistad actual con " + friendship.NpcId + ": " + friendship.CurrentHearts);
         }
     }
 

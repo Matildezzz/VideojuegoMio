@@ -14,6 +14,7 @@ public class DialogueController : MonoBehaviour
     [SerializeField] private Image portraitImage;
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
+    [SerializeField] private FriendshipHeartsUI friendshipHeartsUI;
 
     private void Awake()
     {
@@ -38,6 +39,11 @@ public class DialogueController : MonoBehaviour
         {
             dialoguePanel.SetActive(show);
         }
+
+        if (!show && friendshipHeartsUI != null)
+        {
+            friendshipHeartsUI.Hide();
+        }
     }
 
     public void SetNPCInfo(string npcName, Sprite portrait)
@@ -59,6 +65,30 @@ public class DialogueController : MonoBehaviour
         if (dialogueText != null)
         {
             dialogueText.text = text;
+        }
+    }
+
+    public void SetFriendship(NPCFriendship friendship)
+    {
+        if (friendshipHeartsUI == null)
+        {
+            return;
+        }
+
+        if (friendship == null)
+        {
+            friendshipHeartsUI.Hide();
+            return;
+        }
+
+        friendshipHeartsUI.Show(friendship);
+    }
+
+    public void RefreshFriendship()
+    {
+        if (friendshipHeartsUI != null)
+        {
+            friendshipHeartsUI.Refresh();
         }
     }
 

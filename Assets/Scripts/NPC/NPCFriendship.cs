@@ -5,22 +5,21 @@ public sealed class NPCFriendship : MonoBehaviour
     [Header("Identificacion")]
     [SerializeField] private string npcId = "npc_001";
 
-    [Header("Progreso")]
-    [SerializeField] private int friendshipPoints = 0;
-    [SerializeField] private int maxLevel = 10;
-    [SerializeField] private int pointsPerLevel = 100;
+    [Header("Corazones")]
+    [SerializeField] [Range(0, 10)] private int currentHalfHearts = 0;
+    [SerializeField] [Range(1, 10)] private int maxHalfHearts = 10;
 
     [Header("Subidas de amistad")]
-    [SerializeField] private int talkPointsPerDay = 5;
-    [SerializeField] private int questCompletedPoints = 25;
-    [SerializeField] private int neutralGiftPoints = 2;
-    [SerializeField] private int likedGiftPoints = 10;
-    [SerializeField] private int lovedGiftPoints = 20;
-    [SerializeField] private int dislikedGiftPoints = -5;
-    [SerializeField] private int hatedGiftPoints = -15;
+    [SerializeField] private int talkGainHalfHearts = 1;
+    [SerializeField] private int questCompletedGainHalfHearts = 2;
+    [SerializeField] private int neutralGiftHalfHearts = 0;
+    [SerializeField] private int likedGiftHalfHearts = 1;
+    [SerializeField] private int lovedGiftHalfHearts = 2;
+    [SerializeField] private int dislikedGiftHalfHearts = -1;
+    [SerializeField] private int hatedGiftHalfHearts = -2;
 
     [Header("Restricciones")]
-    [SerializeField] private bool canTalkOncePerDay = true;
+    [SerializeField] private bool gainOnlyOncePerDayWhenTalking = true;
     [SerializeField] private bool canGiftOncePerDay = true;
 
     [Header("Gustos")]
@@ -33,32 +32,25 @@ public sealed class NPCFriendship : MonoBehaviour
     private int lastGiftDay = -1;
 
     public string NpcId => npcId;
-    public int FriendshipPoints => friendshipPoints;
-    public int Level
-    {
-        get
-        {
-            int safePointsPerLevel = Mathf.Max(1, pointsPerLevel);
-            return Mathf.Clamp(friendshipPoints / safePointsPerLevel, 0, maxLevel);
-        }
-    }
+    public int CurrentHalfHearts => currentHalfHearts;
+    public float CurrentHearts => currentHalfHearts * 0.5f;
 
     public void RegisterTalk()
     {
         int currentDay = GetCurrentDay();
 
-        if (canTalkOncePerDay && lastTalkDay == currentDay)
+        if (gainOnlyOncePerDayWhenTalking && lastTalkDay == currentDay)
         {
             return;
         }
 
-        AddFriendship(talkPointsPerDay);
+        AddHalfHearts(talkGainHalfHearts);
         lastTalkDay = currentDay;
     }
 
     public void RegisterQuestCompleted()
     {
-        AddFriendship(questCompletedPoints);
+        AddHalfHearts(questCompletedGainHalfHearts);
     }
 
     public bool TryGiftSelectedItem(PlayerInventory inventory, out string feedback)
@@ -88,7 +80,7 @@ public sealed class NPCFriendship : MonoBehaviour
         }
 
         ItemData giftedItem = slot.Item;
-        int friendshipDelta = GetGiftPoints(giftedItem);
+        int friendshipDelta = GetGiftHalfHearts(giftedItem);
 
         bool removed = inventory.Hotbar.RemoveFromSlot(inventory.SelectedHotbarIndex, 1);
 
@@ -98,32 +90,24 @@ public sealed class NPCFriendship : MonoBehaviour
             return false;
         }
 
-        AddFriendship(friendshipDelta);
+        AddHalfHearts(friendshipDelta);
         lastGiftDay = currentDay;
         feedback = BuildGiftFeedback(giftedItem, friendshipDelta);
 
-        Debug.Log("NPCFriendship [" + npcId + "]: " + feedback + " | Puntos: " + friendshipPoints);
+        Debug.Log("NPCFriendship [" + npcId + "]: " + feedback + " | Corazones: " + CurrentHearts);
         return true;
     }
 
-    public void AddFriendship(int amount)
+    public void AddHalfHearts(int amount)
     {
-        int maxPoints = Mathf.Max(1, maxLevel) * Mathf.Max(1, pointsPerLevel);
-        friendshipPoints = Mathf.Clamp(friendshipPoints + amount, 0, maxPoints);
-    }
-
-    public float GetProgressToNextLevel01()
-    {
-        int safePointsPerLevel = Mathf.Max(1, pointsPerLevel);
-        int currentLevelPoints = friendshipPoints % safePointsPerLevel;
-        return currentLevelPoints / (float)safePointsPerLevel;
+        currentHalfHearts = Mathf.Clamp(currentHalfHearts + amount, 0, Mathf.Max(1, maxHalfHearts));
     }
 
     public NPCFriendshipSaveData CaptureSaveData()
     {
         NPCFriendshipSaveData saveData = new NPCFriendshipSaveData();
         saveData.npcId = npcId;
-        saveData.friendshipPoints = friendshipPoints;
+        saveData.friendshipPoints = currentHalfHearts;
         saveData.lastTalkDay = lastTalkDay;
         saveData.lastGiftDay = lastGiftDay;
         return saveData;
@@ -131,8 +115,7 @@ public sealed class NPCFriendship : MonoBehaviour
 
     public void LoadData(int savedPoints, int savedLastTalkDay, int savedLastGiftDay)
     {
-        int maxPoints = Mathf.Max(1, maxLevel) * Mathf.Max(1, pointsPerLevel);
-        friendshipPoints = Mathf.Clamp(savedPoints, 0, maxPoints);
+        currentHalfHearts = Mathf.Clamp(savedPoints, 0, Mathf.Max(1, maxHalfHearts));
         lastTalkDay = savedLastTalkDay;
         lastGiftDay = savedLastGiftDay;
     }
@@ -147,29 +130,29 @@ public sealed class NPCFriendship : MonoBehaviour
         return 1;
     }
 
-    private int GetGiftPoints(ItemData item)
+    private int GetGiftHalfHearts(ItemData item)
     {
         if (ContainsItem(lovedItems, item))
         {
-            return lovedGiftPoints;
+            return lovedGiftHalfHearts;
         }
 
         if (ContainsItem(likedItems, item))
         {
-            return likedGiftPoints;
+            return likedGiftHalfHearts;
         }
 
         if (ContainsItem(hatedItems, item))
         {
-            return hatedGiftPoints;
+            return hatedGiftHalfHearts;
         }
 
         if (ContainsItem(dislikedItems, item))
         {
-            return dislikedGiftPoints;
+            return dislikedGiftHalfHearts;
         }
 
-        return neutralGiftPoints;
+        return neutralGiftHalfHearts;
     }
 
     private bool ContainsItem(ItemData[] items, ItemData target)
@@ -194,22 +177,22 @@ public sealed class NPCFriendship : MonoBehaviour
     {
         string itemName = item != null ? item.DisplayName : "objeto";
 
-        if (delta >= lovedGiftPoints)
+        if (delta >= lovedGiftHalfHearts)
         {
             return "Le ha encantado " + itemName + ".";
         }
 
-        if (delta >= likedGiftPoints)
+        if (delta >= likedGiftHalfHearts)
         {
             return "Le ha gustado " + itemName + ".";
         }
 
-        if (delta <= hatedGiftPoints)
+        if (delta <= hatedGiftHalfHearts)
         {
             return "Ha odiado " + itemName + ".";
         }
 
-        if (delta <= dislikedGiftPoints)
+        if (delta <= dislikedGiftHalfHearts)
         {
             return "No le ha gustado " + itemName + ".";
         }

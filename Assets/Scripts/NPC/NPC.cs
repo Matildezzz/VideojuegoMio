@@ -98,7 +98,9 @@ public class NPC : MonoBehaviour, IInteractable
         }
 
         dialogueUI.SetNPCInfo(dialogueData.npcName, dialogueData.npcPortrait);
+        dialogueUI.SetFriendship(friendship);
         dialogueUI.ShowDialogueUI(true);
+        dialogueUI.RefreshFriendship();
         PauseController.SetPause(true);
 
         DisplayCurrentLine();
