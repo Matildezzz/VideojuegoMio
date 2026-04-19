@@ -4,6 +4,7 @@ using UnityEngine;
 public class NPC : MonoBehaviour, IInteractable
 {
     [SerializeField] private NPCDialogue dialogueData;
+    [SerializeField] private NPCFriendship friendship;
 
     private DialogueController dialogueUI;
     private int dialogueIndex;
@@ -18,6 +19,14 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     private QuestState questState = QuestState.NotStarted;
+
+    private void Awake()
+    {
+        if (friendship == null)
+        {
+            friendship = GetComponent<NPCFriendship>();
+        }
+    }
 
     private void Start()
     {
@@ -82,6 +91,11 @@ public class NPC : MonoBehaviour, IInteractable
         dialogueIndex = Mathf.Clamp(dialogueIndex, 0, dialogueData.dialogueLines.Length - 1);
 
         isDialogueActive = true;
+
+        if (friendship != null)
+        {
+            friendship.RegisterTalk();
+        }
 
         dialogueUI.SetNPCInfo(dialogueData.npcName, dialogueData.npcPortrait);
         dialogueUI.ShowDialogueUI(true);
@@ -268,6 +282,11 @@ public class NPC : MonoBehaviour, IInteractable
         if (QuestController.Instance != null)
         {
             QuestController.Instance.HandInQuest(quest.questID);
+        }
+
+        if (friendship != null)
+        {
+            friendship.RegisterQuestCompleted();
         }
     }
 }

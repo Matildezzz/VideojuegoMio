@@ -25,4 +25,6 @@ public class GameSaveData
     public List<FarmPlotSaveData> farmPlots = new List<FarmPlotSaveData>();
 
     public List<string> museumDonatedItemIds = new List<string>();
+
+    public List<NPCFriendshipSaveData> npcFriendships = new List<NPCFriendshipSaveData>();
 }

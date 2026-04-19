@@ -10,11 +10,12 @@ public sealed class SaveController : MonoBehaviour
     [SerializeField] private ItemDatabase itemDatabase;
     [SerializeField] private ChestInventory[] chests;
     [SerializeField] private FarmPlot[] farmPlots;
+    [SerializeField] private NPCFriendship[] npcFriendships;
 
     [Header("Save")]
     [SerializeField] private string fileName = "saveData.json";
     [SerializeField] private bool autoLoadOnStart = true;
-    [SerializeField] private bool autoSaveOnApplicationQuit = false;
+    [SerializeField] private bool autoSaveOnApplicationQuit = false;    
 
     private string SavePath => Path.Combine(Application.persistentDataPath, fileName);
 
@@ -34,6 +35,8 @@ public sealed class SaveController : MonoBehaviour
         {
             RefreshFarmPlotReferences();
         }
+
+        RefreshNPCFriendshipReferences();
     }
 
     private void Start()
@@ -123,6 +126,21 @@ public sealed class SaveController : MonoBehaviour
         if (MuseumController.Instance != null)
         {
             gameSave.museumDonatedItemIds = new List<string>(MuseumController.Instance.DonatedItemIds);
+        }
+
+        RefreshNPCFriendshipReferences();
+        gameSave.npcFriendships.Clear();
+
+        for (int i = 0; i < npcFriendships.Length; i++)
+        {
+            NPCFriendship friendship = npcFriendships[i];
+
+            if (friendship == null)
+            {
+                continue;
+            }
+
+            gameSave.npcFriendships.Add(friendship.CaptureSaveData());
         }
 
         string json = JsonUtility.ToJson(gameSave, true);
@@ -292,6 +310,49 @@ public sealed class SaveController : MonoBehaviour
                 }
 
                 LoadContainer(chest.Container, chestSave.container);
+            }
+        }
+
+        RefreshNPCFriendshipReferences();
+
+        Dictionary<string, NPCFriendship> friendshipMap = new Dictionary<string, NPCFriendship>();
+
+        for (int i = 0; i < npcFriendships.Length; i++)
+        {
+            NPCFriendship friendship = npcFriendships[i];
+
+            if (friendship == null || string.IsNullOrWhiteSpace(friendship.NpcId))
+            {
+                continue;
+            }
+
+            if (friendshipMap.ContainsKey(friendship.NpcId))
+            {
+                Debug.LogWarning("SaveController: NPCFriendship duplicado con id -> " + friendship.NpcId);
+                continue;
+            }
+
+            friendshipMap.Add(friendship.NpcId, friendship);
+        }
+
+        if (gameSave.npcFriendships != null)
+        {
+            for (int i = 0; i < gameSave.npcFriendships.Count; i++)
+            {
+                NPCFriendshipSaveData saveData = gameSave.npcFriendships[i];
+
+                if (saveData == null || string.IsNullOrWhiteSpace(saveData.npcId))
+                {
+                    continue;
+                }
+
+                NPCFriendship friendship;
+                if (!friendshipMap.TryGetValue(saveData.npcId, out friendship))
+                {
+                    continue;
+                }
+
+                friendship.LoadData(saveData.friendshipPoints, saveData.lastTalkDay, saveData.lastGiftDay);
             }
         }
 
@@ -522,5 +583,10 @@ public sealed class SaveController : MonoBehaviour
     private void RefreshFarmPlotReferences()
     {
         farmPlots = FindObjectsByType<FarmPlot>(FindObjectsSortMode.None);
+    }
+
+    private void RefreshNPCFriendshipReferences()
+    {
+        npcFriendships = FindObjectsByType<NPCFriendship>(FindObjectsSortMode.None);
     }
 }
