@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MuseumPedestal : MonoBehaviour
+public class MuseumPedestal : MonoBehaviour, IProximityInfo
 {
     [SerializeField] private MuseumItemData requiredItem;
 
@@ -11,49 +11,111 @@ public class MuseumPedestal : MonoBehaviour
     [Header("Opcional UI")]
     [SerializeField] private Image displayImage;
 
+    private bool isSubscribed;
+
+    private void Awake()
+    {
+        if (worldDisplaySprite == null)
+        {
+            SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null && renderers[i].gameObject != gameObject)
+                {
+                    worldDisplaySprite = renderers[i];
+                    break;
+                }
+            }
+        }
+    }
+
     private void Start()
     {
+        SubscribeToMuseum();
         Refresh();
     }
 
     private void OnEnable()
     {
-        if (MuseumController.Instance != null)
-        {
-            MuseumController.Instance.OnMuseumChanged += Refresh;
-        }
+        Refresh();
     }
 
     private void OnDisable()
     {
+        UnsubscribeFromMuseum();
+    }
+
+    private void SubscribeToMuseum()
+    {
+        if (isSubscribed)
+        {
+            return;
+        }
+
+        if (MuseumController.Instance == null)
+        {
+            return;
+        }
+
+        MuseumController.Instance.OnMuseumChanged += Refresh;
+        isSubscribed = true;
+    }
+
+    private void UnsubscribeFromMuseum()
+    {
+        if (!isSubscribed)
+        {
+            return;
+        }
+
         if (MuseumController.Instance != null)
         {
             MuseumController.Instance.OnMuseumChanged -= Refresh;
         }
+
+        isSubscribed = false;
     }
 
     public void Refresh()
+    {
+        SubscribeToMuseum();
+
+        Sprite icon = requiredItem != null ? requiredItem.Icon : null;
+        bool donated = MuseumController.Instance != null && MuseumController.Instance.IsDonated(requiredItem);
+        bool shouldShowObject = donated && icon != null;
+
+        if (displayImage != null)
+        {
+            displayImage.sprite = icon;
+            displayImage.enabled = shouldShowObject;
+            displayImage.color = Color.white;
+        }
+
+        if (worldDisplaySprite != null)
+        {
+            worldDisplaySprite.sprite = icon;
+            worldDisplaySprite.enabled = shouldShowObject;
+            worldDisplaySprite.color = Color.white;
+        }
+    }
+
+    public void OnEnterProximity()
     {
         if (requiredItem == null)
         {
             return;
         }
 
-        bool donated = MuseumController.Instance != null && MuseumController.Instance.IsDonated(requiredItem);
-        bool hasIcon = requiredItem.Icon != null;
+        string title = string.IsNullOrWhiteSpace(requiredItem.MuseumDisplayName)
+            ? requiredItem.DisplayName
+            : requiredItem.MuseumDisplayName;
 
-        if (displayImage != null)
-        {
-            displayImage.sprite = requiredItem.Icon;
-            displayImage.enabled = hasIcon;
-            displayImage.color = donated ? Color.white : new Color(1f, 1f, 1f, 0.45f);
-        }
+        MuseumPedestalOverlay.Show(title, requiredItem.Description, this);
+    }
 
-        if (worldDisplaySprite != null)
-        {
-            worldDisplaySprite.sprite = requiredItem.Icon;
-            worldDisplaySprite.enabled = hasIcon;
-            worldDisplaySprite.color = donated ? Color.white : new Color(1f, 1f, 1f, 0.45f);
-        }
+    public void OnExitProximity()
+    {
+        MuseumPedestalOverlay.Hide(this);
     }
 }

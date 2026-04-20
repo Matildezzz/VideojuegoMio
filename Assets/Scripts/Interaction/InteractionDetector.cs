@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class InteractionDetector : MonoBehaviour
 {
     private IInteractable interactableInRange = null;
+    private IProximityInfo proximityInfoInRange = null;
     public GameObject interactionIcon;
 
     private PlayerInventory playerInventory;
@@ -91,7 +92,15 @@ public class InteractionDetector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out IInteractable interactable) && interactable.CanInteract())
+        IProximityInfo proximityInfo = collision.GetComponent<IProximityInfo>();
+        if (proximityInfo != null)
+        {
+            proximityInfoInRange = proximityInfo;
+            proximityInfo.OnEnterProximity();
+        }
+
+        IInteractable interactable = collision.GetComponent<IInteractable>();
+        if (interactable != null && interactable.CanInteract())
         {
             interactableInRange = interactable;
 
@@ -104,7 +113,15 @@ public class InteractionDetector : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out IInteractable interactable) && interactable == interactableInRange)
+        IProximityInfo proximityInfo = collision.GetComponent<IProximityInfo>();
+        if (proximityInfo != null && proximityInfo == proximityInfoInRange)
+        {
+            proximityInfo.OnExitProximity();
+            proximityInfoInRange = null;
+        }
+
+        IInteractable interactable = collision.GetComponent<IInteractable>();
+        if (interactable != null && interactable == interactableInRange)
         {
             interactableInRange = null;
 
