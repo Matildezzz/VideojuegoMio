@@ -11,6 +11,10 @@ public class MuseumPedestal : MonoBehaviour, IProximityInfo
     [Header("Opcional UI")]
     [SerializeField] private Image displayImage;
 
+    [Header("Texto cuando NO está donado")]
+    [SerializeField] private string unknownTitle = "?????";
+    [SerializeField] [TextArea] private string unknownDescription = "Todavía no has encontrado este objeto";
+
     private bool isSubscribed;
 
     private void Awake()
@@ -107,11 +111,20 @@ public class MuseumPedestal : MonoBehaviour, IProximityInfo
             return;
         }
 
-        string title = string.IsNullOrWhiteSpace(requiredItem.MuseumDisplayName)
-            ? requiredItem.DisplayName
-            : requiredItem.MuseumDisplayName;
+        bool donated = MuseumController.Instance != null && MuseumController.Instance.IsDonated(requiredItem);
 
-        MuseumPedestalOverlay.Show(title, requiredItem.Description, this);
+        if (donated)
+        {
+            string title = string.IsNullOrWhiteSpace(requiredItem.MuseumDisplayName)
+                ? requiredItem.DisplayName
+                : requiredItem.MuseumDisplayName;
+
+            MuseumPedestalOverlay.Show(title, requiredItem.Description, this);
+        }
+        else
+        {
+            MuseumPedestalOverlay.Show(unknownTitle, unknownDescription, this);
+        }
     }
 
     public void OnExitProximity()

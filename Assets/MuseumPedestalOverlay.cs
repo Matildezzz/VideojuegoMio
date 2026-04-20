@@ -1,49 +1,70 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class MuseumPedestalOverlay : MonoBehaviour
 {
     private static MuseumPedestalOverlay instance;
 
-    private string title;
-    private string description;
+    [Header("Referencias UI")]
+    [SerializeField] private GameObject root;
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text descriptionText;
+
     private Object currentOwner;
-    private bool visible;
 
-    private GUIStyle boxStyle;
-    private GUIStyle titleStyle;
-    private GUIStyle descriptionStyle;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void CreateOverlay()
+    private void Awake()
     {
-        EnsureInstance();
+        instance = this;
+        HideImmediate();
     }
 
-    private static void EnsureInstance()
+    private void HideImmediate()
     {
-        if (instance != null)
+        if (root != null)
         {
-            return;
+            root.SetActive(false);
         }
 
-        GameObject overlayObject = new GameObject("MuseumPedestalOverlay");
-        DontDestroyOnLoad(overlayObject);
-        instance = overlayObject.AddComponent<MuseumPedestalOverlay>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+        }
+
+        currentOwner = null;
     }
 
     public static void Show(string itemTitle, string itemDescription, Object owner)
     {
-        if (string.IsNullOrWhiteSpace(itemTitle) && string.IsNullOrWhiteSpace(itemDescription))
+        if (instance == null)
         {
+            Debug.LogWarning("MuseumPedestalOverlay: no hay instancia en la escena.");
             return;
         }
 
-        EnsureInstance();
+        if (instance.root != null)
+        {
+            instance.root.SetActive(true);
+        }
 
-        instance.title = itemTitle ?? string.Empty;
-        instance.description = itemDescription ?? string.Empty;
+        if (instance.titleText != null)
+        {
+            instance.titleText.text = itemTitle ?? "";
+        }
+
+        if (instance.descriptionText != null)
+        {
+            instance.descriptionText.text = itemDescription ?? "";
+        }
+
+        if (instance.canvasGroup != null)
+        {
+            instance.canvasGroup.alpha = 1f;
+        }
+
         instance.currentOwner = owner;
-        instance.visible = true;
     }
 
     public static void Hide(Object owner)
@@ -58,52 +79,16 @@ public class MuseumPedestalOverlay : MonoBehaviour
             return;
         }
 
-        instance.visible = false;
+        if (instance.canvasGroup != null)
+        {
+            instance.canvasGroup.alpha = 0f;
+        }
+
+        if (instance.root != null)
+        {
+            instance.root.SetActive(false);
+        }
+
         instance.currentOwner = null;
-        instance.title = string.Empty;
-        instance.description = string.Empty;
-    }
-
-    private void OnGUI()
-    {
-        if (!visible)
-        {
-            return;
-        }
-
-        EnsureStyles();
-
-        float width = Mathf.Min(560f, Screen.width - 40f);
-        float height = 120f;
-        Rect boxRect = new Rect((Screen.width - width) * 0.5f, Screen.height - height - 20f, width, height);
-        Rect titleRect = new Rect(boxRect.x + 16f, boxRect.y + 12f, boxRect.width - 32f, 28f);
-        Rect descriptionRect = new Rect(boxRect.x + 16f, boxRect.y + 44f, boxRect.width - 32f, boxRect.height - 56f);
-
-        GUI.Box(boxRect, GUIContent.none, boxStyle);
-        GUI.Label(titleRect, title, titleStyle);
-        GUI.Label(descriptionRect, description, descriptionStyle);
-    }
-
-    private void EnsureStyles()
-    {
-        if (boxStyle != null)
-        {
-            return;
-        }
-
-        boxStyle = new GUIStyle(GUI.skin.box);
-        boxStyle.fontSize = 18;
-        boxStyle.alignment = TextAnchor.UpperLeft;
-        boxStyle.wordWrap = true;
-        boxStyle.padding = new RectOffset(12, 12, 12, 12);
-
-        titleStyle = new GUIStyle(GUI.skin.label);
-        titleStyle.fontSize = 20;
-        titleStyle.fontStyle = FontStyle.Bold;
-        titleStyle.wordWrap = false;
-
-        descriptionStyle = new GUIStyle(GUI.skin.label);
-        descriptionStyle.fontSize = 16;
-        descriptionStyle.wordWrap = true;
     }
 }
