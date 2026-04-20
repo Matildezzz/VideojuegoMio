@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e6fedc2472449cead18ef23b5cb30d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Library:
+  - m_Name: Walk
+    m_Hash: 765711723
+    m_CategoryList: []
+    m_OverrideEntries:
+    - m_Name: SpriteSheet_0
+      m_Hash: 36984045
+      m_Sprite: {fileID: 5546671543968653177, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: 5546671543968653177, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_1
+      m_Hash: 892560507
+      m_Sprite: {fileID: 8755591262435691780, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: 8755591262435691780, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_2
+      m_Hash: 742012353
+      m_Sprite: {fileID: -3459558614108198297, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: -3459558614108198297, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_3
+      m_Hash: 456983895
+      m_Sprite: {fileID: 659797372610145418, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: 659797372610145418, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_4
+      m_Hash: 89755892
+      m_Sprite: {fileID: -689520407193891599, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: -689520407193891599, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_5
+      m_Hash: 845062242
+      m_Sprite: {fileID: 160890277334083914, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: 160890277334083914, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_6
+      m_Hash: 727183832
+      m_Sprite: {fileID: 1026407549584056185, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: 1026407549584056185, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    - m_Name: SpriteSheet_7
+      m_Hash: 475054414
+      m_Sprite: {fileID: -3086720242725003937, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+      m_FromMain: 0
+      m_SpriteOverride: {fileID: -3086720242725003937, guid: 215cd9558094ae9498becfa40586988d, type: 3}
+    m_FromMain: 0
+    m_EntryOverrideCount: 8
+  m_PrimaryLibraryGUID: 
+  m_ModificationHash: 639123274559016339
+  m_Version: 1
