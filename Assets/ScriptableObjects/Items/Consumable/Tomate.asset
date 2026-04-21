@@ -10,14 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3d1ad9b0a98eec44bbe7136222279fd, type: 3}
-  m_Name: Coconut
+  m_Name: Tomate
   m_EditorClassIdentifier: 
-  itemId: coconut
-  displayName: Coconut
-  icon: {fileID: 0}
+  itemId: tomate
+  displayName: Tomate
+  icon: {fileID: 5822373649741285269, guid: f62c17ad3afd2a845a6a929b30b9e550, type: 3}
   worldPrefab: {fileID: 0}
   stackable: 1
-  maxStack: 25
+  maxStack: 99
   category: 1
+  buyPrice: 10
+  sellPriceMultiplier: 0.5
   healthRestore: 10
-  energyRestore: 15
+  energyRestore: 0
