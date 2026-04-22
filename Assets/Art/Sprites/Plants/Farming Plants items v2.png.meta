@@ -244,7 +244,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Farming Plants items v2_0
+      name: Corn Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -252,7 +252,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -266,7 +266,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_1
+      name: Corn
       rect:
         serializedVersion: 2
         x: 16
@@ -274,7 +274,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -288,7 +288,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_2
+      name: Sunflower Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -296,7 +296,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -310,7 +310,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_3
+      name: Sunflower
       rect:
         serializedVersion: 2
         x: 48
@@ -318,7 +318,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -332,7 +332,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_4
+      name: Roasted Sunflower Seed
       rect:
         serializedVersion: 2
         x: 64
@@ -340,7 +340,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -354,7 +354,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_5
+      name: Carrot Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -362,7 +362,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -376,7 +376,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_6
+      name: Carrot
       rect:
         serializedVersion: 2
         x: 16
@@ -384,7 +384,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -398,7 +398,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_7
+      name: Ginger Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -406,7 +406,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -420,7 +420,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_8
+      name: Ginger
       rect:
         serializedVersion: 2
         x: 48
@@ -428,7 +428,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -442,7 +442,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_9
+      name: Cauliflower Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -450,7 +450,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -464,7 +464,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_10
+      name: Cauliflower
       rect:
         serializedVersion: 2
         x: 16
@@ -472,7 +472,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -486,7 +486,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_11
+      name: Potato Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -494,7 +494,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -508,7 +508,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_12
+      name: Potato
       rect:
         serializedVersion: 2
         x: 48
@@ -516,7 +516,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -530,7 +530,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_13
+      name: Descarte1
       rect:
         serializedVersion: 2
         x: 64
@@ -538,7 +538,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -552,7 +552,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_14
+      name: Tomato Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -560,7 +560,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -574,7 +574,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_15
+      name: Tomato
       rect:
         serializedVersion: 2
         x: 16
@@ -582,7 +582,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -596,7 +596,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_16
+      name: Watermelon Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -604,7 +604,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -618,7 +618,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_17
+      name: Descarte4
       rect:
         serializedVersion: 2
         x: 48
@@ -626,7 +626,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -640,7 +640,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_18
+      name: Watermelon
       rect:
         serializedVersion: 2
         x: 64
@@ -648,7 +648,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -662,7 +662,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_19
+      name: Eggplant Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -670,7 +670,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -684,7 +684,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_20
+      name: Eggplant
       rect:
         serializedVersion: 2
         x: 16
@@ -692,7 +692,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -706,7 +706,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_21
+      name: Purple Potato Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -714,7 +714,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -728,7 +728,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_22
+      name: Purple Potato
       rect:
         serializedVersion: 2
         x: 48
@@ -736,7 +736,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -750,7 +750,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_23
+      name: Descarte5
       rect:
         serializedVersion: 2
         x: 64
@@ -758,7 +758,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -772,7 +772,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_24
+      name: Cabbage Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -780,7 +780,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -794,7 +794,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_25
+      name: Cabbage
       rect:
         serializedVersion: 2
         x: 16
@@ -802,7 +802,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -816,7 +816,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_26
+      name: Blue Bean Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -824,7 +824,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -838,7 +838,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_27
+      name: Blue Bean
       rect:
         serializedVersion: 2
         x: 48
@@ -846,7 +846,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -860,7 +860,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_28
+      name: Lettuce Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -868,7 +868,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -882,7 +882,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_29
+      name: Lettuce
       rect:
         serializedVersion: 2
         x: 16
@@ -890,7 +890,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -904,7 +904,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_30
+      name: Beans Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -912,7 +912,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -926,7 +926,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_31
+      name: Beans
       rect:
         serializedVersion: 2
         x: 48
@@ -934,7 +934,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -948,7 +948,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_32
+      name: Descarte2
       rect:
         serializedVersion: 2
         x: 64
@@ -956,7 +956,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -970,7 +970,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_33
+      name: Weath Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -978,7 +978,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -992,7 +992,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_34
+      name: Weath
       rect:
         serializedVersion: 2
         x: 16
@@ -1000,7 +1000,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1014,7 +1014,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_35
+      name: Pineapple Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1022,7 +1022,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1036,7 +1036,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_36
+      name: Pineapple
       rect:
         serializedVersion: 2
         x: 48
@@ -1044,7 +1044,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1058,7 +1058,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_37
+      name: Pumpkin Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1066,7 +1066,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1080,7 +1080,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_38
+      name: Pumpkin
       rect:
         serializedVersion: 2
         x: 16
@@ -1088,7 +1088,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1102,7 +1102,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_39
+      name: Melon Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1110,7 +1110,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1124,7 +1124,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_40
+      name: Descarte3
       rect:
         serializedVersion: 2
         x: 48
@@ -1132,7 +1132,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1146,7 +1146,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_41
+      name: Melon
       rect:
         serializedVersion: 2
         x: 64
@@ -1154,7 +1154,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1168,7 +1168,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_42
+      name: Radish Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1176,7 +1176,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1190,7 +1190,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_43
+      name: Radish
       rect:
         serializedVersion: 2
         x: 16
@@ -1198,7 +1198,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1212,7 +1212,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_44
+      name: Garlic Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1220,7 +1220,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1234,7 +1234,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_45
+      name: Garlic
       rect:
         serializedVersion: 2
         x: 48
@@ -1242,7 +1242,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1256,7 +1256,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_46
+      name: Hibiscus Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1264,7 +1264,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1278,7 +1278,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_47
+      name: Hibiscus
       rect:
         serializedVersion: 2
         x: 16
@@ -1286,7 +1286,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1300,7 +1300,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_48
+      name: Apple Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1308,7 +1308,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1322,7 +1322,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_49
+      name: Apple
       rect:
         serializedVersion: 2
         x: 48
@@ -1330,7 +1330,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1344,7 +1344,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_50
+      name: Beet Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1352,7 +1352,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1366,7 +1366,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_51
+      name: Beet
       rect:
         serializedVersion: 2
         x: 16
@@ -1374,7 +1374,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1388,7 +1388,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_52
+      name: Lombard Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1396,7 +1396,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1410,7 +1410,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_53
+      name: Lombard
       rect:
         serializedVersion: 2
         x: 48
@@ -1418,7 +1418,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1432,7 +1432,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_54
+      name: Blue Star Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1440,7 +1440,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1454,7 +1454,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_55
+      name: Blue Star
       rect:
         serializedVersion: 2
         x: 16
@@ -1462,7 +1462,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1476,7 +1476,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_56
+      name: Blue Carrot Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1484,7 +1484,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1498,7 +1498,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_57
+      name: Blue Carrot
       rect:
         serializedVersion: 2
         x: 48
@@ -1506,7 +1506,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1520,7 +1520,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_58
+      name: Cucumber Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -1528,7 +1528,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1542,7 +1542,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_59
+      name: Cucumber
       rect:
         serializedVersion: 2
         x: 16
@@ -1550,7 +1550,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1564,7 +1564,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_60
+      name: Chard Seed
       rect:
         serializedVersion: 2
         x: 32
@@ -1572,7 +1572,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1586,7 +1586,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Farming Plants items v2_61
+      name: Chard
       rect:
         serializedVersion: 2
         x: 48
@@ -1594,7 +1594,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1621,68 +1621,68 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Farming Plants items v2_0: 3822646744776524368
-      Farming Plants items v2_1: -914212603153960555
-      Farming Plants items v2_10: 8844569764648221448
-      Farming Plants items v2_11: 3533308526260514383
-      Farming Plants items v2_12: 3275165602492171080
-      Farming Plants items v2_13: 6072150665150615100
-      Farming Plants items v2_14: 5680987814714434393
-      Farming Plants items v2_15: -9105912542317449477
-      Farming Plants items v2_16: -3480933128145973794
-      Farming Plants items v2_17: -2507453804559178521
-      Farming Plants items v2_18: -1699061958613669340
-      Farming Plants items v2_19: 6865543084326714104
-      Farming Plants items v2_2: -954408889308097241
-      Farming Plants items v2_20: -3178948579177652577
-      Farming Plants items v2_21: -7073041504499798668
-      Farming Plants items v2_22: -6035373949399768033
-      Farming Plants items v2_23: 6965879440687185113
-      Farming Plants items v2_24: -3662499661914175448
-      Farming Plants items v2_25: 6730661171929114593
-      Farming Plants items v2_26: 7499924612342438779
-      Farming Plants items v2_27: -1283804908031224347
-      Farming Plants items v2_28: -3760858136471710070
-      Farming Plants items v2_29: -7071159708141278945
-      Farming Plants items v2_3: -8838883900046738716
-      Farming Plants items v2_30: -4803371086966074492
-      Farming Plants items v2_31: 6091810339024749201
-      Farming Plants items v2_32: -6062348321958991151
-      Farming Plants items v2_33: -9219761879892987205
-      Farming Plants items v2_34: 3598695716248723854
-      Farming Plants items v2_35: -2140383929992934401
-      Farming Plants items v2_36: 4919243342407439864
-      Farming Plants items v2_37: -5462209615307538812
-      Farming Plants items v2_38: 2655351451322428461
-      Farming Plants items v2_39: 5693463109121811053
-      Farming Plants items v2_4: 7294306185005306307
-      Farming Plants items v2_40: 7845594061620277328
-      Farming Plants items v2_41: 429193410225720251
-      Farming Plants items v2_42: -5327044936770188174
-      Farming Plants items v2_43: -6660587484279940358
-      Farming Plants items v2_44: 59131989300186074
-      Farming Plants items v2_45: 8209542933864426382
-      Farming Plants items v2_46: -877196339954854698
-      Farming Plants items v2_47: -4774145667210031932
-      Farming Plants items v2_48: 7370710390330009463
-      Farming Plants items v2_49: -1863503201
-      Farming Plants items v2_5: -7774127061718034416
-      Farming Plants items v2_50: 1567630659
-      Farming Plants items v2_51: 2077165077
-      Farming Plants items v2_52: -1079631744
-      Farming Plants items v2_53: 1614441967
-      Farming Plants items v2_54: -1225243968
-      Farming Plants items v2_55: -347252223
-      Farming Plants items v2_56: 1958768376
-      Farming Plants items v2_57: -47283803
-      Farming Plants items v2_58: -1780149946
-      Farming Plants items v2_59: -1608907496
-      Farming Plants items v2_6: 5363938435661661072
-      Farming Plants items v2_60: -321573610
-      Farming Plants items v2_61: 1062273637
-      Farming Plants items v2_7: 2773885263916320626
-      Farming Plants items v2_8: 2838888470113835514
-      Farming Plants items v2_9: 8198124045444385280
+      Apple: -1863503201
+      Apple Seed: 7370710390330009463
+      Beans: 6091810339024749201
+      Beans Seed: -4803371086966074492
+      Beet: 2077165077
+      Beet Seed: 1567630659
+      Blue Bean: -1283804908031224347
+      Blue Bean Seed: 7499924612342438779
+      Blue Carrot: -47283803
+      Blue Carrot Seed: 1958768376
+      Blue Star: -347252223
+      Blue Star Seed: -1225243968
+      Cabbage: 6730661171929114593
+      Cabbage Seed: -3662499661914175448
+      Carrot: 5363938435661661072
+      Carrot Seed: -7774127061718034416
+      Cauliflower: 8844569764648221448
+      Cauliflower Seed: 8198124045444385280
+      Chard: 1062273637
+      Chard Seed: -321573610
+      Corn: -914212603153960555
+      Corn Seed: 3822646744776524368
+      Cucumber: -1608907496
+      Cucumber Seed: -1780149946
+      Descarte1: 6072150665150615100
+      Descarte2: -6062348321958991151
+      Descarte3: 7845594061620277328
+      Descarte4: -2507453804559178521
+      Descarte5: 6965879440687185113
+      Eggplant: -3178948579177652577
+      Eggplant Seed: 6865543084326714104
+      Garlic: 8209542933864426382
+      Garlic Seed: 59131989300186074
+      Ginger: 2838888470113835514
+      Ginger Seed: 2773885263916320626
+      Hibiscus: -4774145667210031932
+      Hibiscus Seed: -877196339954854698
+      Lettuce: -7071159708141278945
+      Lettuce Seed: -3760858136471710070
+      Lombard: 1614441967
+      Lombard Seed: -1079631744
+      Melon: 429193410225720251
+      Melon Seed: 5693463109121811053
+      Pineapple: 4919243342407439864
+      Pineapple Seed: -2140383929992934401
+      Potato: 3275165602492171080
+      Potato Seed: 3533308526260514383
+      Pumpkin: 2655351451322428461
+      Pumpkin Seed: -5462209615307538812
+      Purple Potato: -6035373949399768033
+      Purple Potato Seed: -7073041504499798668
+      Radish: -6660587484279940358
+      Radish Seed: -5327044936770188174
+      Roasted Sunflower Seed: 7294306185005306307
+      Sunflower: -8838883900046738716
+      Sunflower Seed: -954408889308097241
+      Tomato: -9105912542317449477
+      Tomato Seed: 5680987814714434393
+      Watermelon: -1699061958613669340
+      Watermelon Seed: -3480933128145973794
+      Weath: 3598695716248723854
+      Weath Seed: -9219761879892987205
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

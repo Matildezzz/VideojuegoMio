@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a400330157daef48a65495840392f62, type: 3}
+  m_Name: CabbageSeed
+  m_EditorClassIdentifier: 
+  itemId: cabbageSeed
+  displayName: Cabbage Seeds
+  icon: {fileID: -3662499661914175448, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
+  worldPrefab: {fileID: 1836824800585820699, guid: 911e26f6ff48f8a4b804e9b33537cdaa, type: 3}
+  stackable: 1
+  maxStack: 99
+  category: 5
+  buyPrice: 10
+  sellPriceMultiplier: 0.5
+  cropPrefab: {fileID: 6198014508684152257, guid: e6d3c705761940943825a28ad965f2d4, type: 3}

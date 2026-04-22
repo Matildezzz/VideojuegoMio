@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a400330157daef48a65495840392f62, type: 3}
+  m_Name: CucumberSeed
+  m_EditorClassIdentifier: 
+  itemId: cucumberSeed
+  displayName: Cucumber Seeds
+  icon: {fileID: -1780149946, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
+  worldPrefab: {fileID: 1836824800585820699, guid: 15dd7227cd6ddab49b6564e1a66e19bd, type: 3}
+  stackable: 1
+  maxStack: 99
+  category: 5
+  buyPrice: 10
+  sellPriceMultiplier: 0.5
+  cropPrefab: {fileID: 6198014508684152257, guid: 0904e5a875af66c4da2d66a8507b985b, type: 3}

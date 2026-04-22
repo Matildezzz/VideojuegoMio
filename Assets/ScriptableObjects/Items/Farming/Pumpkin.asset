@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51200e8e757412d409071045f8b3243b, type: 3}
+  m_Name: Pumpkin
+  m_EditorClassIdentifier: 
+  itemId: pumpkin
+  displayName: Pumpkin
+  icon: {fileID: 2655351451322428461, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
+  worldPrefab: {fileID: 7720834796860806497, guid: e356fb052e52b7245b86a019f77cc5ac, type: 3}
+  stackable: 1
+  maxStack: 99
+  category: 4
+  buyPrice: 10
+  sellPriceMultiplier: 0.5
