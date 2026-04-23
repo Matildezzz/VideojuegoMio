@@ -6,6 +6,10 @@ public class NPC : MonoBehaviour, IInteractable
     [SerializeField] private NPCDialogue dialogueData;
     [SerializeField] private NPCFriendship friendship;
 
+    [Header("Tienda")]
+    [SerializeField] private bool openShopWhenDialogueEnds = false;
+    [SerializeField] private ShopNPC shopToOpen;
+
     private DialogueController dialogueUI;
     private int dialogueIndex;
     private bool isTyping;
@@ -25,6 +29,11 @@ public class NPC : MonoBehaviour, IInteractable
         if (friendship == null)
         {
             friendship = GetComponent<NPCFriendship>();
+        }
+
+        if (shopToOpen == null)
+        {
+            shopToOpen = GetComponent<ShopNPC>();
         }
     }
 
@@ -267,6 +276,11 @@ public class NPC : MonoBehaviour, IInteractable
         }
 
         PauseController.SetPause(false);
+
+        if (openShopWhenDialogueEnds && shopToOpen != null && ShopController.Instance != null)
+        {
+        ShopController.Instance.OpenShop(shopToOpen);
+        }
     }
 
     private void HandleQuestCompletion(Quest quest)

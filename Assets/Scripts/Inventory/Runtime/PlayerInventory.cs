@@ -255,11 +255,13 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
 
     private void ConsumeItem(ConsumableItemData consumable)
     {
-        /*if (playerHealth != null && consumable.HealthRestore > 0)
+        /*
+        if (playerHealth != null && consumable.HealthRestore > 0)
         {
             playerHealth.Heal(consumable.HealthRestore);
         }
 
+        
         if (playerEnergy != null && consumable.EnergyRestore > 0)
         {
             playerEnergy.RestoreEnergy(consumable.EnergyRestore);

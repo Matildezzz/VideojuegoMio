@@ -21,5 +21,5 @@ MonoBehaviour:
   category: 1
   buyPrice: 10
   sellPriceMultiplier: 0.5
-  healthRestore: 0
+  healthRestore: 6
   energyRestore: 0

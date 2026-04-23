@@ -8,12 +8,14 @@ public sealed class PlayerItemActions : MonoBehaviour
     private ISeedUser seedUser;
     private IToolUser toolUser;
     private IPlaceableUser placeableUser;
+    private PlayerHealth playerHealth;
 
     private void Awake()
     {
         seedUser = GetComponent<ISeedUser>();
         toolUser = GetComponent<IToolUser>();
         placeableUser = GetComponent<IPlaceableUser>();
+        playerHealth = GetComponent<PlayerHealth>();
 
         if (toolAnimator == null)
         {
@@ -54,6 +56,13 @@ public sealed class PlayerItemActions : MonoBehaviour
     private bool TryUseConsumable(ConsumableItemData consumable)
     {
         bool changedSomething = false;
+
+        if (playerHealth != null && consumable.HealthRestore > 0)
+        {
+            playerHealth.Heal(consumable.HealthRestore);
+            changedSomething = true;
+        }
+
         return changedSomething;
     }
 

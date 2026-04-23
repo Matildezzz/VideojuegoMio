@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShopNPC : MonoBehaviour, IInteractable
+public class ShopNPC : MonoBehaviour
 {
     public string shopID = "shop_merchan_01";
     public string shopkeeperName = "Merchant";
@@ -42,28 +42,6 @@ public class ShopNPC : MonoBehaviour, IInteractable
         }
 
         isInitialized = true;
-    }
-
-    public bool CanInteract()
-    {
-        return true;
-    }
-
-    public void Interact()
-    {
-        if (ShopController.Instance == null)
-        {
-            return;
-        }
-
-        if (ShopController.Instance.shopPanel.activeSelf)
-        {
-            ShopController.Instance.CloseShop();
-        }
-        else
-        {
-            ShopController.Instance.OpenShop(this);
-        }
     }
 
     public List<ShopStockItem> GetCurrentStock()
