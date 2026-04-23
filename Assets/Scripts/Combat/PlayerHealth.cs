@@ -45,6 +45,11 @@ public sealed class PlayerHealth : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount, Vector2 hitDirection)
     {
+        if (CheatMenuController.GodModeEnabled)
+        {
+            return;
+        }
+
         if (!IsAlive)
         {
             return;
@@ -111,4 +116,17 @@ public sealed class PlayerHealth : MonoBehaviour, IDamageable
         currentHealth = Mathf.Clamp(currentHealth, 1, maxHealth);
     }
 #endif
+
+    public void RestoreFullHealthFromCheat()
+    {
+        currentHealth = maxHealth;
+        invulnerableUntil = Time.time + invulnerabilityTime;
+
+        if (playerMovement != null)
+        {
+            playerMovement.SetMovementLocked(false);
+        }
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
 }
