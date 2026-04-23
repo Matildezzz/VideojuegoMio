@@ -143,6 +143,9 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 874b92abb335bc84ab275c465bb03fa7, type: 2}
     minAmount: 1
     maxAmount: 3
+  - item: {fileID: 11400000, guid: 614f991bdb90d154282a0ba6ac92450f, type: 2}
+    minAmount: 0
+    maxAmount: 1
   itemDropSpawner: {fileID: 0}
   dropRadius: 0.5
   destroyWhenBroken: 1
