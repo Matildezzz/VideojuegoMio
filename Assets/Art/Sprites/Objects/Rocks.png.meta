@@ -121,7 +121,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rocks_0
+      name: stone1
       rect:
         serializedVersion: 2
         x: 0
@@ -129,7 +129,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -151,7 +151,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -173,7 +173,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -187,7 +187,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_3
+      name: stone2
       rect:
         serializedVersion: 2
         x: 0
@@ -195,7 +195,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -217,7 +217,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -239,7 +239,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -253,7 +253,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_6
+      name: coal rock
       rect:
         serializedVersion: 2
         x: 0
@@ -261,7 +261,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -275,7 +275,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_7
+      name: copper rock
       rect:
         serializedVersion: 2
         x: 16
@@ -283,7 +283,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -297,7 +297,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_8
+      name: iron rock
       rect:
         serializedVersion: 2
         x: 32
@@ -305,7 +305,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -319,7 +319,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_9
+      name: gold rock
       rect:
         serializedVersion: 2
         x: 48
@@ -327,7 +327,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -341,7 +341,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_10
+      name: ruby rock
       rect:
         serializedVersion: 2
         x: 0
@@ -349,7 +349,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -363,7 +363,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_11
+      name: diamond rock
       rect:
         serializedVersion: 2
         x: 16
@@ -371,7 +371,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -385,7 +385,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_12
+      name: emerald rock
       rect:
         serializedVersion: 2
         x: 32
@@ -393,7 +393,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -407,7 +407,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rocks_13
+      name: amethyst rock
       rect:
         serializedVersion: 2
         x: 48
@@ -415,7 +415,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -442,20 +442,20 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Rocks_0: 1887494081247492234
       Rocks_1: 2007986136508003152
-      Rocks_10: -1345119174
-      Rocks_11: 641674043
-      Rocks_12: 179393096
-      Rocks_13: -468314701
       Rocks_2: -5091828049805951605
-      Rocks_3: -4209556597541047147
       Rocks_4: -5342935890121459157
       Rocks_5: -7073761113175812397
-      Rocks_6: -2427098341007487093
-      Rocks_7: -1677260544633098824
-      Rocks_8: -1064138612
-      Rocks_9: -1692099100
+      amethyst rock: -468314701
+      coal rock: -2427098341007487093
+      copper rock: -1677260544633098824
+      diamond rock: 641674043
+      emerald rock: 179393096
+      gold rock: -1692099100
+      iron rock: -1064138612
+      ruby rock: -1345119174
+      stone1: 1887494081247492234
+      stone2: -4209556597541047147
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

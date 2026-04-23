@@ -136,7 +136,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dungeon_items_0
+      name: picaze
       rect:
         serializedVersion: 2
         x: 0
@@ -144,7 +144,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -158,7 +158,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_1
+      name: coal
       rect:
         serializedVersion: 2
         x: 16
@@ -166,7 +166,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -180,7 +180,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_2
+      name: copper
       rect:
         serializedVersion: 2
         x: 32
@@ -188,7 +188,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -202,7 +202,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_3
+      name: iron
       rect:
         serializedVersion: 2
         x: 48
@@ -210,7 +210,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -224,7 +224,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_4
+      name: gold
       rect:
         serializedVersion: 2
         x: 64
@@ -232,7 +232,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -246,7 +246,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_5
+      name: flint
       rect:
         serializedVersion: 2
         x: 0
@@ -254,7 +254,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -268,7 +268,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_6
+      name: ruby
       rect:
         serializedVersion: 2
         x: 16
@@ -276,7 +276,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -290,7 +290,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_7
+      name: diamond
       rect:
         serializedVersion: 2
         x: 32
@@ -298,7 +298,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -312,7 +312,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_8
+      name: emerald
       rect:
         serializedVersion: 2
         x: 48
@@ -320,7 +320,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -334,7 +334,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: dungeon_items_9
+      name: amethyst
       rect:
         serializedVersion: 2
         x: 64
@@ -342,7 +342,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -364,7 +364,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -386,7 +386,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -408,7 +408,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -430,7 +430,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -452,7 +452,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -479,21 +479,21 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dungeon_items_0: -3521486985499402948
-      dungeon_items_1: 3853099316662946274
+      amethyst: -7742226383432107638
+      coal: 3853099316662946274
+      copper: -7649896343957935328
+      diamond: 5446705284160368831
       dungeon_items_10: -1871062114963904439
       dungeon_items_11: 478695272351775152
       dungeon_items_12: 8754018496788701466
       dungeon_items_13: 1191850615
       dungeon_items_14: 1549028531
-      dungeon_items_2: -7649896343957935328
-      dungeon_items_3: -1079326183274038259
-      dungeon_items_4: -3126738845940356929
-      dungeon_items_5: -7139348624428281600
-      dungeon_items_6: 8613144493283054163
-      dungeon_items_7: 5446705284160368831
-      dungeon_items_8: 7880733197398354196
-      dungeon_items_9: -7742226383432107638
+      emerald: 7880733197398354196
+      flint: -7139348624428281600
+      gold: -3126738845940356929
+      iron: -1079326183274038259
+      picaze: -3521486985499402948
+      ruby: 8613144493283054163
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
