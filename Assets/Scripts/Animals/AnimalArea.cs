@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ChickenArea : MonoBehaviour
+public class AnimalArea : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D areaCollider;
 

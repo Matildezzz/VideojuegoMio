@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 778267600780472346}
   - component: {fileID: 3335535458575277417}
   m_Layer: 0
-  m_Name: Huevo
+  m_Name: Milk
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 143747853
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: -4929179470246120729, guid: 4ab602b6acae7324698961042e08d25a, type: 3}
+  m_Sprite: {fileID: -2449982667496561888, guid: bbc71042b7140c941aab6933d79df528, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -153,6 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c57dfbff5216d49b74363096acbf14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: ac5a45cb938d6ce4182b448e390ef305, type: 2}
+  itemData: {fileID: 11400000, guid: fc7e1c7422ee6e6438bc62992e835eaa, type: 2}
   amount: 1
   iconRenderer: {fileID: 8796854916087481051}

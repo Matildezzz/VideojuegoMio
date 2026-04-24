@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ChickenController : MonoBehaviour
+public class CowController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
@@ -9,9 +9,9 @@ public class ChickenController : MonoBehaviour
     [SerializeField] private AnimalArea animalArea;
 
     [Header("Movement")]
-    [SerializeField] private float moveSpeed = 1.2f;
-    [SerializeField] private float minWaitTime = 1f;
-    [SerializeField] private float maxWaitTime = 3f;
+    [SerializeField] private float moveSpeed = 0.8f;
+    [SerializeField] private float minWaitTime = 2f;
+    [SerializeField] private float maxWaitTime = 5f;
     [SerializeField] private float distanceToTarget = 0.1f;
 
     [Header("Sprite")]
@@ -49,7 +49,6 @@ public class ChickenController : MonoBehaviour
     {
         if (isSleeping)
         {
-            rb.linearVelocity = Vector2.zero;
             SetWalking(false);
             return;
         }
@@ -95,6 +94,7 @@ public class ChickenController : MonoBehaviour
     {
         if (animalArea == null)
         {
+            Debug.LogWarning("La vaca no tiene asignada AnimalArea.");
             return;
         }
 
@@ -128,7 +128,7 @@ public class ChickenController : MonoBehaviour
     {
         if (animator != null)
         {
-            animator.SetBool("IsWalking", value);
+            animator.SetBool("isWalking", value);
         }
     }
 
@@ -138,7 +138,7 @@ public class ChickenController : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetBool("IsSleeping", value);
+            animator.SetBool("isSleeping", value);
         }
     }
 }
