@@ -62,6 +62,22 @@ public class NPC : MonoBehaviour, IInteractable
         {
             Debug.LogWarning("NPC: no se encontró DialogueController en la escena.");
         }
+
+        RegisterQuestNpcInfo();
+    }
+
+    private void RegisterQuestNpcInfo()
+    {
+        if (dialogueData == null || dialogueData.quest == null || QuestController.Instance == null)
+        {
+            return;
+        }
+
+        QuestController.Instance.RegisterQuestNpcInfo(
+            dialogueData.quest,
+            dialogueData.npcName,
+            dialogueData.npcPortrait
+        );
     }
 
     public bool CanInteract()
@@ -93,6 +109,8 @@ public class NPC : MonoBehaviour, IInteractable
 
     private void StartDialogue()
     {
+        RegisterQuestNpcInfo();
+
         if (dialogueData.dialogueLines == null || dialogueData.dialogueLines.Length == 0)
         {
             Debug.LogWarning("NPC: el diálogo no tiene líneas.");

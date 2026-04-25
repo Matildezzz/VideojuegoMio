@@ -2,12 +2,25 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="Quest/Quest")]
+[CreateAssetMenu(menuName = "Quest/Quest")]
 public class Quest : ScriptableObject
 {
+    [Header("Datos principales")]
     public string questID;
     public string questName;
-    public string description;
+    [TextArea(2, 4)] public string description;
+
+    [Header("Diario / HUD")]
+    [Tooltip("Si está activo, esta misión se marcará como misión seguida al aceptarla.")]
+    public bool followOnAccept = true;
+
+    [Tooltip("Texto que se muestra en el HUD cuando la misión ya se puede entregar.")]
+    public string handInHint;
+
+    [Tooltip("Icono opcional del NPC que recibe la misión. Si se deja vacío, se usará el retrato del NPC del diálogo cuando exista.")]
+    public Sprite handInNpcIcon;
+
+    [Header("Objetivos y recompensas")]
     public List<QuestObjective> objectives;
     public List<QuestReward> questRewards;
 
@@ -20,7 +33,7 @@ public class Quest : ScriptableObject
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class QuestObjective
 {
     public string objectiveID;
@@ -41,15 +54,24 @@ public enum ObjectiveType
     Custom
 }
 
-[System.Serializable]
+public enum QuestState
+{
+    Active,
+    Completed,
+    HandedIn
+}
+
+[Serializable]
 public class QuestProgress
 {
     public Quest quest;
     public List<QuestObjective> objectives;
+    public QuestState state = QuestState.Active;
 
     public QuestProgress(Quest quest)
     {
         this.quest = quest;
+        state = QuestState.Active;
         objectives = new List<QuestObjective>();
 
         foreach (var obj in quest.objectives)
@@ -66,10 +88,21 @@ public class QuestProgress
     }
 
     public bool IsCompleted => objectives.TrueForAll(o => o.IsCompleted);
-    public string QuestID => quest.questID;
+    public string QuestID => quest != null ? quest.questID : string.Empty;
+
+    public QuestObjective GetCurrentObjective()
+    {
+        if (objectives == null || objectives.Count == 0)
+        {
+            return null;
+        }
+
+        QuestObjective firstIncomplete = objectives.Find(o => !o.IsCompleted);
+        return firstIncomplete ?? objectives[objectives.Count - 1];
+    }
 }
 
-[System.Serializable]
+[Serializable]
 public class QuestReward
 {
     public RewardType type;

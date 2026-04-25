@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc4e080a60fd561498c7ce724c171d15, type: 3}
+  m_Name: Q_OldWoman_3eggs
+  m_EditorClassIdentifier: 
+  questID: c65fe73b-6390-4272-abe1-3ed1670cd9cb
+  questName: Huevos para la vieja
+  description: "a vieja necesita 3 huevos. Cons\xEDguelos y vuelve con ella"
+  followOnAccept: 1
+  handInHint: Vuelve con la vieja
+  handInNpcIcon: {fileID: -7527145504033472756, guid: c10854e5418c21f45a20c20011772af5, type: 3}
+  objectives:
+  - objectiveID: egg
+    description: Consigue 3 huevos
+    type: 0
+    requiredAmount: 3
+    currentAmount: 0
+  questRewards:
+  - type: 0
+    rewardItemId: ruby
+    amount: 1

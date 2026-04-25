@@ -15,15 +15,25 @@ MonoBehaviour:
   npcName: Maryending
   npcPortrait: {fileID: -7527145504033472756, guid: c10854e5418c21f45a20c20011772af5, type: 3}
   dialogueLines:
-  - Hola. Bienvenido al pueblo.
-  - De momento solo estoy de charla.
-  autoProgressLines: 0000
-  endDialogueLines: 0001
+  - "Hola, cari\xF1o. \xBFPodr\xEDas traerme 3 huevos? Los necesito para preparar
+    comida"
+  - Muchas gracias. Vuelve cuando tengas los 3 huevos
+  - "A\xFAn no tienes los 3 huevos. Revisa los nidos de las gallinas"
+  - "\xA1Perfecto! Justo lo que necesitaba. Muchas gracias por traerme los huevos"
+  - Gracias otra vez por ayudarme con los huevos
+  autoProgressLines: 0000000000
+  endDialogueLines: 0001010101
   autoProgressDelay: 1.5
   typingSpeed: 0.05
   voiceSound: {fileID: 0}
   voicePitch: 1
-  choices: []
-  questInProgressIndex: 0
-  questCompletedIndex: 0
-  quest: {fileID: 0}
+  choices:
+  - dialogueIndex: 0
+    choices:
+    - "Claro, te traer\xE9 3 huevos"
+    - Ahora no puedo
+    nextDialogueIndexes: 0100000004000000
+    givesQuest: 0100
+  questInProgressIndex: 2
+  questCompletedIndex: 3
+  quest: {fileID: 11400000, guid: cf4ea10619fde8748bf0c1bcb841f1c9, type: 2}

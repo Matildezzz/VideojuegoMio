@@ -5,10 +5,10 @@ public class MuseumItemData : ItemData
 {
     [Header("Museo")]
     [SerializeField] private string museumDisplayName;
-    [SerializeField] private string description;
+    [SerializeField] private string museumDescription;
     [SerializeField] private int donationRewardGold = 0;
 
     public string MuseumDisplayName => museumDisplayName;
-    public string Description => description;
+    public string MuseumDescription => museumDescription;
     public int DonationRewardGold => donationRewardGold;
 }
