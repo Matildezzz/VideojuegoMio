@@ -19,10 +19,17 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
 
     public bool TryUseSeed(SeedItemData seed)
     {
+        if (seed == null)
+        {
+            ShowError("Selecciona una semilla valida.");
+            return false;
+        }
+
         FarmPlot plot = GetTargetPlot();
 
         if (plot == null)
         {
+            ShowError("No hay una parcela delante.");
             return false;
         }
 
@@ -40,6 +47,7 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
     {
         if (tool == null)
         {
+            ShowError("Selecciona una herramienta valida.");
             return false;
         }
 
@@ -49,6 +57,7 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
         {
             if (plot == null)
             {
+                ShowError("No hay una parcela delante para usar la azada.");
                 return false;
             }
 
@@ -66,6 +75,7 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
         {
             if (plot == null)
             {
+                ShowError("No hay una parcela delante para regar.");
                 return false;
             }
 
@@ -85,6 +95,7 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
 
             if (rock == null)
             {
+                ShowError("No hay una roca delante para picar.");
                 return false;
             }
 
@@ -96,6 +107,11 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
                 TutorialManager.Instance.NotifyToolUsed();
             }
 
+            if (!usedPickaxe)
+            {
+                ShowError("No puedes picar esta roca ahora.");
+            }
+
             return usedPickaxe;
         }
 
@@ -103,6 +119,7 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
         {
             if (Time.time < nextWeaponUseTime)
             {
+                ShowWarning("Espera un momento antes de volver a atacar.");
                 return false;
             }
 
@@ -114,10 +131,10 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
                 TutorialManager.Instance.NotifyToolUsed();
             }
 
-            // Devuelve true aunque no golpee a nadie para que la animación de ataque sí se reproduzca.
             return true;
         }
 
+        ShowError("Esta herramienta no se puede usar aqui.");
         return false;
     }
 
@@ -210,7 +227,14 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
             return null;
         }
 
-        return hit.GetComponent<FarmPlot>();
+        FarmPlot plot = hit.GetComponent<FarmPlot>();
+
+        if (plot != null)
+        {
+            return plot;
+        }
+
+        return hit.GetComponentInParent<FarmPlot>();
     }
 
     private MineableRock GetTargetRock()
@@ -231,6 +255,30 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
         }
 
         return hit.GetComponentInParent<MineableRock>();
+    }
+
+    private void ShowError(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Error, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 
     private void OnDrawGizmosSelected()

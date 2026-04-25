@@ -258,18 +258,27 @@ public class ShopController : MonoBehaviour
 
     public bool TryBuyItem(ItemData itemData, int amount = 1)
     {
-        if (currentShop == null || itemData == null || amount <= 0)
+        if (currentShop == null)
         {
+            ShowError("No hay ninguna tienda abierta.");
+            return false;
+        }
+
+        if (itemData == null || amount <= 0)
+        {
+            ShowError("Este producto no está configurado.");
             return false;
         }
 
         if (CurrencyController.Instance == null)
         {
+            ShowError("No se encontró el sistema de monedas.");
             return false;
         }
 
         if (playerInventory == null)
         {
+            ShowError("No se encontró el inventario del jugador.");
             return false;
         }
 
@@ -278,35 +287,27 @@ public class ShopController : MonoBehaviour
         if (CurrencyController.Instance.GetGold() < totalPrice)
         {
             Debug.Log("Not enough gold!");
-
-            if (ToastManager.Instance != null)
-            {
-                ToastManager.Instance.ShowToast("No tienes suficiente oro", ToastType.Error, "Error");
-            }
-
+            ShowError("No tienes suficiente oro.");
             return false;
         }
 
         if (!playerInventory.CanAddItem(itemData, amount))
         {
             Debug.Log("Inventory full!");
-
-            if (ToastManager.Instance != null)
-            {
-                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
-            }
-
+            ShowError("No hay espacio en el inventario.");
             return false;
         }
 
         if (!currentShop.RemoveFromShopStock(itemData.ItemId, amount))
         {
+            ShowWarning("La tienda no tiene suficiente stock.");
             return false;
         }
 
         if (!CurrencyController.Instance.SpendGold(totalPrice))
         {
             currentShop.AddToStock(itemData.ItemId, amount);
+            ShowError("No tienes suficiente oro.");
             return false;
         }
 
@@ -314,46 +315,61 @@ public class ShopController : MonoBehaviour
         {
             CurrencyController.Instance.AddGold(totalPrice);
             currentShop.AddToStock(itemData.ItemId, amount);
+            ShowError("No hay espacio en el inventario.");
             return false;
         }
 
         RefreshShopDisplay();
         RefreshPlayerInventoryDisplay();
 
-        if (ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("Has comprado " + itemData.DisplayName + " x" + amount, ToastType.Success, "Coin");
-        }
+        ShowSuccess("Has comprado " + itemData.DisplayName + " x" + amount, "Coin");
 
         return true;
     }
 
     public bool TrySellItem(ItemData itemData, InventoryUISlotSource source, int slotIndex, int amount = 1)
     {
-        if (currentShop == null || playerInventory == null || itemData == null || amount <= 0)
+        if (currentShop == null)
         {
+            ShowError("No hay ninguna tienda abierta.");
+            return false;
+        }
+
+        if (playerInventory == null)
+        {
+            ShowError("No se encontró el inventario del jugador.");
+            return false;
+        }
+
+        if (itemData == null || amount <= 0)
+        {
+            ShowError("Selecciona un objeto válido para vender.");
             return false;
         }
 
         InventoryContainer container = GetPlayerContainer(source);
         if (container == null)
         {
+            ShowError("No se encontró el contenedor del inventario.");
             return false;
         }
 
         InventorySlot slot = container.GetSlot(slotIndex);
         if (slot == null || slot.IsEmpty)
         {
+            ShowWarning("No hay ningún objeto en ese slot.");
             return false;
         }
 
         if (slot.Item != itemData || slot.Amount < amount)
         {
+            ShowWarning("No tienes suficientes unidades para vender.");
             return false;
         }
 
         if (!container.RemoveFromSlot(slotIndex, amount))
         {
+            ShowError("No se pudo quitar el objeto del inventario.");
             return false;
         }
 
@@ -361,18 +377,55 @@ public class ShopController : MonoBehaviour
         {
             CurrencyController.Instance.AddGold(itemData.GetSellPrice() * amount);
         }
+        else
+        {
+            ShowWarning("Se vendió el objeto, pero no se encontró el sistema de monedas.");
+        }
 
         currentShop.AddToStock(itemData.ItemId, amount);
 
         RefreshShopDisplay();
         RefreshPlayerInventoryDisplay();
 
-        if (ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("Has vendido " + itemData.DisplayName + " x" + amount, ToastType.Success, "Coin");
-        }
+        ShowSuccess("Has vendido " + itemData.DisplayName + " x" + amount, "Coin");
 
         return true;
+    }
+
+    private void ShowSuccess(string message, string soundName)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Success, soundName);
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Error, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 
     private InventoryContainer GetPlayerContainer(InventoryUISlotSource source)

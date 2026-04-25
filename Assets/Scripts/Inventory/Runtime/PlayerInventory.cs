@@ -129,34 +129,36 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
     }
 
     public bool UseSelectedItem()
-{
-    InventorySlot slot = GetSelectedSlot();
-
-    if (slot == null || slot.IsEmpty)
     {
-        return false;
+        InventorySlot slot = GetSelectedSlot();
+
+        if (slot == null || slot.IsEmpty)
+        {
+            ShowWarning("Selecciona un objeto para usar.");
+            return false;
+        }
+
+        if (itemUseService == null)
+        {
+            Debug.LogWarning("PlayerInventory: falta asignar PlayerItemActions.");
+            ShowError("No se puede usar el objeto ahora.");
+            return false;
+        }
+
+        bool used = itemUseService.TryUse(slot.Item, gameObject);
+
+        if (!used)
+        {
+            return false;
+        }
+
+        if (slot.Item.Stackable)
+        {
+            hotbar.RemoveFromSlot(selectedHotbarIndex, 1);
+        }
+
+        return true;
     }
-
-    if (itemUseService == null)
-    {
-        Debug.LogWarning("PlayerInventory: falta asignar PlayerItemActions.");
-        return false;
-    }
-
-    bool used = itemUseService.TryUse(slot.Item, gameObject);
-
-    if (!used)
-    {
-        return false;
-    }
-
-    if (slot.Item.Stackable)
-    {
-        hotbar.RemoveFromSlot(selectedHotbarIndex, 1);
-    }
-
-    return true;
-}
 
     public bool DropSelectedItem(int amount = 1)
     {
@@ -164,12 +166,14 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
 
         if (slot == null || slot.IsEmpty)
         {
+            ShowWarning("Selecciona un objeto para soltar.");
             return false;
         }
 
         if (itemDropSpawner == null)
         {
             Debug.LogWarning("PlayerInventory: falta asignar ItemDropSpawner.");
+            ShowError("No se puede soltar el objeto ahora.");
             return false;
         }
 
@@ -186,6 +190,7 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
 
         if (dropped == null)
         {
+            ShowError("No se pudo soltar el objeto.");
             return false;
         }
 
@@ -271,6 +276,30 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
         {
             playerEnergy.RestoreEnergy(consumable.EnergyRestore);
         }*/
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Error, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 
     private Vector3 GetDropPosition()

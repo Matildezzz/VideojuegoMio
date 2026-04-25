@@ -43,6 +43,11 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
                 return "E - Cosechar " + cropName;
             }
 
+            if (currentCrop != null)
+            {
+                return "E - Revisar cultivo";
+            }
+
             return "E - Interactuar con parcela";
         }
     }
@@ -128,14 +133,17 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             if (currentCrop.IsWithered)
             {
                 ClearCrop();
+                ShowSuccess("Cultivo seco eliminado", "Hoe");
                 return true;
             }
 
+            ShowError("No puedes labrar una parcela con cultivo.");
             return false;
         }
 
         if (isTilled)
         {
+            ShowWarning("Esta parcela ya está preparada.");
             return false;
         }
 
@@ -145,10 +153,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         wetUntilTotalMinutes = -1;
         RefreshSoilVisual();
 
-        if (ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("Tierra labrada", ToastType.Success, "Hoe");
-        }
+        ShowSuccess("Tierra labrada", "Hoe");
 
         return true;
     }
@@ -157,11 +162,19 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
     {
         if (seed == null || seed.CropPrefab == null)
         {
+            ShowError("Esta semilla no tiene cultivo asignado.");
             return false;
         }
 
-        if (!isTilled || currentCrop != null)
+        if (!isTilled)
         {
+            ShowError("Necesitas preparar la tierra antes de plantar.");
+            return false;
+        }
+
+        if (currentCrop != null)
+        {
+            ShowError("Ya hay un cultivo plantado aquí.");
             return false;
         }
 
@@ -173,6 +186,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         {
             Debug.LogWarning("FarmPlot: el CropPrefab no tiene CropBehaviour.");
             Destroy(cropObject);
+            ShowError("El cultivo de esta semilla no está configurado.");
             return false;
         }
 
@@ -182,28 +196,40 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         isWateredToday = false;
         RefreshSoilVisual();
 
-        if (ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("Has plantado " + seed.DisplayName, ToastType.Success, "Plant");
-        }
+        ShowSuccess("Has plantado " + seed.DisplayName, "Plant");
 
         return true;
     }
 
     public bool TryWater()
     {
-        if (!isTilled || currentCrop == null)
+        if (!isTilled)
         {
+            ShowError("Necesitas preparar la tierra antes de regar.");
             return false;
         }
 
-        if (currentCrop.IsWithered || currentCrop.IsHarvestable)
+        if (currentCrop == null)
         {
+            ShowError("No hay ningún cultivo para regar.");
+            return false;
+        }
+
+        if (currentCrop.IsWithered)
+        {
+            ShowWarning("Este cultivo está seco. Quítalo con la azada.");
+            return false;
+        }
+
+        if (currentCrop.IsHarvestable)
+        {
+            ShowWarning("Este cultivo ya está listo para cosechar.");
             return false;
         }
 
         if (isCurrentlyWet)
         {
+            ShowWarning("Este cultivo ya está regado.");
             return false;
         }
 
@@ -222,39 +248,48 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             waterParticles.Play();
         }
 
-        if (ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("Cultivo regado", ToastType.Success, "Water");
-        }
+        ShowSuccess("Cultivo regado", "Water");
 
         return true;
     }
 
     public bool CanInteract()
     {
-        return currentCrop != null && (currentCrop.IsHarvestable || currentCrop.IsWithered);
+        return currentCrop != null;
     }
 
     public void Interact()
     {
         if (currentCrop == null)
         {
+            ShowWarning("No hay cultivo en esta parcela.");
             return;
         }
 
         if (currentCrop.IsWithered)
         {
             ClearCrop();
+            ShowSuccess("Cultivo seco eliminado", "Hoe");
             return;
         }
 
         if (!currentCrop.IsHarvestable)
         {
+            if (!isWateredToday && !isCurrentlyWet)
+            {
+                ShowWarning("Necesitas regar este cultivo.");
+            }
+            else
+            {
+                ShowWarning("Este cultivo aún no está listo.");
+            }
+
             return;
         }
 
         if (playerInventory == null)
         {
+            ShowError("No se encontró el inventario del jugador.");
             return;
         }
 
@@ -264,19 +299,16 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
         if (harvested)
         {
-            if (ToastManager.Instance != null && harvestedItem != null)
+            if (harvestedItem != null)
             {
-                ToastManager.Instance.ShowToast("+" + harvestedAmount + " " + harvestedItem.DisplayName, ToastType.Success, "Harvest");
+                ShowSuccess("+" + harvestedAmount + " " + harvestedItem.DisplayName, "Harvest");
             }
 
             ClearCrop();
         }
         else
         {
-            if (ToastManager.Instance != null)
-            {
-                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
-            }
+            ShowError("No hay espacio en el inventario.");
         }
     }
 
@@ -430,6 +462,42 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         }
 
         soilRenderer.sprite = isCurrentlyWet ? tilledWetSprite : tilledDrySprite;
+    }
+
+    private void ShowSuccess(string message, string soundName)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Success, soundName);
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Error, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 
     private string BuildSaveKey()

@@ -27,6 +27,7 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         if (item == null)
         {
+            ShowError("Selecciona un objeto válido.");
             return false;
         }
 
@@ -50,6 +51,7 @@ public sealed class PlayerItemActions : MonoBehaviour
             return TryUsePlaceable(placeable);
         }
 
+        ShowWarning("Este objeto no se puede usar directamente.");
         return false;
     }
 
@@ -63,6 +65,11 @@ public sealed class PlayerItemActions : MonoBehaviour
             changedSomething = true;
         }
 
+        if (!changedSomething)
+        {
+            ShowWarning("No necesitas usar este consumible ahora.");
+        }
+
         return changedSomething;
     }
 
@@ -70,6 +77,7 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         if (seedUser == null)
         {
+            ShowError("No puedes plantar semillas con este personaje.");
             return false;
         }
 
@@ -80,6 +88,7 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         if (toolUser == null)
         {
+            ShowError("No puedes usar herramientas con este personaje.");
             return false;
         }
 
@@ -97,9 +106,35 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         if (placeableUser == null)
         {
+            ShowError("No puedes colocar objetos aquí.");
             return false;
         }
 
         return placeableUser.TryPlace(placeable);
+    }
+
+
+    private void ShowWarning(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Error, "Error");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
     }
 }

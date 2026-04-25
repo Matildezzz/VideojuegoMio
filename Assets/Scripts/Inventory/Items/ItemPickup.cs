@@ -37,7 +37,7 @@ public sealed class ItemPickup : MonoBehaviour
         {
             if (ToastManager.Instance != null)
             {
-                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+                ToastManager.Instance.ShowToast("No hay espacio en el inventario.", ToastType.Error, "Error");
             }
         }
 
