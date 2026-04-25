@@ -106,6 +106,11 @@ public class NPC : MonoBehaviour, IInteractable
             friendship.RegisterTalk();
         }
 
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.NotifyTalkedToNpc();
+        }
+
         dialogueUI.SetNPCInfo(dialogueData.npcName, dialogueData.npcPortrait);
         dialogueUI.SetFriendship(friendship);
         dialogueUI.ShowDialogueUI(true);

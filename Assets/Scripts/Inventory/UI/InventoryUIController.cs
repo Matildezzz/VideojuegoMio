@@ -50,6 +50,11 @@ public sealed class InventoryUIController : MonoBehaviour
             inventoryRoot.SetActive(true);
         }
 
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.NotifyInventoryOpened();
+        }
+
         RefreshAll();
     }
 
@@ -75,6 +80,11 @@ public sealed class InventoryUIController : MonoBehaviour
 
         if (inventoryRoot.activeSelf)
         {
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyInventoryOpened();
+            }
+
             RefreshAll();
         }
         else

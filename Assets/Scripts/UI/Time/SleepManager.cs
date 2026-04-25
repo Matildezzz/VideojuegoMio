@@ -61,5 +61,10 @@ public class SleepManager : MonoBehaviour
 
         PauseController.SetPause(false);
         isSleeping = false;
+
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.NotifySlept();
+        }
     }
 }

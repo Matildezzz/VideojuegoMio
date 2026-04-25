@@ -356,6 +356,11 @@ public class ShopController : MonoBehaviour
 
         currentShop.AddToStock(itemData.ItemId, amount);
 
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.NotifySoldOrGiftedItem();
+        }
+
         RefreshShopDisplay();
         RefreshPlayerInventoryDisplay();
         return true;

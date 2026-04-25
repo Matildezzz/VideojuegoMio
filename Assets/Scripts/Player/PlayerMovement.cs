@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float footstepSpeed = 0.5f;
 
     private bool movementLocked = false;
+    private bool tutorialMovementSent = false;
 
     void Start()
     {
@@ -59,6 +60,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveInput = context.ReadValue<Vector2>();
+
+        if (!tutorialMovementSent && moveInput.sqrMagnitude > 0.01f)
+        {
+            tutorialMovementSent = true;
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyPlayerMoved();
+            }
+        }
+
         animator.SetFloat("InputX", moveInput.x);
         animator.SetFloat("InputY", moveInput.y);
     }

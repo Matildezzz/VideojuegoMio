@@ -26,7 +26,14 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
             return false;
         }
 
-        return plot.TryPlant(seed);
+        bool planted = plot.TryPlant(seed);
+
+        if (planted && TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.NotifySeedPlanted();
+        }
+
+        return planted;
     }
 
     public bool TryUseTool(ToolItemData tool)
@@ -45,7 +52,14 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
                 return false;
             }
 
-            return plot.TryTill();
+            bool usedHoe = plot.TryTill();
+
+            if (usedHoe && TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyToolUsed();
+            }
+
+            return usedHoe;
         }
 
         if (tool.ToolType == ToolType.WateringCan)
@@ -55,7 +69,14 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
                 return false;
             }
 
-            return plot.TryWater();
+            bool usedWateringCan = plot.TryWater();
+
+            if (usedWateringCan && TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyToolUsed();
+            }
+
+            return usedWateringCan;
         }
 
         if (tool.ToolType == ToolType.Pickaxe)
@@ -68,7 +89,14 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
             }
 
             Vector3 minerPosition = actionPoint != null ? actionPoint.position : transform.position;
-            return rock.TryMine(playerInventory, minerPosition);
+            bool usedPickaxe = rock.TryMine(playerInventory, minerPosition);
+
+            if (usedPickaxe && TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyToolUsed();
+            }
+
+            return usedPickaxe;
         }
 
         if (tool.ToolType == ToolType.Weapon)
@@ -80,6 +108,11 @@ public sealed class PlayerFarmingController : MonoBehaviour, ISeedUser, IToolUse
 
             nextWeaponUseTime = Time.time + tool.WeaponCooldown;
             PerformWeaponAttack(tool);
+
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.NotifyToolUsed();
+            }
 
             // Devuelve true aunque no golpee a nadie para que la animación de ataque sí se reproduzca.
             return true;
