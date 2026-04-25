@@ -102,11 +102,22 @@ public class ChickenNest : MonoBehaviour
         if (!added)
         {
             Debug.Log("Inventario lleno. No se puede recoger el huevo.");
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
+
             return;
         }
 
         hasEgg = false;
         UpdateVisual();
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + eggAmount + " " + eggItemData.DisplayName, ToastType.Success, "Pickup");
+        }
 
         Debug.Log("Huevo recogido.");
     }

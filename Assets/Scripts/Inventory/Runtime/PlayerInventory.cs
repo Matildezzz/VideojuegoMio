@@ -61,6 +61,11 @@ public sealed class PlayerInventory : MonoBehaviour, IItemReceiver
             return false;
         }
 
+        if (!CanAddItem(item, amount))
+        {
+            return false;
+        }
+
         int left = hotbar.AddItem(item, amount);
         left = backpack.AddItem(item, left);
 

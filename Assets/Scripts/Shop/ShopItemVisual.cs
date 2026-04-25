@@ -2,25 +2,47 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryItemUI : MonoBehaviour
+public class ShopItemVisual : MonoBehaviour
 {
-    public ItemData itemData;
-    public int quantity = 1;
-
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text quantityText;
 
+    private ItemData itemData;
+    private int quantity = 1;
+
     private void Awake()
+    {
+        FindReferencesIfNeeded();
+        RefreshUI();
+    }
+
+    public void Configure(ItemData newItemData, int newQuantity)
+    {
+        itemData = newItemData;
+        quantity = newQuantity;
+        FindReferencesIfNeeded();
+        RefreshUI();
+    }
+
+    private void FindReferencesIfNeeded()
     {
         if (iconImage == null)
         {
             iconImage = GetComponent<Image>();
         }
 
-        RefreshUI();
+        if (iconImage == null)
+        {
+            iconImage = GetComponentInChildren<Image>(true);
+        }
+
+        if (quantityText == null)
+        {
+            quantityText = GetComponentInChildren<TMP_Text>(true);
+        }
     }
 
-    public void RefreshUI()
+    private void RefreshUI()
     {
         bool hasItem = itemData != null;
 
@@ -35,19 +57,5 @@ public class InventoryItemUI : MonoBehaviour
         {
             quantityText.text = hasItem ? quantity.ToString() : string.Empty;
         }
-    }
-
-    public void AddToStack(int amount = 1)
-    {
-        quantity += amount;
-        RefreshUI();
-    }
-
-    public int RemoveFromStack(int amount = 1)
-    {
-        int removed = Mathf.Min(amount, quantity);
-        quantity -= removed;
-        RefreshUI();
-        return removed;
     }
 }

@@ -54,7 +54,19 @@ public sealed class DroppedItem : MonoBehaviour
 
         if (pickedUp)
         {
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("+" + amount + " " + itemData.DisplayName, ToastType.Success, "Pickup");
+            }
+
             Destroy(gameObject);
+        }
+        else
+        {
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
         }
 
         return pickedUp;

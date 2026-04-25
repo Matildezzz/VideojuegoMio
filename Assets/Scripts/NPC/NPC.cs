@@ -24,6 +24,23 @@ public class NPC : MonoBehaviour, IInteractable
 
     private QuestState questState = QuestState.NotStarted;
 
+    public string InteractionText
+    {
+        get
+        {
+            string npcName = dialogueData != null && !string.IsNullOrWhiteSpace(dialogueData.npcName)
+                ? dialogueData.npcName
+                : gameObject.name;
+
+            if (friendship != null)
+            {
+                return "E - Hablar con " + npcName + "\nG - Regalar objeto";
+            }
+
+            return "E - Hablar con " + npcName;
+        }
+    }
+
     private void Awake()
     {
         if (friendship == null)
@@ -284,7 +301,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (openShopWhenDialogueEnds && shopToOpen != null && ShopController.Instance != null)
         {
-        ShopController.Instance.OpenShop(shopToOpen);
+            ShopController.Instance.OpenShop(shopToOpen);
         }
     }
 

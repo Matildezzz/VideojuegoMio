@@ -5,6 +5,19 @@ public sealed class ChestInteractable : MonoBehaviour, IInteractable
     [SerializeField] private ChestInventory chestInventory;
     [SerializeField] private ChestUIController chestUIController;
 
+    public string InteractionText
+    {
+        get
+        {
+            if (chestUIController != null && chestInventory != null && chestUIController.IsOpen && chestUIController.CurrentChest == chestInventory)
+            {
+                return "E - Cerrar cofre";
+            }
+
+            return "E - Abrir cofre";
+        }
+    }
+
     private void Awake()
     {
         if (chestInventory == null)

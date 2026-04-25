@@ -20,10 +20,33 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
     [SerializeField] private int wetDurationHours = 6;
 
+    [Header("Feedback")]
+    [SerializeField] private ParticleSystem waterParticles;
+
     private bool isCurrentlyWet;
     private int wetUntilTotalMinutes = -1;
 
     public string SaveKey => BuildSaveKey();
+
+    public string InteractionText
+    {
+        get
+        {
+            if (currentCrop != null && currentCrop.IsWithered)
+            {
+                return "E - Quitar cultivo seco";
+            }
+
+            if (currentCrop != null && currentCrop.IsHarvestable)
+            {
+                string cropName = currentCrop.HarvestItem != null ? currentCrop.HarvestItem.DisplayName : "cultivo";
+                return "E - Cosechar " + cropName;
+            }
+
+            return "E - Interactuar con parcela";
+        }
+    }
+
 
     private void Awake()
     {
@@ -121,6 +144,12 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         isCurrentlyWet = false;
         wetUntilTotalMinutes = -1;
         RefreshSoilVisual();
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Tierra labrada", ToastType.Success, "Hoe");
+        }
+
         return true;
     }
 
@@ -153,6 +182,11 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         isWateredToday = false;
         RefreshSoilVisual();
 
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Has plantado " + seed.DisplayName, ToastType.Success, "Plant");
+        }
+
         return true;
     }
 
@@ -182,6 +216,17 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         wetUntilTotalMinutes = GetCurrentTotalMinutes() + (Mathf.Max(1, wetDurationHours) * 60);
 
         RefreshSoilVisual();
+
+        if (waterParticles != null)
+        {
+            waterParticles.Play();
+        }
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Cultivo regado", ToastType.Success, "Water");
+        }
+
         return true;
     }
 
@@ -213,11 +258,25 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
             return;
         }
 
-        bool harvested = currentCrop.TryHarvest(playerInventory);
+        ItemData harvestedItem = currentCrop.HarvestItem;
+        int harvestedAmount;
+        bool harvested = currentCrop.TryHarvest(playerInventory, out harvestedAmount);
 
         if (harvested)
         {
+            if (ToastManager.Instance != null && harvestedItem != null)
+            {
+                ToastManager.Instance.ShowToast("+" + harvestedAmount + " " + harvestedItem.DisplayName, ToastType.Success, "Harvest");
+            }
+
             ClearCrop();
+        }
+        else
+        {
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
         }
     }
 

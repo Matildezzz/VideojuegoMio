@@ -4,6 +4,8 @@ public class MuseumDonationInteractable : MonoBehaviour, IInteractable
 {
     [SerializeField] private PlayerInventory playerInventory;
 
+    public string InteractionText => "E - Donar al museo";
+
     public bool CanInteract()
     {
         return true;

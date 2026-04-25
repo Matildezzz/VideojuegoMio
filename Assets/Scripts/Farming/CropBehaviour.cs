@@ -24,6 +24,7 @@ public sealed class CropBehaviour : MonoBehaviour
 
     public bool IsHarvestable => isHarvestable;
     public bool IsWithered => isWithered;
+    public ItemData HarvestItem => harvestItem;
 
     private void Awake()
     {
@@ -95,6 +96,14 @@ public sealed class CropBehaviour : MonoBehaviour
 
     public bool TryHarvest(IItemReceiver receiver)
     {
+        int harvestedAmount;
+        return TryHarvest(receiver, out harvestedAmount);
+    }
+
+    public bool TryHarvest(IItemReceiver receiver, out int harvestedAmount)
+    {
+        harvestedAmount = 0;
+
         if (!isHarvestable)
         {
             return false;
@@ -109,7 +118,14 @@ public sealed class CropBehaviour : MonoBehaviour
         int max = Mathf.Max(min, maxHarvestAmount);
         int amount = Random.Range(min, max + 1);
 
-        return receiver.TryAddItem(harvestItem, amount);
+        bool added = receiver.TryAddItem(harvestItem, amount);
+
+        if (added)
+        {
+            harvestedAmount = amount;
+        }
+
+        return added;
     }
 
     public CropSaveData CaptureSaveData()

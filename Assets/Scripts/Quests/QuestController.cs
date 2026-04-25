@@ -125,6 +125,11 @@ public class QuestController : MonoBehaviour
             handinQuestIDs.Add(questID);
             activeQuests.Remove(quest);
             questUI?.UpdateQuestUI();
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Misión completada", ToastType.Success, "QuestComplete");
+            }
         }
     }
 

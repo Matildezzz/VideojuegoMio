@@ -245,23 +245,13 @@ public class ShopController : MonoBehaviour
             rt.localScale = Vector3.one;
         }
 
-        InventoryItemUI itemUI = itemObj.GetComponent<InventoryItemUI>();
+        ShopItemVisual itemUI = itemObj.GetComponent<ShopItemVisual>();
         if (itemUI == null)
         {
-            Debug.LogWarning("ShopController: el prefab asignado en shopItemUIPrefab necesita InventoryItemUI.");
-            Destroy(itemObj);
-            return null;
+            itemUI = itemObj.AddComponent<ShopItemVisual>();
         }
 
-        itemUI.itemData = itemData;
-        itemUI.quantity = quantity;
-        itemUI.RefreshUI();
-
-        ItemDragHandler dragHandler = itemObj.GetComponent<ItemDragHandler>();
-        if (dragHandler != null)
-        {
-            dragHandler.enabled = false;
-        }
+        itemUI.Configure(itemData, quantity);
 
         return itemObj;
     }
@@ -288,12 +278,24 @@ public class ShopController : MonoBehaviour
         if (CurrencyController.Instance.GetGold() < totalPrice)
         {
             Debug.Log("Not enough gold!");
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("No tienes suficiente oro", ToastType.Error, "Error");
+            }
+
             return false;
         }
 
         if (!playerInventory.CanAddItem(itemData, amount))
         {
             Debug.Log("Inventory full!");
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
+
             return false;
         }
 
@@ -317,6 +319,12 @@ public class ShopController : MonoBehaviour
 
         RefreshShopDisplay();
         RefreshPlayerInventoryDisplay();
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Has comprado " + itemData.DisplayName + " x" + amount, ToastType.Success, "Coin");
+        }
+
         return true;
     }
 
@@ -356,13 +364,14 @@ public class ShopController : MonoBehaviour
 
         currentShop.AddToStock(itemData.ItemId, amount);
 
-        if (TutorialManager.Instance != null)
-        {
-            TutorialManager.Instance.NotifySoldOrGiftedItem();
-        }
-
         RefreshShopDisplay();
         RefreshPlayerInventoryDisplay();
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Has vendido " + itemData.DisplayName + " x" + amount, ToastType.Success, "Coin");
+        }
+
         return true;
     }
 

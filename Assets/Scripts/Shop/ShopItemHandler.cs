@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(InventoryItemUI))]
+[RequireComponent(typeof(ShopItemVisual))]
 public class ShopItemHandler : MonoBehaviour, IPointerClickHandler
 {
     private bool isShopItem;

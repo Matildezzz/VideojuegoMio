@@ -66,6 +66,12 @@ public class CowMilking : MonoBehaviour
         if (!canBeMilked)
         {
             Debug.Log("La vaca ya ha sido ordeñada hoy.");
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("La vaca ya no tiene leche hoy", ToastType.Warning, "Error");
+            }
+
             return;
         }
 
@@ -86,11 +92,22 @@ public class CowMilking : MonoBehaviour
         if (!added)
         {
             Debug.Log("Inventario lleno. No puedes recoger la leche.");
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
+
             return;
         }
 
         lastMilkingDay = DayManager.CurrentDay;
         canBeMilked = false;
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + milkAmount + " " + milkItemData.DisplayName, ToastType.Success, "Pickup");
+        }
 
         Debug.Log("Has ordeñado la vaca y has conseguido leche.");
     }

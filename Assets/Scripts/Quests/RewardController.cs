@@ -91,10 +91,21 @@ public class RewardController : MonoBehaviour
         }
 
         int leftover = playerInventory.AddItemAndReturnLeftover(itemData, amount);
+        int receivedAmount = amount - leftover;
+
+        if (receivedAmount > 0 && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + receivedAmount + " " + itemData.DisplayName, ToastType.Success, "Pickup");
+        }
 
         if (leftover > 0)
         {
             DropRewardToWorld(itemData, leftover);
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno: parte de la recompensa cayó al suelo", ToastType.Warning, "Error");
+            }
         }
     }
 

@@ -30,19 +30,6 @@ public sealed class PlayerPickupCollector : MonoBehaviour
         if (itemPickup != null)
         {
             itemPickup.TryPickup(playerInventory);
-            return;
-        }
-
-        WorldItem worldItem = collision.GetComponent<WorldItem>();
-        if (worldItem != null && worldItem.itemData != null && worldItem.quantity > 0)
-        {
-            bool pickedUp = playerInventory.TryAddItem(worldItem.itemData, worldItem.quantity);
-
-            if (pickedUp)
-            {
-                worldItem.ShowPopUp();
-                Destroy(worldItem.gameObject);
-            }
         }
     }
 }
