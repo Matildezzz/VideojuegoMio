@@ -266,13 +266,13 @@ public class QuestController : MonoBehaviour
         return quest != null ? quest.state : QuestState.HandedIn;
     }
 
-    public void HandInQuest(string questID)
+    public bool HandInQuest(string questID)
     {
         QuestProgress quest = activeQuests.Find(q => q.QuestID == questID);
 
         if (quest == null)
         {
-            return;
+            return false;
         }
 
         if (!RemoveRequiredItemsFromInventory(questID))
@@ -281,7 +281,17 @@ public class QuestController : MonoBehaviour
             {
                 ToastManager.Instance.ShowToast("No tienes los objetos necesarios para entregar la misión.", ToastType.Error, "Error");
             }
-            return;
+            return false;
+        }
+
+        bool gaveRewards = false;
+        if (RewardController.Instance != null)
+        {
+            gaveRewards = RewardController.Instance.GiveQuestReward(quest.quest);
+        }
+        else
+        {
+            Debug.LogWarning("QuestController: no hay RewardController en la escena. La misión se entregará sin recompensas.");
         }
 
         quest.state = QuestState.HandedIn;
@@ -301,12 +311,13 @@ public class QuestController : MonoBehaviour
             questBannerUI.ShowBanner("Misión completada", quest.quest.questName, GetHandInIcon(quest));
         }
 
-        if (ToastManager.Instance != null)
+        if (!gaveRewards && ToastManager.Instance != null)
         {
             ToastManager.Instance.ShowToast("Misión completada: " + quest.quest.questName, ToastType.Success, "QuestComplete");
         }
-    }
 
+        return true;
+    }
     public bool IsQuestHandedIn(string questID)
     {
         return handinQuestIDs.Contains(questID);

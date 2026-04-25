@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,6 +44,10 @@ public sealed class ToastManager : MonoBehaviour
     [SerializeField] private float visibleSeconds = 2f;
     [SerializeField] private float fadeSeconds = 0.15f;
 
+    [Header("Cola de mensajes")]
+    [SerializeField] private int maxQueuedToasts = 5;
+
+    private readonly Queue<ToastMessage> pendingToasts = new Queue<ToastMessage>();
     private Coroutine currentRoutine;
 
     private void Awake()
@@ -90,50 +95,65 @@ public sealed class ToastManager : MonoBehaviour
             return;
         }
 
-        toastText.text = message;
-        toastText.color = GetTextColor(toastType);
+        while (pendingToasts.Count >= Mathf.Max(1, maxQueuedToasts))
+        {
+            pendingToasts.Dequeue();
+        }
+
+        pendingToasts.Enqueue(new ToastMessage(message, toastType, soundName));
+
+        if (currentRoutine == null)
+        {
+            currentRoutine = StartCoroutine(ProcessToastQueue());
+        }
+    }
+
+    private IEnumerator ProcessToastQueue()
+    {
+        while (pendingToasts.Count > 0)
+        {
+            ToastMessage toast = pendingToasts.Dequeue();
+            ApplyToast(toast);
+
+            toastPanel.SetActive(true);
+
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+                yield return FadeTo(1f);
+            }
+
+            yield return new WaitForSecondsRealtime(visibleSeconds);
+
+            if (canvasGroup != null)
+            {
+                yield return FadeTo(0f);
+            }
+
+            toastPanel.SetActive(false);
+        }
+
+        currentRoutine = null;
+    }
+
+    private void ApplyToast(ToastMessage toast)
+    {
+        toastText.text = toast.Message;
+        toastText.color = GetTextColor(toast.Type);
 
         if (backgroundImage != null)
         {
-            backgroundImage.color = GetBackgroundColor(toastType);
+            backgroundImage.color = GetBackgroundColor(toast.Type);
         }
 
         if (iconImage != null)
         {
-            Sprite icon = GetIcon(toastType);
+            Sprite icon = GetIcon(toast.Type);
             iconImage.sprite = icon;
             iconImage.enabled = icon != null;
         }
 
-        PlaySound(soundName);
-
-        if (currentRoutine != null)
-        {
-            StopCoroutine(currentRoutine);
-        }
-
-        currentRoutine = StartCoroutine(ShowRoutine());
-    }
-
-    private IEnumerator ShowRoutine()
-    {
-        toastPanel.SetActive(true);
-
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 0f;
-            yield return FadeTo(1f);
-        }
-
-        yield return new WaitForSeconds(visibleSeconds);
-
-        if (canvasGroup != null)
-        {
-            yield return FadeTo(0f);
-        }
-
-        toastPanel.SetActive(false);
-        currentRoutine = null;
+        PlaySound(toast.SoundName);
     }
 
     private IEnumerator FadeTo(float targetAlpha)
@@ -204,6 +224,20 @@ public sealed class ToastManager : MonoBehaviour
                 return errorIcon;
             default:
                 return normalIcon;
+        }
+    }
+
+    private readonly struct ToastMessage
+    {
+        public readonly string Message;
+        public readonly ToastType Type;
+        public readonly string SoundName;
+
+        public ToastMessage(string message, ToastType type, string soundName)
+        {
+            Message = message;
+            Type = type;
+            SoundName = soundName;
         }
     }
 }

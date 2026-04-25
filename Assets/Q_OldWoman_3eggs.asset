@@ -28,3 +28,12 @@ MonoBehaviour:
   - type: 0
     rewardItemId: ruby
     amount: 1
+  - type: 1
+    rewardItemId: 
+    amount: 50
+  - type: 2
+    rewardItemId: 
+    amount: 25
+  - type: 0
+    rewardItemId: carrotSeed
+    amount: 3

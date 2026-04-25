@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RewardController : MonoBehaviour
@@ -8,6 +9,7 @@ public class RewardController : MonoBehaviour
     [SerializeField] private ItemDatabase itemDatabase;
     [SerializeField] private ItemDropSpawner itemDropSpawner;
     [SerializeField] private Transform rewardDropOrigin;
+    [SerializeField] private PlayerExperienceController playerExperience;
 
     private void Awake()
     {
@@ -31,72 +33,124 @@ public class RewardController : MonoBehaviour
             itemDropSpawner = FindAnyObjectByType<ItemDropSpawner>();
         }
 
+        if (playerExperience == null)
+        {
+            playerExperience = FindAnyObjectByType<PlayerExperienceController>();
+        }
+
         if (itemDatabase == null)
         {
             Debug.LogWarning("RewardController: falta asignar ItemDatabase.");
         }
     }
 
-    public void GiveQuestReward(Quest quest)
+    public bool GiveQuestReward(Quest quest)
     {
-        if (quest == null || quest.questRewards == null)
+        if (quest == null || quest.questRewards == null || quest.questRewards.Count == 0)
         {
-            return;
+            return false;
         }
 
-        foreach (var reward in quest.questRewards)
+        bool gaveAnyReward = false;
+        List<string> rewardMessages = new List<string>();
+
+        foreach (QuestReward reward in quest.questRewards)
         {
+            if (reward == null)
+            {
+                continue;
+            }
+
             switch (reward.type)
             {
                 case RewardType.Item:
-                    GiveItemReward(reward.rewardItemId, reward.amount);
+                {
+                    string itemMessage = GiveItemRewardInternal(reward.rewardItemId, reward.amount, false);
+                    if (!string.IsNullOrWhiteSpace(itemMessage))
+                    {
+                        rewardMessages.Add(itemMessage);
+                        gaveAnyReward = true;
+                    }
                     break;
+                }
 
                 case RewardType.Gold:
+                {
+                    if (GiveGoldReward(reward.amount, false))
+                    {
+                        rewardMessages.Add("+" + reward.amount + " oro");
+                        gaveAnyReward = true;
+                    }
                     break;
+                }
 
                 case RewardType.Experience:
+                {
+                    if (GiveExperienceReward(reward.amount, false))
+                    {
+                        rewardMessages.Add("+" + reward.amount + " EXP");
+                        gaveAnyReward = true;
+                    }
                     break;
+                }
 
                 case RewardType.Custom:
+                    Debug.Log("RewardController: recompensa Custom pendiente de implementar en la mision " + quest.questName + ".");
                     break;
             }
         }
+
+        if (gaveAnyReward && rewardMessages.Count > 0 && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("Recompensas: " + string.Join("  |  ", rewardMessages), ToastType.Success, "Coin");
+        }
+
+        return gaveAnyReward;
     }
 
     public void GiveItemReward(string itemId, int amount)
     {
+        GiveItemRewardInternal(itemId, amount, true);
+    }
+
+    public void GiveGoldReward(int amount)
+    {
+        GiveGoldReward(amount, true);
+    }
+
+    public void GiveExperienceReward(int amount)
+    {
+        GiveExperienceReward(amount, true);
+    }
+
+    private string GiveItemRewardInternal(string itemId, int amount, bool showToast)
+    {
         if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
         {
-            return;
+            return string.Empty;
         }
 
         if (itemDatabase == null)
         {
             Debug.LogWarning("RewardController: no hay ItemDatabase.");
-            return;
+            return string.Empty;
         }
 
         ItemData itemData = itemDatabase.GetItemById(itemId);
         if (itemData == null)
         {
             Debug.LogWarning("RewardController: rewardItemId no existe -> " + itemId);
-            return;
+            return string.Empty;
         }
 
-        if (playerInventory == null)
+        int leftover = amount;
+
+        if (playerInventory != null)
         {
-            DropRewardToWorld(itemData, amount);
-            return;
+            leftover = playerInventory.AddItemAndReturnLeftover(itemData, amount);
         }
 
-        int leftover = playerInventory.AddItemAndReturnLeftover(itemData, amount);
-        int receivedAmount = amount - leftover;
-
-        if (receivedAmount > 0 && ToastManager.Instance != null)
-        {
-            ToastManager.Instance.ShowToast("+" + receivedAmount + " " + itemData.DisplayName, ToastType.Success, "Pickup");
-        }
+        int receivedInInventory = amount - leftover;
 
         if (leftover > 0)
         {
@@ -104,9 +158,73 @@ public class RewardController : MonoBehaviour
 
             if (ToastManager.Instance != null)
             {
-                ToastManager.Instance.ShowToast("Inventario lleno: parte de la recompensa cayó al suelo", ToastType.Warning, "Error");
+                string warning = receivedInInventory > 0
+                    ? "Inventario lleno: parte de la recompensa cayo al suelo"
+                    : "Inventario lleno: la recompensa cayo al suelo";
+
+                ToastManager.Instance.ShowToast(warning, ToastType.Warning, "Error");
             }
         }
+
+        string message = "+" + amount + " " + itemData.DisplayName;
+
+        if (showToast && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Success, "Pickup");
+        }
+
+        return message;
+    }
+
+    private bool GiveGoldReward(int amount, bool showToast)
+    {
+        if (amount <= 0)
+        {
+            return false;
+        }
+
+        if (CurrencyController.Instance == null)
+        {
+            Debug.LogWarning("RewardController: no hay CurrencyController en la escena. No se pudo entregar oro.");
+            return false;
+        }
+
+        CurrencyController.Instance.AddGold(amount);
+
+        if (showToast && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + amount + " oro", ToastType.Success, "Coin");
+        }
+
+        return true;
+    }
+
+    private bool GiveExperienceReward(int amount, bool showToast)
+    {
+        if (amount <= 0)
+        {
+            return false;
+        }
+
+        if (playerExperience == null)
+        {
+            playerExperience = FindAnyObjectByType<PlayerExperienceController>();
+        }
+
+        if (playerExperience == null)
+        {
+            Debug.LogWarning("RewardController: no hay PlayerExperienceController en la escena. Anade ese script al Player o a un GameObject para usar recompensas de experiencia.");
+            return false;
+        }
+
+        playerExperience.AddExperience(amount);
+
+        if (showToast && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + amount + " EXP", ToastType.Success, "QuestComplete");
+        }
+
+        return true;
     }
 
     private void DropRewardToWorld(ItemData itemData, int amount)

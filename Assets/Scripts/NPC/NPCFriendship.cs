@@ -48,9 +48,10 @@ public sealed class NPCFriendship : MonoBehaviour
         lastTalkDay = currentDay;
     }
 
-    public void RegisterQuestCompleted()
+    public int RegisterQuestCompleted()
     {
         AddHalfHearts(questCompletedGainHalfHearts);
+        return questCompletedGainHalfHearts;
     }
 
     public bool TryGiftSelectedItem(PlayerInventory inventory, out string feedback)
