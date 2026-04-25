@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public sealed class InventorySlotUI : MonoBehaviour,
     IPointerClickHandler,
+    IPointerEnterHandler,
+    IPointerExitHandler,
     IBeginDragHandler,
     IDragHandler,
     IEndDragHandler,
@@ -23,6 +25,8 @@ public sealed class InventorySlotUI : MonoBehaviour,
 
     private InventoryUISlotSource slotSource;
     private int slotIndex;
+    private InventorySlot currentSlot;
+    private bool pointerInside;
 
     private Action<InventoryUISlotSource, int, PointerEventData> clickCallback;
     private Action<InventoryUISlotSource, int, PointerEventData> beginDragCallback;
@@ -55,6 +59,8 @@ public sealed class InventorySlotUI : MonoBehaviour,
 
     public void Refresh(InventorySlot slot, bool isSelected)
     {
+        currentSlot = slot;
+
         bool hasItem = slot != null && !slot.IsEmpty;
 
         if (iconImage != null)
@@ -90,6 +96,11 @@ public sealed class InventorySlotUI : MonoBehaviour,
         {
             emptyStateRoot.SetActive(!hasItem);
         }
+
+        if (!hasItem && pointerInside)
+        {
+            HideTooltip();
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -97,8 +108,21 @@ public sealed class InventorySlotUI : MonoBehaviour,
         clickCallback?.Invoke(slotSource, slotIndex, eventData);
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        pointerInside = true;
+        ShowTooltip(eventData);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        pointerInside = false;
+        HideTooltip();
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
+        HideTooltip();
         beginDragCallback?.Invoke(slotSource, slotIndex, eventData);
     }
 
@@ -115,5 +139,34 @@ public sealed class InventorySlotUI : MonoBehaviour,
     public void OnDrop(PointerEventData eventData)
     {
         dropCallback?.Invoke(slotSource, slotIndex, eventData);
+    }
+
+    private void OnDisable()
+    {
+        pointerInside = false;
+        HideTooltip();
+    }
+
+    private void ShowTooltip(PointerEventData eventData)
+    {
+        if (currentSlot == null || currentSlot.IsEmpty || currentSlot.Item == null)
+        {
+            return;
+        }
+
+        if (TooltipUI.Instance == null)
+        {
+            return;
+        }
+
+        TooltipUI.Instance.Show(currentSlot.Item, eventData.position);
+    }
+
+    private void HideTooltip()
+    {
+        if (TooltipUI.Instance != null)
+        {
+            TooltipUI.Instance.Hide();
+        }
     }
 }

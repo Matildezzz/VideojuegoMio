@@ -6,6 +6,9 @@ public abstract class ItemData : ScriptableObject
     [SerializeField] private string itemId;
     [SerializeField] private string displayName;
 
+    [Header("Descripcion")]
+    [SerializeField, TextArea(2, 5)] private string description;
+
     [Header("Visual")]
     [SerializeField] private Sprite icon;
     [SerializeField] private GameObject worldPrefab;
@@ -23,6 +26,7 @@ public abstract class ItemData : ScriptableObject
 
     public string ItemId => itemId;
     public string DisplayName => displayName;
+    public string Description => description;
     public Sprite Icon => icon;
     public GameObject WorldPrefab => worldPrefab;
     public bool Stackable => stackable;
