@@ -166,6 +166,26 @@ public class ShopController : MonoBehaviour
             return;
         }
 
+        ShopOpeningHours openingHours = shop.GetComponent<ShopOpeningHours>();
+
+        if (openingHours != null && !openingHours.IsCurrentlyOpen)
+        {
+            string message = string.IsNullOrWhiteSpace(openingHours.ClosedMessage)
+                ? "La tienda está cerrada."
+                : openingHours.ClosedMessage;
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast(message);
+            }
+            else
+            {
+                Debug.Log(message);
+            }
+
+            return;
+        }
+
         currentShop = shop;
 
         if (shopPanel != null)
