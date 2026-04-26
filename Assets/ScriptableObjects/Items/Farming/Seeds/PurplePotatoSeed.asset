@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: PurplePotatoSeed
   m_EditorClassIdentifier: 
   itemId: purplePotatoSeed
-  displayName: Purple Potato
+  displayName: Purple Potato Seed
+  description: 
   icon: {fileID: -7073041504499798668, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
   worldPrefab: {fileID: 1836824800585820699, guid: d449bff239b8ca64a90e888a36657bbf, type: 3}
   stackable: 1

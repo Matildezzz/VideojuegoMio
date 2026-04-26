@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: pickaxe
   displayName: Pickaxe
+  description: 
   icon: {fileID: -3521486985499402948, guid: 417c730914f8e414aa70afc8d0738c47, type: 3}
   worldPrefab: {fileID: 0}
   stackable: 0
@@ -22,3 +23,7 @@ MonoBehaviour:
   buyPrice: 0
   sellPriceMultiplier: 0
   toolType: 2
+  energyCost: 3
+  weaponDamage: 1
+  weaponRange: 0.65
+  weaponCooldown: 0.35

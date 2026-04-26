@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Cabbage
   m_EditorClassIdentifier: 
   itemId: cabbage
-  displayName: Cabagge
+  displayName: Cabbage
+  description: 
   icon: {fileID: 6730661171929114593, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
   worldPrefab: {fileID: 7720834796860806497, guid: a84d0b6d5134f584a9288034ccc785ca, type: 3}
   stackable: 1

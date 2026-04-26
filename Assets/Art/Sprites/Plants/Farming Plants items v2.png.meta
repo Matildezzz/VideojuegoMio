@@ -970,10 +970,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Weath Seed
+      name: Wheat Seed
       rect:
         serializedVersion: 2
-        x: 0
+        x: 1
         y: 96
         width: 16
         height: 16
@@ -1682,7 +1682,7 @@ TextureImporter:
       Watermelon: -1699061958613669340
       Watermelon Seed: -3480933128145973794
       Weath: 3598695716248723854
-      Weath Seed: -9219761879892987205
+      Wheat Seed: -9219761879892987205
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

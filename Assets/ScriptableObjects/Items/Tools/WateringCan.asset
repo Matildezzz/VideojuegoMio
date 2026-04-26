@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e13755cf85638f143af79d8f23c50b24, type: 3}
   m_Name: WateringCan
   m_EditorClassIdentifier: 
-  itemId: regadera
-  displayName: Regadera
+  itemId: wateringCan
+  displayName: Watering Can
+  description: 
   icon: {fileID: -6987332668960274312, guid: e916ba07d67a7b94b93ff3a507d1792f, type: 3}
   worldPrefab: {fileID: 0}
   stackable: 0
@@ -22,3 +23,7 @@ MonoBehaviour:
   buyPrice: 10
   sellPriceMultiplier: 0.5
   toolType: 4
+  energyCost: 1
+  weaponDamage: 1
+  weaponRange: 0.65
+  weaponCooldown: 0.35

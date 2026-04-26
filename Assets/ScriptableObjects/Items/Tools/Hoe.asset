@@ -23,7 +23,7 @@ MonoBehaviour:
   buyPrice: 10
   sellPriceMultiplier: 0.5
   toolType: 3
-  energyCost: 1
+  energyCost: 2
   weaponDamage: 1
   weaponRange: 0.65
   weaponCooldown: 0.35

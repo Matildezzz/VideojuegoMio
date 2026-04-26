@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a400330157daef48a65495840392f62, type: 3}
   m_Name: WheatSeed
   m_EditorClassIdentifier: 
-  itemId: weathSeed
-  displayName: Weath Seeds
+  itemId: wheatSeed
+  displayName: Wheat Seeds
+  description: 
   icon: {fileID: -9219761879892987205, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
   worldPrefab: {fileID: 1836824800585820699, guid: 27d234bbb20261542a56a630bea835b7, type: 3}
   stackable: 1
