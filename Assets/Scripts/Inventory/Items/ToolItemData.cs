@@ -5,6 +5,7 @@ public class ToolItemData : ItemData
 {
     [Header("Tool Data")]
     [SerializeField] private ToolType toolType = ToolType.None;
+    [SerializeField] private int energyCost = 1;
 
     [Header("Weapon Data")]
     [SerializeField] private int weaponDamage = 1;
@@ -12,6 +13,7 @@ public class ToolItemData : ItemData
     [SerializeField] private float weaponCooldown = 0.35f;
 
     public ToolType ToolType => toolType;
+    public int EnergyCost => energyCost;
     public int WeaponDamage => weaponDamage;
     public float WeaponRange => weaponRange;
     public float WeaponCooldown => weaponCooldown;
@@ -20,6 +22,11 @@ public class ToolItemData : ItemData
     protected override void OnValidate()
     {
         base.OnValidate();
+
+        if (energyCost < 0)
+        {
+            energyCost = 0;
+        }
 
         if (weaponDamage < 1)
         {

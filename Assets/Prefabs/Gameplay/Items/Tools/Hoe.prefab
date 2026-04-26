@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 778267600780472346}
   - component: {fileID: 3335535458575277417}
   m_Layer: 0
-  m_Name: Azada
+  m_Name: Hoe
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

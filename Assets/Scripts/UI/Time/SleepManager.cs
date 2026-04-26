@@ -10,6 +10,7 @@ public class SleepManager : MonoBehaviour
     [Header("Referencias")]
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform wakeUpPoint;
+    [SerializeField] private PlayerEnergy playerEnergy;
 
     private bool isSleeping;
 
@@ -21,6 +22,18 @@ public class SleepManager : MonoBehaviour
             if (player != null)
             {
                 playerTransform = player.transform;
+            }
+        }
+
+        if (playerEnergy == null)
+        {
+            if (playerTransform != null)
+            {
+                playerEnergy = playerTransform.GetComponent<PlayerEnergy>();
+            }
+            else
+            {
+                playerEnergy = FindFirstObjectByType<PlayerEnergy>();
             }
         }
     }
@@ -48,6 +61,11 @@ public class SleepManager : MonoBehaviour
 
         int nextDay = TimeManager.Instance.Day + 1;
         TimeManager.Instance.SetTime(nextDay, wakeUpHour, wakeUpMinute);
+
+        if (playerEnergy != null)
+        {
+            playerEnergy.RestoreFull();
+        }
 
         if (playerTransform != null && wakeUpPoint != null)
         {

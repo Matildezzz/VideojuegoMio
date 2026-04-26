@@ -9,6 +9,7 @@ public sealed class PlayerItemActions : MonoBehaviour
     private IToolUser toolUser;
     private IPlaceableUser placeableUser;
     private PlayerHealth playerHealth;
+    private PlayerEnergy playerEnergy;
 
     private void Awake()
     {
@@ -16,6 +17,7 @@ public sealed class PlayerItemActions : MonoBehaviour
         toolUser = GetComponent<IToolUser>();
         placeableUser = GetComponent<IPlaceableUser>();
         playerHealth = GetComponent<PlayerHealth>();
+        playerEnergy = GetComponent<PlayerEnergy>();
 
         if (toolAnimator == null)
         {
@@ -27,7 +29,7 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         if (item == null)
         {
-            ShowError("Selecciona un objeto válido.");
+            ShowError("Selecciona un objeto valido.");
             return false;
         }
 
@@ -59,9 +61,15 @@ public sealed class PlayerItemActions : MonoBehaviour
     {
         bool changedSomething = false;
 
-        if (playerHealth != null && consumable.HealthRestore > 0)
+        if (playerHealth != null && consumable.HealthRestore > 0 && playerHealth.CurrentHealth < playerHealth.MaxHealth)
         {
             playerHealth.Heal(consumable.HealthRestore);
+            changedSomething = true;
+        }
+
+        if (playerEnergy != null && consumable.EnergyRestore > 0 && !playerEnergy.IsFull)
+        {
+            playerEnergy.RestoreEnergy(consumable.EnergyRestore);
             changedSomething = true;
         }
 
@@ -92,27 +100,42 @@ public sealed class PlayerItemActions : MonoBehaviour
             return false;
         }
 
+        if (playerEnergy != null && !playerEnergy.CanSpendEnergy(tool.EnergyCost))
+        {
+            playerEnergy.SpendEnergy(tool.EnergyCost);
+            return false;
+        }
+
         bool used = toolUser.TryUseTool(tool);
 
-        if (used && toolAnimator != null)
+        if (!used)
+        {
+            return false;
+        }
+
+        if (playerEnergy != null)
+        {
+            playerEnergy.SpendEnergy(tool.EnergyCost);
+        }
+
+        if (toolAnimator != null)
         {
             toolAnimator.PlayToolAnimation(tool);
         }
 
-        return used;
+        return true;
     }
 
     private bool TryUsePlaceable(PlaceableItemData placeable)
     {
         if (placeableUser == null)
         {
-            ShowError("No puedes colocar objetos aquí.");
+            ShowError("No puedes colocar objetos aqui.");
             return false;
         }
 
         return placeableUser.TryPlace(placeable);
     }
-
 
     private void ShowWarning(string message)
     {
