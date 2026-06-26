@@ -39,7 +39,7 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
 
             if (currentCrop != null && currentCrop.IsHarvestable)
             {
-                string cropName = currentCrop.HarvestItem != null ? currentCrop.HarvestItem.DisplayName : "cultivo";
+                string cropName = currentCrop.HarvestItem != null ? AlienNameManager.GetDisplayName(currentCrop.HarvestItem) : "cultivo";
                 return "E - Cosechar " + cropName;
             }
 
@@ -196,7 +196,10 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         isWateredToday = false;
         RefreshSoilVisual();
 
-        ShowSuccess("Has plantado " + seed.DisplayName, "Plant");
+        ShowSuccess("Has plantado " + AlienNameManager.GetDisplayName(seed), "Plant");
+        AlienNameManager.Instance?.ObserveItem(seed.ItemId);
+        QuestController.Instance?.RegisterObjectiveProgress(ObjectiveType.Custom, "plant_seed", 1);
+        AlienDiaryManager.Instance?.UnlockEntry("plant_seed", "Ritual de tierra", "Los humanos entierran pequeñas cápsulas en tierra húmeda. Afirman que después aparece comida. Posible magia agrícola.", "Plantas terrestres");
 
         return true;
     }
@@ -249,6 +252,8 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         }
 
         ShowSuccess("Cultivo regado", "Water");
+        QuestController.Instance?.RegisterObjectiveProgress(ObjectiveType.Custom, "water_crop", 1);
+        AlienDiaryManager.Instance?.UnlockEntry("water_crop", "Agua sobre bebés vegetales", "Las plantas terrestres parecen requerir líquido transparente. No gritan, pero mejor no asumir que disfrutan.", "Plantas terrestres");
 
         return true;
     }
@@ -301,7 +306,11 @@ public sealed class FarmPlot : MonoBehaviour, IInteractable
         {
             if (harvestedItem != null)
             {
-                ShowSuccess("+" + harvestedAmount + " " + harvestedItem.DisplayName, "Harvest");
+                ShowSuccess("+" + harvestedAmount + " " + AlienNameManager.GetDisplayName(harvestedItem), "Harvest");
+                    AlienNameManager.Instance?.ObserveItem(harvestedItem.ItemId);
+                    QuestController.Instance?.RegisterObjectiveProgress(ObjectiveType.Custom, "harvest_crop", 1);
+                    QuestController.Instance?.RegisterObjectiveProgress(ObjectiveType.Custom, "harvest_" + harvestedItem.ItemId, 1);
+                    AlienDiaryManager.Instance?.UnlockEntry("harvest_crop", "Comida generada desde el suelo", "Confirmado: enterrar objetos pequeños y añadir agua produce objetos comestibles más grandes. La lógica humana mejora ligeramente.", "Plantas terrestres");
             }
 
             ClearCrop();

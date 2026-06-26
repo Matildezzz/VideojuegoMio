@@ -23,7 +23,7 @@ public class NPC : MonoBehaviour, IInteractable
     private bool choicesVisible;
     private float nextAllowedDialogueInputTime;
 
-    private enum QuestState
+    private enum LocalQuestState
     {
         NotStarted,
         InProgress,
@@ -31,15 +31,13 @@ public class NPC : MonoBehaviour, IInteractable
         HandedIn
     }
 
-    private QuestState questState = QuestState.NotStarted;
+    private LocalQuestState questState = LocalQuestState.NotStarted;
 
     public string InteractionText
     {
         get
         {
-            string npcName = dialogueData != null && !string.IsNullOrWhiteSpace(dialogueData.npcName)
-                ? dialogueData.npcName
-                : gameObject.name;
+            string npcName = GetDisplayedNpcName();
 
             if (friendship != null)
             {
@@ -118,7 +116,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         QuestController.Instance.RegisterQuestNpcInfo(
             dialogueData.quest,
-            dialogueData.npcName,
+            GetDisplayedNpcName(),
             dialogueData.npcPortrait
         );
     }
@@ -169,11 +167,11 @@ public class NPC : MonoBehaviour, IInteractable
 
         SyncQuestState();
 
-        if (questState == QuestState.NotStarted)
+        if (questState == LocalQuestState.NotStarted)
         {
             dialogueIndex = 0;
         }
-        else if (questState == QuestState.InProgress)
+        else if (questState == LocalQuestState.InProgress)
         {
             dialogueIndex = dialogueData.questInProgressIndex;
         }
@@ -199,7 +197,9 @@ public class NPC : MonoBehaviour, IInteractable
             TutorialManager.Instance.NotifyTalkedToNpc();
         }
 
-        dialogueUI.SetNPCInfo(dialogueData.npcName, dialogueData.npcPortrait);
+        RegisterTalkObjective();
+
+        dialogueUI.SetNPCInfo(GetDisplayedNpcName(), dialogueData.npcPortrait);
         dialogueUI.SetFriendship(friendship);
         dialogueUI.ShowDialogueUI(true);
         dialogueUI.RefreshFriendship();
@@ -208,9 +208,25 @@ public class NPC : MonoBehaviour, IInteractable
         DisplayCurrentLine();
     }
 
+    private void RegisterTalkObjective()
+    {
+        if (QuestController.Instance == null)
+        {
+            return;
+        }
+
+        string npcId = GetNpcId();
+        QuestController.Instance.RegisterObjectiveProgress(ObjectiveType.TalkNPC, npcId, 1);
+
+        if (!string.IsNullOrWhiteSpace(dialogueData.npcName))
+        {
+            QuestController.Instance.RegisterObjectiveProgress(ObjectiveType.TalkNPC, dialogueData.npcName, 1);
+        }
+    }
+
     private void SyncQuestState()
     {
-        questState = QuestState.NotStarted;
+        questState = LocalQuestState.NotStarted;
 
         if (dialogueData == null || dialogueData.quest == null || QuestController.Instance == null)
         {
@@ -221,15 +237,15 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (QuestController.Instance.IsQuestHandedIn(questID))
         {
-            questState = QuestState.HandedIn;
+            questState = LocalQuestState.HandedIn;
         }
         else if (QuestController.Instance.IsQuestCompleted(questID))
         {
-            questState = QuestState.Completed;
+            questState = LocalQuestState.Completed;
         }
         else if (QuestController.Instance.IsQuestActive(questID))
         {
-            questState = QuestState.InProgress;
+            questState = LocalQuestState.InProgress;
         }
     }
 
@@ -250,7 +266,7 @@ public class NPC : MonoBehaviour, IInteractable
         if (isTyping)
         {
             StopAllCoroutines();
-            dialogueUI.SetDialogueText(dialogueData.dialogueLines[dialogueIndex]);
+            dialogueUI.SetDialogueText(GetCurrentDisplayLine());
             isTyping = false;
             TryShowChoicesForCurrentLine();
             return;
@@ -293,7 +309,7 @@ public class NPC : MonoBehaviour, IInteractable
         isTyping = true;
         dialogueUI.SetDialogueText("");
 
-        string currentLine = dialogueData.dialogueLines[dialogueIndex];
+        string currentLine = GetCurrentDisplayLine();
 
         for (int i = 0; i < currentLine.Length; i++)
         {
@@ -323,6 +339,17 @@ public class NPC : MonoBehaviour, IInteractable
         }
     }
 
+    private string GetCurrentDisplayLine()
+    {
+        if (dialogueData == null || dialogueData.dialogueLines == null || dialogueIndex < 0 || dialogueIndex >= dialogueData.dialogueLines.Length)
+        {
+            return string.Empty;
+        }
+
+        string line = dialogueData.dialogueLines[dialogueIndex];
+        return LanguageManager.Instance != null ? LanguageManager.Instance.TranslateDialogueLine(line) : line;
+    }
+
     private bool TryShowChoicesForCurrentLine()
     {
         if (dialogueData == null || dialogueData.choices == null)
@@ -348,7 +375,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (choice.choices == null || choice.nextDialogueIndexes == null)
         {
-            Debug.LogWarning("NPC: hay una eleccion de dialogo mal configurada en " + gameObject.name + ". Faltan choices o nextDialogueIndexes.");
+            Debug.LogWarning("NPC: hay una eleccion de dialogo mal configurada en " + gameObject.name + ".");
             return false;
         }
 
@@ -356,7 +383,6 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (amount <= 0)
         {
-            Debug.LogWarning("NPC: hay una eleccion de dialogo vacia en " + gameObject.name + ".");
             return false;
         }
 
@@ -365,18 +391,14 @@ public class NPC : MonoBehaviour, IInteractable
             int capturedNextIndex = choice.nextDialogueIndexes[i];
             bool capturedGivesQuest = choice.givesQuest != null && i < choice.givesQuest.Length && choice.givesQuest[i];
             string choiceText = choice.choices[i];
+            string displayChoiceText = LanguageManager.Instance != null ? LanguageManager.Instance.TranslateDialogueLine(choiceText) : choiceText;
 
-            GameObject button = dialogueUI.CreateChoiceButton(choiceText, () => ChooseOption(capturedNextIndex, capturedGivesQuest));
+            GameObject button = dialogueUI.CreateChoiceButton(displayChoiceText, () => ChooseOption(capturedNextIndex, capturedGivesQuest));
 
             if (button != null)
             {
                 choicesVisible = true;
             }
-        }
-
-        if (!choicesVisible)
-        {
-            Debug.LogWarning("NPC: no se pudieron crear botones de dialogo. Revisa Choice Container y Choice Button Prefab en DialogueController.");
         }
 
         return choicesVisible;
@@ -387,7 +409,7 @@ public class NPC : MonoBehaviour, IInteractable
         if (givesQuest && dialogueData.quest != null && QuestController.Instance != null)
         {
             QuestController.Instance.AcceptQuest(dialogueData.quest);
-            questState = QuestState.InProgress;
+            questState = LocalQuestState.InProgress;
         }
 
         choicesVisible = false;
@@ -412,15 +434,63 @@ public class NPC : MonoBehaviour, IInteractable
             return;
         }
 
+        ApplyLineEffects();
         StopAllCoroutines();
         isTyping = false;
         choicesVisible = false;
         StartCoroutine(TypeLine());
     }
 
+    private void ApplyLineEffects()
+    {
+        if (dialogueData == null || dialogueData.lineEffects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < dialogueData.lineEffects.Length; i++)
+        {
+            DialogueLineEffect effect = dialogueData.lineEffects[i];
+            if (effect == null || effect.dialogueIndex != dialogueIndex)
+            {
+                continue;
+            }
+
+            LanguageManager.Instance?.LearnWords(effect.wordsToLearn);
+            AlienNameManager.Instance?.LearnItemNames(effect.itemNameIdsToLearn);
+
+            if (AlienNameManager.Instance != null && effect.characterNameIdsToLearn != null)
+            {
+                for (int j = 0; j < effect.characterNameIdsToLearn.Length; j++)
+                {
+                    AlienNameManager.Instance.LearnCharacterName(effect.characterNameIdsToLearn[j]);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(effect.objectiveID) && QuestController.Instance != null)
+            {
+                QuestController.Instance.RegisterObjectiveProgress(effect.objectiveType, effect.objectiveID, Mathf.Max(1, effect.objectiveAmount));
+            }
+
+            if (AlienDiaryManager.Instance != null && effect.diaryEntriesToUnlock != null)
+            {
+                for (int j = 0; j < effect.diaryEntriesToUnlock.Length; j++)
+                {
+                    AlienDiaryEntry entry = effect.diaryEntriesToUnlock[j];
+                    if (entry == null)
+                    {
+                        continue;
+                    }
+
+                    AlienDiaryManager.Instance.UnlockEntry(entry.entryId, entry.title, entry.content, entry.category);
+                }
+            }
+        }
+    }
+
     public void EndDialogue()
     {
-        if (questState == QuestState.Completed &&
+        if (questState == LocalQuestState.Completed &&
             dialogueData != null &&
             dialogueData.quest != null &&
             QuestController.Instance != null &&
@@ -470,13 +540,44 @@ public class NPC : MonoBehaviour, IInteractable
 
             if (gainedHalfHearts > 0 && ToastManager.Instance != null)
             {
-                string npcName = dialogueData != null && !string.IsNullOrWhiteSpace(dialogueData.npcName)
-                    ? dialogueData.npcName
-                    : gameObject.name;
-
-                ToastManager.Instance.ShowToast("+" + FormatHalfHearts(gainedHalfHearts) + " corazón con " + npcName, ToastType.Success, "Heart");
+                ToastManager.Instance.ShowToast("+" + FormatHalfHearts(gainedHalfHearts) + " corazón con " + GetDisplayedNpcName(), ToastType.Success, "Heart");
             }
         }
+    }
+
+    private string GetNpcId()
+    {
+        if (dialogueData == null)
+        {
+            return gameObject.name;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dialogueData.npcID))
+        {
+            return dialogueData.npcID;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dialogueData.npcName))
+        {
+            return dialogueData.npcName;
+        }
+
+        return gameObject.name;
+    }
+
+    private string GetDisplayedNpcName()
+    {
+        if (dialogueData == null)
+        {
+            return gameObject.name;
+        }
+
+        if (AlienNameManager.Instance == null)
+        {
+            return string.IsNullOrWhiteSpace(dialogueData.npcName) ? gameObject.name : dialogueData.npcName;
+        }
+
+        return AlienNameManager.Instance.GetCharacterDisplayName(GetNpcId(), dialogueData.npcName, dialogueData.alienNpcName);
     }
 
     private string FormatHalfHearts(int halfHearts)
@@ -488,6 +589,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         return (halfHearts * 0.5f).ToString("0.0");
     }
+
     private void BlockDialogueInputBriefly()
     {
         nextAllowedDialogueInputTime = Time.unscaledTime + inputCooldown;

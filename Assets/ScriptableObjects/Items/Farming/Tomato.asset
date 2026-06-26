@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Tomato
   m_EditorClassIdentifier: 
   itemId: tomato
-  displayName: Tomato
+  displayName: Tomate
+  description: Un tomate terrestre fresco.
   icon: {fileID: -9105912542317449477, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
   worldPrefab: {fileID: 7720834796860806497, guid: ad02f667cf6ed2f4b9e4a3c65ff2e201, type: 3}
+  alienDescription: Esfera organica roja. Parece comida, aunque su blandura resulta sospechosa.
+  alienDisplayName: Bolita roja blanda
   stackable: 1
   maxStack: 99
   category: 1

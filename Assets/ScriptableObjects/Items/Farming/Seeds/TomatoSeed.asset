@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: TomatoSeed
   m_EditorClassIdentifier: 
   itemId: tomatoSeed
-  displayName: Tomato Seeds
+  displayName: Semillas de tomate
+  description: Semillas para cultivar tomates.
   icon: {fileID: 5680987814714434393, guid: a0ffdc01b11a822488b907ac4eff9edf, type: 3}
   worldPrefab: {fileID: 1836824800585820699, guid: 89495bdaf3e21474ea7e3b3a2ff01635, type: 3}
+  alienDescription: Particulas secas que los humanos entierran para invocar bolitas rojas.
+  alienDisplayName: Capsulas de bolita roja
   stackable: 1
   maxStack: 99
   category: 5

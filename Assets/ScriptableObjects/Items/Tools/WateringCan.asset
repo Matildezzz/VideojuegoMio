@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: WateringCan
   m_EditorClassIdentifier: 
   itemId: wateringCan
-  displayName: Watering Can
-  description: 
+  displayName: Regadera
+  description: Herramienta para regar cultivos.
   icon: {fileID: -6987332668960274312, guid: e916ba07d67a7b94b93ff3a507d1792f, type: 3}
   worldPrefab: {fileID: 0}
+  alienDescription: Recipiente que expulsa lluvia manual. Los humanos lo usan sobre bebes vegetales.
+  alienDisplayName: Nube portatil domesticada
   stackable: 0
   maxStack: 1
   category: 2

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public sealed class SaveController : MonoBehaviour
 {
+    public static SaveController Instance { get; private set; }
+
     [Header("References")]
     [SerializeField] private PlayerInventory playerInventory;
     [SerializeField] private ItemDatabase itemDatabase;
@@ -21,6 +23,13 @@ public sealed class SaveController : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
         if (playerInventory == null)
         {
             playerInventory = FindFirstObjectByType<PlayerInventory>();
@@ -143,6 +152,26 @@ public sealed class SaveController : MonoBehaviour
             gameSave.npcFriendships.Add(friendship.CaptureSaveData());
         }
 
+        if (LanguageManager.Instance != null)
+        {
+            gameSave.language = LanguageManager.Instance.CaptureSaveData();
+        }
+
+        if (AlienDiaryManager.Instance != null)
+        {
+            gameSave.alienDiary = AlienDiaryManager.Instance.CaptureSaveData();
+        }
+
+        if (AlienNameManager.Instance != null)
+        {
+            gameSave.alienNames = AlienNameManager.Instance.CaptureSaveData();
+        }
+
+        if (QuestController.Instance != null)
+        {
+            gameSave.quests = QuestController.Instance.CaptureSaveData();
+        }
+
         string json = JsonUtility.ToJson(gameSave, true);
         File.WriteAllText(SavePath, json);
 
@@ -203,6 +232,26 @@ public sealed class SaveController : MonoBehaviour
         if (gameSave.hasTimeData && TimeManager.Instance != null)
         {
             TimeManager.Instance.LoadTime(gameSave.day, gameSave.hour, gameSave.minute);
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.RestoreFromSaveData(gameSave.language);
+        }
+
+        if (AlienDiaryManager.Instance != null)
+        {
+            AlienDiaryManager.Instance.RestoreFromSaveData(gameSave.alienDiary);
+        }
+
+        if (AlienNameManager.Instance != null)
+        {
+            AlienNameManager.Instance.RestoreFromSaveData(gameSave.alienNames);
+        }
+
+        if (QuestController.Instance != null)
+        {
+            QuestController.Instance.RestoreFromSaveData(gameSave.quests);
         }
 
         if (MuseumController.Instance != null)

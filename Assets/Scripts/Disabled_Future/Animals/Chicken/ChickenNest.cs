@@ -1,0 +1,155 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class ChickenNest : MonoBehaviour
+{
+    [Header("Visual")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Sprite nestEmptySprite;
+    [SerializeField] private Sprite nestWithEggSprite;
+
+    [Header("Egg")]
+    [SerializeField] private ItemData eggItemData;
+    [SerializeField] private int eggAmount = 1;
+
+    [Header("State")]
+    [SerializeField] private bool hasEgg;
+    [SerializeField] private int lastEggDay = -1;
+
+    private IItemReceiver currentReceiver;
+    private bool playerInside;
+
+    private void Awake()
+    {
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        UpdateVisual();
+    }
+
+    private void OnEnable()
+    {
+        TimeManager.OnNewDay += HandleNewDay;
+    }
+
+    private void OnDisable()
+    {
+        TimeManager.OnNewDay -= HandleNewDay;
+    }
+
+    private void Start()
+    {
+        TryGenerateEgg(GetCurrentDay());
+    }
+
+    private void Update()
+    {
+        if (!playerInside || !hasEgg)
+        {
+            return;
+        }
+
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            CollectEgg();
+        }
+    }
+
+    private int GetCurrentDay()
+    {
+        return TimeManager.Instance != null ? TimeManager.Instance.Day : TimeManager.CurrentDay;
+    }
+
+    private void HandleNewDay(int currentDay)
+    {
+        TryGenerateEgg(currentDay);
+    }
+
+    private void TryGenerateEgg(int currentDay)
+    {
+        if (lastEggDay == currentDay || hasEgg)
+        {
+            return;
+        }
+
+        hasEgg = true;
+        lastEggDay = currentDay;
+        UpdateVisual();
+    }
+
+    private void CollectEgg()
+    {
+        if (currentReceiver == null)
+        {
+            return;
+        }
+
+        if (eggItemData == null)
+        {
+            Debug.LogWarning("El nido no tiene asignado el ItemData del huevo.");
+            return;
+        }
+
+        bool added = currentReceiver.TryAddItem(eggItemData, eggAmount);
+
+        if (!added)
+        {
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast("Inventario lleno", ToastType.Error, "Error");
+            }
+
+            return;
+        }
+
+        hasEgg = false;
+        UpdateVisual();
+        AlienNameManager.Instance?.ObserveItem(eggItemData.ItemId);
+
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast("+" + eggAmount + " " + AlienNameManager.GetDisplayName(eggItemData), ToastType.Success, "Pickup");
+        }
+    }
+
+    private void UpdateVisual()
+    {
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        spriteRenderer.sprite = hasEgg ? nestWithEggSprite : nestEmptySprite;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        IItemReceiver receiver = other.GetComponentInParent<IItemReceiver>();
+
+        if (receiver == null)
+        {
+            return;
+        }
+
+        currentReceiver = receiver;
+        playerInside = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        IItemReceiver receiver = other.GetComponentInParent<IItemReceiver>();
+
+        if (receiver == null)
+        {
+            return;
+        }
+
+        if (receiver == currentReceiver)
+        {
+            currentReceiver = null;
+            playerInside = false;
+        }
+    }
+}

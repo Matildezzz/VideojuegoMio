@@ -90,8 +90,10 @@ public sealed class TooltipUI : MonoBehaviour
             description = GetDefaultDescription(item);
         }
 
+        description = AlienNameManager.GetDescription(item, description);
+
         Show(
-            item.DisplayName,
+            AlienNameManager.GetDisplayName(item),
             description,
             item.Icon,
             BuildExtraInfo(item),

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2217541430f879742a41f1e7799bd780, type: 3}
+  m_Name: Nara_Dialogue
+  m_EditorClassIdentifier: 
+  npcID: nara
+  npcName: Nara
+  alienNpcName: Cria humana detectora
+  npcPortrait: {fileID: 0}
+  dialogueLines:
+  - "Yo no creo que seas un monstruo. Los monstruos no miran las zanahorias con miedo."
+  - "Si no entiendes a los mayores, no pasa nada. A veces yo tampoco."
+  - "Puedes apuntarlo en tu diario. Eso hacen los cientificos y las personas que no quieren olvidar cosas raras."
+  autoProgressLines: 000000
+  endDialogueLines: 000001
+  autoProgressDelay: 1.5
+  typingSpeed: 0.05
+  voiceSound: {fileID: 0}
+  voicePitch: 1
+  choices: []
+  lineEffects:
+  - dialogueIndex: 0
+    runOnlyIfDiaryEntryLocked: nara_understands
+    wordsToLearn: []
+    itemNameIdsToLearn: []
+    characterNameIdsToLearn:
+    - nara
+    diaryEntriesToUnlock:
+    - entryId: nara_understands
+      title: Cria humana recomendada
+      content: La cria humana parece detectar extranjeria sin alarma. Tal vez sea una traductora emocional no oficial.
+      category: Humanos observados
+      unlocked: 1
+    objectiveType: 4
+    objectiveID: 
+    objectiveAmount: 1
+    itemsToGive: []
+  questInProgressIndex: 1
+  questCompletedIndex: 2
+  quest: {fileID: 0}

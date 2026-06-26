@@ -27,4 +27,9 @@ public class GameSaveData
     public List<string> museumDonatedItemIds = new List<string>();
 
     public List<NPCFriendshipSaveData> npcFriendships = new List<NPCFriendshipSaveData>();
+
+    public LanguageSaveData language = new LanguageSaveData();
+    public AlienDiarySaveData alienDiary = new AlienDiarySaveData();
+    public AlienNameSaveData alienNames = new AlienNameSaveData();
+    public QuestSystemSaveData quests = new QuestSystemSaveData();
 }

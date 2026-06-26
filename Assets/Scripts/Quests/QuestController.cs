@@ -12,12 +12,16 @@ public class QuestController : MonoBehaviour
     [SerializeField] private QuestHUDUI questHUDUI;
     [SerializeField] private QuestBannerUI questBannerUI;
 
-    public List<QuestProgress> activeQuests = new();
-    public List<string> handinQuestIDs = new();
+    [Header("Guardado")]
+    [SerializeField] private List<Quest> knownQuests = new List<Quest>();
+
+    public List<QuestProgress> activeQuests = new List<QuestProgress>();
+    public List<string> handinQuestIDs = new List<string>();
 
     public event Action OnQuestUpdated;
+    public event Action<string> OnQuestHandedIn;
 
-    private readonly Dictionary<string, QuestNpcInfo> questNpcInfos = new();
+    private readonly Dictionary<string, QuestNpcInfo> questNpcInfos = new Dictionary<string, QuestNpcInfo>();
     private string followedQuestID;
 
     private void Awake()
@@ -82,10 +86,12 @@ public class QuestController : MonoBehaviour
 
     public void AcceptQuest(Quest quest)
     {
-        if (quest == null || IsQuestActive(quest.questID) || IsQuestHandedIn(quest.questID))
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questID) || IsQuestActive(quest.questID) || IsQuestHandedIn(quest.questID))
         {
             return;
         }
+
+        RegisterKnownQuest(quest);
 
         QuestProgress progress = new QuestProgress(quest);
         activeQuests.Add(progress);
@@ -103,6 +109,24 @@ public class QuestController : MonoBehaviour
         {
             ToastManager.Instance.ShowToast("Nueva misión: " + quest.questName, ToastType.Success, "QuestComplete");
         }
+    }
+
+    private void RegisterKnownQuest(Quest quest)
+    {
+        if (quest == null || string.IsNullOrWhiteSpace(quest.questID))
+        {
+            return;
+        }
+
+        for (int i = 0; i < knownQuests.Count; i++)
+        {
+            if (knownQuests[i] != null && knownQuests[i].questID == quest.questID)
+            {
+                return;
+            }
+        }
+
+        knownQuests.Add(quest);
     }
 
     public bool IsQuestActive(string questID)
@@ -211,6 +235,47 @@ public class QuestController : MonoBehaviour
         NotifyQuestUI();
     }
 
+    public void RegisterObjectiveProgress(ObjectiveType type, string objectiveID, int amount = 1)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        bool changed = false;
+
+        foreach (QuestProgress quest in activeQuests)
+        {
+            if (quest == null || quest.state == QuestState.HandedIn || quest.objectives == null)
+            {
+                continue;
+            }
+
+            foreach (QuestObjective objective in quest.objectives)
+            {
+                if (objective == null || objective.type != type || objective.IsCompleted)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(objective.objectiveID) && objective.objectiveID != objectiveID)
+                {
+                    continue;
+                }
+
+                objective.currentAmount = Mathf.Min(objective.currentAmount + amount, objective.requiredAmount);
+                changed = true;
+            }
+
+            RefreshQuestState(quest, true);
+        }
+
+        if (changed)
+        {
+            NotifyQuestUI();
+        }
+    }
+
     private void RefreshQuestState(QuestProgress quest, bool notifyCompleted)
     {
         if (quest == null || quest.state == QuestState.HandedIn)
@@ -295,7 +360,10 @@ public class QuestController : MonoBehaviour
         }
 
         quest.state = QuestState.HandedIn;
-        handinQuestIDs.Add(questID);
+        if (!handinQuestIDs.Contains(questID))
+        {
+            handinQuestIDs.Add(questID);
+        }
         activeQuests.Remove(quest);
 
         if (followedQuestID == questID)
@@ -305,6 +373,7 @@ public class QuestController : MonoBehaviour
         }
 
         NotifyQuestUI();
+        OnQuestHandedIn?.Invoke(questID);
 
         if (questBannerUI != null)
         {
@@ -318,9 +387,10 @@ public class QuestController : MonoBehaviour
 
         return true;
     }
+
     public bool IsQuestHandedIn(string questID)
     {
-        return handinQuestIDs.Contains(questID);
+        return !string.IsNullOrWhiteSpace(questID) && handinQuestIDs.Contains(questID);
     }
 
     public bool RemoveRequiredItemsFromInventory(string questID)
@@ -336,7 +406,7 @@ public class QuestController : MonoBehaviour
             return false;
         }
 
-        Dictionary<ItemData, int> requiredItems = new();
+        Dictionary<ItemData, int> requiredItems = new Dictionary<ItemData, int>();
 
         foreach (QuestObjective objective in quest.objectives)
         {
@@ -365,7 +435,7 @@ public class QuestController : MonoBehaviour
             requiredItems[itemData] += objective.requiredAmount;
         }
 
-        foreach (var itemRequirement in requiredItems)
+        foreach (KeyValuePair<ItemData, int> itemRequirement in requiredItems)
         {
             if (!playerInventory.HasItem(itemRequirement.Key, itemRequirement.Value))
             {
@@ -373,7 +443,7 @@ public class QuestController : MonoBehaviour
             }
         }
 
-        foreach (var itemRequirement in requiredItems)
+        foreach (KeyValuePair<ItemData, int> itemRequirement in requiredItems)
         {
             playerInventory.RemoveItem(itemRequirement.Key, itemRequirement.Value);
         }
@@ -381,56 +451,9 @@ public class QuestController : MonoBehaviour
         return true;
     }
 
-    public void LoadQuestProgress(List<QuestProgress> savedQuests)
-    {
-        activeQuests = savedQuests ?? new List<QuestProgress>();
-
-        foreach (QuestProgress quest in activeQuests)
-        {
-            RefreshQuestState(quest, false);
-        }
-
-        if (string.IsNullOrWhiteSpace(followedQuestID) && activeQuests.Count > 0)
-        {
-            followedQuestID = activeQuests[0].QuestID;
-        }
-
-        CheckInventoryForQuests(false);
-        NotifyQuestUI();
-    }
-
     public void RegisterEnemyDefeated(string enemyId)
     {
-        if (string.IsNullOrWhiteSpace(enemyId))
-        {
-            return;
-        }
-
-        foreach (QuestProgress quest in activeQuests)
-        {
-            foreach (QuestObjective questObjective in quest.objectives)
-            {
-                if (questObjective.type != ObjectiveType.DefeatEnemy)
-                {
-                    continue;
-                }
-
-                if (!string.IsNullOrWhiteSpace(questObjective.objectiveID) &&
-                    questObjective.objectiveID != enemyId)
-                {
-                    continue;
-                }
-
-                questObjective.currentAmount = Mathf.Min(
-                    questObjective.currentAmount + 1,
-                    questObjective.requiredAmount
-                );
-            }
-
-            RefreshQuestState(quest, true);
-        }
-
-        NotifyQuestUI();
+        RegisterObjectiveProgress(ObjectiveType.DefeatEnemy, enemyId, 1);
     }
 
     public void RegisterQuestNpcInfo(Quest quest, string npcName, Sprite npcIcon)
@@ -439,6 +462,8 @@ public class QuestController : MonoBehaviour
         {
             return;
         }
+
+        RegisterKnownQuest(quest);
 
         if (!questNpcInfos.ContainsKey(quest.questID))
         {
@@ -462,7 +487,8 @@ public class QuestController : MonoBehaviour
             return quest.quest.handInHint;
         }
 
-        if (questNpcInfos.TryGetValue(quest.QuestID, out QuestNpcInfo info) && !string.IsNullOrWhiteSpace(info.npcName))
+        QuestNpcInfo info;
+        if (questNpcInfos.TryGetValue(quest.QuestID, out info) && !string.IsNullOrWhiteSpace(info.npcName))
         {
             return "Vuelve con " + info.npcName + ".";
         }
@@ -482,9 +508,134 @@ public class QuestController : MonoBehaviour
             return quest.quest.handInNpcIcon;
         }
 
-        if (questNpcInfos.TryGetValue(quest.QuestID, out QuestNpcInfo info))
+        QuestNpcInfo info;
+        if (questNpcInfos.TryGetValue(quest.QuestID, out info))
         {
             return info.npcIcon;
+        }
+
+        return null;
+    }
+
+    public QuestSystemSaveData CaptureSaveData()
+    {
+        QuestSystemSaveData saveData = new QuestSystemSaveData();
+        saveData.followedQuestID = followedQuestID;
+        saveData.handedInQuestIDs.AddRange(handinQuestIDs);
+
+        if (activeQuests != null)
+        {
+            for (int i = 0; i < activeQuests.Count; i++)
+            {
+                QuestProgress progress = activeQuests[i];
+                if (progress == null || progress.quest == null)
+                {
+                    continue;
+                }
+
+                QuestRuntimeSaveData questSave = new QuestRuntimeSaveData();
+                questSave.questID = progress.quest.questID;
+                questSave.state = progress.state;
+
+                if (progress.objectives != null)
+                {
+                    for (int j = 0; j < progress.objectives.Count; j++)
+                    {
+                        QuestObjective objective = progress.objectives[j];
+                        if (objective == null)
+                        {
+                            continue;
+                        }
+
+                        questSave.objectives.Add(new QuestObjectiveRuntimeSaveData
+                        {
+                            objectiveID = objective.objectiveID,
+                            type = objective.type,
+                            currentAmount = objective.currentAmount
+                        });
+                    }
+                }
+
+                saveData.activeQuests.Add(questSave);
+            }
+        }
+
+        return saveData;
+    }
+
+    public void RestoreFromSaveData(QuestSystemSaveData saveData)
+    {
+        activeQuests.Clear();
+        handinQuestIDs.Clear();
+        followedQuestID = string.Empty;
+
+        if (saveData == null)
+        {
+            NotifyQuestUI();
+            return;
+        }
+
+        if (saveData.handedInQuestIDs != null)
+        {
+            handinQuestIDs.AddRange(saveData.handedInQuestIDs);
+        }
+
+        if (saveData.activeQuests != null)
+        {
+            for (int i = 0; i < saveData.activeQuests.Count; i++)
+            {
+                QuestRuntimeSaveData questSave = saveData.activeQuests[i];
+                if (questSave == null || string.IsNullOrWhiteSpace(questSave.questID))
+                {
+                    continue;
+                }
+
+                Quest questAsset = FindKnownQuest(questSave.questID);
+                if (questAsset == null)
+                {
+                    Debug.LogWarning("QuestController: no se pudo cargar la misión porque no está en Known Quests -> " + questSave.questID);
+                    continue;
+                }
+
+                QuestProgress progress = new QuestProgress(questAsset);
+                progress.state = questSave.state;
+
+                if (questSave.objectives != null)
+                {
+                    for (int j = 0; j < questSave.objectives.Count; j++)
+                    {
+                        QuestObjectiveRuntimeSaveData objectiveSave = questSave.objectives[j];
+                        if (objectiveSave == null)
+                        {
+                            continue;
+                        }
+
+                        QuestObjective runtimeObjective = progress.objectives.Find(o => o.objectiveID == objectiveSave.objectiveID && o.type == objectiveSave.type);
+                        if (runtimeObjective != null)
+                        {
+                            runtimeObjective.currentAmount = Mathf.Clamp(objectiveSave.currentAmount, 0, runtimeObjective.requiredAmount);
+                        }
+                    }
+                }
+
+                activeQuests.Add(progress);
+            }
+        }
+
+        followedQuestID = saveData.followedQuestID;
+        CheckInventoryForQuests(false);
+        NotifyQuestUI();
+    }
+
+    private Quest FindKnownQuest(string questID)
+    {
+        for (int i = 0; i < knownQuests.Count; i++)
+        {
+            Quest quest = knownQuests[i];
+            if (quest != null && quest.questID == questID)
+            {
+                return quest;
+            }
         }
 
         return null;
@@ -502,4 +653,28 @@ public class QuestController : MonoBehaviour
         public string npcName;
         public Sprite npcIcon;
     }
+}
+
+[Serializable]
+public class QuestSystemSaveData
+{
+    public List<QuestRuntimeSaveData> activeQuests = new List<QuestRuntimeSaveData>();
+    public List<string> handedInQuestIDs = new List<string>();
+    public string followedQuestID;
+}
+
+[Serializable]
+public class QuestRuntimeSaveData
+{
+    public string questID;
+    public QuestState state;
+    public List<QuestObjectiveRuntimeSaveData> objectives = new List<QuestObjectiveRuntimeSaveData>();
+}
+
+[Serializable]
+public class QuestObjectiveRuntimeSaveData
+{
+    public string objectiveID;
+    public ObjectiveType type;
+    public int currentAmount;
 }

@@ -5,6 +5,16 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
+    public static int CurrentDay
+    {
+        get
+        {
+            return Instance != null ? Instance.Day : 1;
+        }
+    }
+
+    public static event Action<int> OnNewDay;
+
     [Header("Fecha y hora actual")]
     [SerializeField] private int day = 1;
     [SerializeField] private int hour = 8;
@@ -40,6 +50,11 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
+        if (realSecondsPerGameMinute <= 0f)
+        {
+            return;
+        }
+
         timer += Time.deltaTime;
 
         while (timer >= realSecondsPerGameMinute)
@@ -63,7 +78,7 @@ public class TimeManager : MonoBehaviour
         {
             hour = 0;
             day++;
-            OnDayChanged?.Invoke(day);
+            NotifyDayChanged();
         }
 
         NotifyTimeChanged();
@@ -72,6 +87,12 @@ public class TimeManager : MonoBehaviour
     private void NotifyTimeChanged()
     {
         OnTimeChanged?.Invoke(day, hour, minute);
+    }
+
+    private void NotifyDayChanged()
+    {
+        OnDayChanged?.Invoke(day);
+        OnNewDay?.Invoke(day);
     }
 
     public bool IsNight()
@@ -100,7 +121,7 @@ public class TimeManager : MonoBehaviour
 
         if (day != previousDay)
         {
-            OnDayChanged?.Invoke(day);
+            NotifyDayChanged();
         }
 
         NotifyTimeChanged();
@@ -124,4 +145,3 @@ public class TimeManager : MonoBehaviour
         NotifyTimeChanged();
     }
 }
-

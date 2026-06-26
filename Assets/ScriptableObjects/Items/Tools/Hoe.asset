@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Hoe
   m_EditorClassIdentifier: 
   itemId: hoe
-  displayName: Hoe
-  description: 
+  displayName: Azada
+  description: Herramienta para preparar la tierra antes de plantar.
   icon: {fileID: 5827638716017627413, guid: e916ba07d67a7b94b93ff3a507d1792f, type: 3}
   worldPrefab: {fileID: 0}
+  alienDescription: Extremidad metalica para herir el suelo de forma socialmente aceptada.
+  alienDisplayName: Garra de tierra
   stackable: 0
   maxStack: 1
   category: 2
