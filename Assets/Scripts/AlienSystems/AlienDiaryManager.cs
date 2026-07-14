@@ -79,6 +79,22 @@ public sealed class AlienDiaryManager : MonoBehaviour
         return !wasUnlocked;
     }
 
+    public bool IsEntryUnlocked(string entryId)
+    {
+        if (string.IsNullOrWhiteSpace(entryId))
+        {
+            return false;
+        }
+
+        AlienDiaryEntry entry;
+        if (!entriesById.TryGetValue(entryId, out entry))
+        {
+            return false;
+        }
+
+        return entry != null && entry.unlocked;
+    }
+
     public void RegisterLearnedWord(string word)
     {
         if (string.IsNullOrWhiteSpace(word))

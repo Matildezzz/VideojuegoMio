@@ -264,4 +264,123 @@ public class RewardController : MonoBehaviour
             droppedItem.Setup(itemData, amount);
         }
     }
+
+    public bool HasItem(string itemId, int amount)
+    {
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
+        {
+            return false;
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogWarning("RewardController: no hay ItemDatabase.");
+            return false;
+        }
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("RewardController: no hay PlayerInventory.");
+            return false;
+        }
+
+        ItemData itemData = itemDatabase.GetItemById(itemId);
+
+        if (itemData == null)
+        {
+            Debug.LogWarning("RewardController: itemId requerido no existe -> " + itemId);
+            return false;
+        }
+
+        return playerInventory.HasItem(itemData, amount);
+    }
+
+    public bool TakeItem(string itemId, int amount)
+    {
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
+        {
+            return false;
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogWarning("RewardController: no hay ItemDatabase.");
+            return false;
+        }
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("RewardController: no hay PlayerInventory.");
+            return false;
+        }
+
+        ItemData itemData = itemDatabase.GetItemById(itemId);
+
+        if (itemData == null)
+        {
+            Debug.LogWarning("RewardController: itemId a quitar no existe -> " + itemId);
+            return false;
+        }
+
+        return playerInventory.RemoveItem(itemData, amount);
+    }
+
+    public bool HasRequiredItems(DialogueItemGrant[] requiredItems)
+    {
+        if (requiredItems == null || requiredItems.Length == 0)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < requiredItems.Length; i++)
+        {
+            DialogueItemGrant requiredItem = requiredItems[i];
+
+            if (requiredItem == null)
+            {
+                continue;
+            }
+
+            int amount = Mathf.Max(1, requiredItem.amount);
+
+            if (!HasItem(requiredItem.itemId, amount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool TakeRequiredItems(DialogueItemGrant[] requiredItems)
+    {
+        if (!HasRequiredItems(requiredItems))
+        {
+            return false;
+        }
+
+        if (requiredItems == null || requiredItems.Length == 0)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < requiredItems.Length; i++)
+        {
+            DialogueItemGrant requiredItem = requiredItems[i];
+
+            if (requiredItem == null)
+            {
+                continue;
+            }
+
+            int amount = Mathf.Max(1, requiredItem.amount);
+
+            if (!TakeItem(requiredItem.itemId, amount))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

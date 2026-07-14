@@ -451,7 +451,13 @@ public class NPC : MonoBehaviour, IInteractable
         for (int i = 0; i < dialogueData.lineEffects.Length; i++)
         {
             DialogueLineEffect effect = dialogueData.lineEffects[i];
+
             if (effect == null || effect.dialogueIndex != dialogueIndex)
+            {
+                continue;
+            }
+
+            if (!CanRunLineEffect(effect))
             {
                 continue;
             }
@@ -467,23 +473,106 @@ public class NPC : MonoBehaviour, IInteractable
                 }
             }
 
+            if (!HasRequiredItemsForEffect(effect))
+            {
+                continue;
+            }
+
+            if (effect.consumeRequiredItems)
+            {
+                ConsumeRequiredItemsForEffect(effect);
+            }
+
             if (!string.IsNullOrWhiteSpace(effect.objectiveID) && QuestController.Instance != null)
             {
-                QuestController.Instance.RegisterObjectiveProgress(effect.objectiveType, effect.objectiveID, Mathf.Max(1, effect.objectiveAmount));
+                QuestController.Instance.RegisterObjectiveProgress(
+                    effect.objectiveType,
+                    effect.objectiveID,
+                    Mathf.Max(1, effect.objectiveAmount)
+                );
             }
+
+            GiveLineEffectItems(effect);
 
             if (AlienDiaryManager.Instance != null && effect.diaryEntriesToUnlock != null)
             {
                 for (int j = 0; j < effect.diaryEntriesToUnlock.Length; j++)
                 {
                     AlienDiaryEntry entry = effect.diaryEntriesToUnlock[j];
+
                     if (entry == null)
                     {
                         continue;
                     }
 
-                    AlienDiaryManager.Instance.UnlockEntry(entry.entryId, entry.title, entry.content, entry.category);
+                    AlienDiaryManager.Instance.UnlockEntry(
+                        entry.entryId,
+                        entry.title,
+                        entry.content,
+                        entry.category
+                    );
                 }
+            }
+        }
+    }
+
+    private bool CanRunLineEffect(DialogueLineEffect effect)
+    {
+        if (effect == null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(effect.runOnlyIfDiaryEntryLocked))
+        {
+            return true;
+        }
+
+        if (AlienDiaryManager.Instance == null)
+        {
+            return true;
+        }
+
+        return !AlienDiaryManager.Instance.IsEntryUnlocked(effect.runOnlyIfDiaryEntryLocked);
+    }
+
+    private void GiveLineEffectItems(DialogueLineEffect effect)
+    {
+        if (effect == null || effect.itemsToGive == null || effect.itemsToGive.Length == 0)
+        {
+            return;
+        }
+
+        if (RewardController.Instance == null)
+        {
+            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden dar items.");
+            return;
+        }
+
+        for (int i = 0; i < effect.itemsToGive.Length; i++)
+        {
+            DialogueItemGrant grant = effect.itemsToGive[i];
+
+            if (grant == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(grant.itemId))
+            {
+                Debug.LogWarning("NPC: hay un itemId vacío en un efecto de diálogo.");
+                continue;
+            }
+
+            int amount = Mathf.Max(1, grant.amount);
+
+            Debug.Log("NPC entrega item: " + grant.itemId + " x" + amount);
+
+            RewardController.Instance.GiveItemReward(grant.itemId, amount);
+
+            if (AlienNameManager.Instance != null)
+            {
+                AlienNameManager.Instance.ObserveItem(grant.itemId);
             }
         }
     }
@@ -593,5 +682,58 @@ public class NPC : MonoBehaviour, IInteractable
     private void BlockDialogueInputBriefly()
     {
         nextAllowedDialogueInputTime = Time.unscaledTime + inputCooldown;
+    }
+
+    private bool HasRequiredItemsForEffect(DialogueLineEffect effect)
+    {
+        if (effect == null || effect.itemsRequired == null || effect.itemsRequired.Length == 0)
+        {
+            return true;
+        }
+
+        if (RewardController.Instance == null)
+        {
+            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden comprobar objetos requeridos.");
+            return false;
+        }
+
+        bool hasItems = RewardController.Instance.HasRequiredItems(effect.itemsRequired);
+
+        if (!hasItems)
+        {
+            string message = string.IsNullOrWhiteSpace(effect.missingRequiredItemsMessage)
+                ? "No tienes los objetos necesarios."
+                : effect.missingRequiredItemsMessage;
+
+            if (ToastManager.Instance != null)
+            {
+                ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+            }
+
+            Debug.Log("NPC: faltan objetos requeridos para ejecutar el efecto de diálogo.");
+        }
+
+        return hasItems;
+    }
+
+    private void ConsumeRequiredItemsForEffect(DialogueLineEffect effect)
+    {
+        if (effect == null || effect.itemsRequired == null || effect.itemsRequired.Length == 0)
+        {
+            return;
+        }
+
+        if (RewardController.Instance == null)
+        {
+            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden consumir objetos requeridos.");
+            return;
+        }
+
+        bool removed = RewardController.Instance.TakeRequiredItems(effect.itemsRequired);
+
+        if (!removed)
+        {
+            Debug.LogWarning("NPC: no se pudieron consumir los objetos requeridos.");
+        }
     }
 }

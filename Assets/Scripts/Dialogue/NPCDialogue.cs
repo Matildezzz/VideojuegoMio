@@ -42,11 +42,30 @@ public class DialogueChoice
 public class DialogueLineEffect
 {
     public int dialogueIndex;
+
+    [Tooltip("Si se rellena, este efecto solo se ejecuta si esa entrada del diario todavía NO está desbloqueada.")]
+    public string runOnlyIfDiaryEntryLocked;
+
     public string[] wordsToLearn;
     public string[] itemNameIdsToLearn;
     public string[] characterNameIdsToLearn;
     public AlienDiaryEntry[] diaryEntriesToUnlock;
+
     public ObjectiveType objectiveType = ObjectiveType.Custom;
     public string objectiveID;
     public int objectiveAmount = 1;
+
+    public DialogueItemGrant[] itemsToGive;
+
+    [Header("Objetos requeridos")]
+    public DialogueItemGrant[] itemsRequired;
+    public bool consumeRequiredItems = false;
+    public string missingRequiredItemsMessage = "No tienes los objetos necesarios.";
+}
+
+[System.Serializable]
+public class DialogueItemGrant
+{
+    public string itemId;
+    public int amount = 1;
 }
