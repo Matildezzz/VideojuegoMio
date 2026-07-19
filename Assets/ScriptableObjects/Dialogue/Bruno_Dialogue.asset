@@ -59,4 +59,5 @@ MonoBehaviour:
     missingRequiredItemsMessage: No tienes los objetos necesarios.
   questInProgressIndex: 2
   questCompletedIndex: 3
+  repeatDialogueIndex: 4
   quest: {fileID: 0}

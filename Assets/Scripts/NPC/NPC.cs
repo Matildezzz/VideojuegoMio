@@ -8,7 +8,7 @@ public class NPC : MonoBehaviour, IInteractable
     [SerializeField] private NPCFriendship friendship;
 
     [Header("Tienda")]
-    [SerializeField] private bool openShopWhenDialogueEnds = false;
+    [SerializeField] private bool openShopWhenDialogueEnds;
     [SerializeField] private ShopNPC shopToOpen;
 
     [Header("Controles de dialogo")]
@@ -38,13 +38,9 @@ public class NPC : MonoBehaviour, IInteractable
         get
         {
             string npcName = GetDisplayedNpcName();
-
-            if (friendship != null)
-            {
-                return "E - Hablar con " + npcName + "\nG - Regalar objeto";
-            }
-
-            return "E - Hablar con " + npcName;
+            return friendship != null
+                ? "E - Hablar con " + npcName + "\nG - Regalar objeto"
+                : "E - Hablar con " + npcName;
         }
     }
 
@@ -148,55 +144,37 @@ public class NPC : MonoBehaviour, IInteractable
         if (isDialogueActive)
         {
             NextLine();
+            return;
         }
-        else
-        {
-            StartDialogue();
-        }
+
+        StartDialogue();
     }
 
     private void StartDialogue()
     {
         RegisterQuestNpcInfo();
 
-        if (dialogueData.dialogueLines == null || dialogueData.dialogueLines.Length == 0)
+        if (dialogueData == null || !dialogueData.HasLines)
         {
             Debug.LogWarning("NPC: el dialogo no tiene lineas.");
             return;
         }
 
         SyncQuestState();
+        dialogueIndex = GetStartingDialogueIndex();
 
-        if (questState == LocalQuestState.NotStarted)
+        if (!CanEnterLine(dialogueIndex, true))
         {
-            dialogueIndex = 0;
+            return;
         }
-        else if (questState == LocalQuestState.InProgress)
-        {
-            dialogueIndex = dialogueData.questInProgressIndex;
-        }
-        else
-        {
-            dialogueIndex = dialogueData.questCompletedIndex;
-        }
-
-        dialogueIndex = Mathf.Clamp(dialogueIndex, 0, dialogueData.dialogueLines.Length - 1);
 
         isDialogueActive = true;
         isTyping = false;
         choicesVisible = false;
         BlockDialogueInputBriefly();
 
-        if (friendship != null)
-        {
-            friendship.RegisterTalk();
-        }
-
-        if (TutorialManager.Instance != null)
-        {
-            TutorialManager.Instance.NotifyTalkedToNpc();
-        }
-
+        friendship?.RegisterTalk();
+        TutorialManager.Instance?.NotifyTalkedToNpc();
         RegisterTalkObjective();
 
         dialogueUI.SetNPCInfo(GetDisplayedNpcName(), dialogueData.npcPortrait);
@@ -208,6 +186,76 @@ public class NPC : MonoBehaviour, IInteractable
         DisplayCurrentLine();
     }
 
+    private int GetStartingDialogueIndex()
+    {
+        if (questState == LocalQuestState.Completed ||
+            questState == LocalQuestState.HandedIn)
+        {
+            return dialogueData.ClampLineIndex(
+                dialogueData.questCompletedIndex
+            );
+        }
+
+        // Si la misión está activa y tenemos los objetos necesarios,
+        // comenzamos directamente en la línea de entrega.
+        if (questState == LocalQuestState.InProgress)
+        {
+            int requiredItemsLineIndex = GetReadyRequiredItemsLineIndex();
+
+            if (requiredItemsLineIndex >= 0)
+            {
+                return requiredItemsLineIndex;
+            }
+        }
+
+        if (ShouldUseRepeatDialogue())
+        {
+            return dialogueData.ClampLineIndex(
+                dialogueData.repeatDialogueIndex
+            );
+        }
+
+        if (questState == LocalQuestState.InProgress)
+        {
+            return dialogueData.ClampLineIndex(
+                dialogueData.questInProgressIndex
+            );
+        }
+
+        return 0;
+    }
+
+    private bool ShouldUseRepeatDialogue()
+    {
+        if (dialogueData == null ||
+            dialogueData.repeatDialogueIndex < 0 ||
+            dialogueData.lineEffects == null ||
+            AlienDiaryManager.Instance == null)
+        {
+            return false;
+        }
+
+        bool foundGuardedEffect = false;
+
+        for (int i = 0; i < dialogueData.lineEffects.Length; i++)
+        {
+            DialogueLineEffect effect = dialogueData.lineEffects[i];
+            if (effect == null || string.IsNullOrWhiteSpace(effect.runOnlyIfDiaryEntryLocked))
+            {
+                continue;
+            }
+
+            foundGuardedEffect = true;
+
+            if (!AlienDiaryManager.Instance.IsEntryUnlocked(effect.runOnlyIfDiaryEntryLocked))
+            {
+                return false;
+            }
+        }
+
+        return foundGuardedEffect;
+    }
+
     private void RegisterTalkObjective()
     {
         if (QuestController.Instance == null)
@@ -216,11 +264,9 @@ public class NPC : MonoBehaviour, IInteractable
         }
 
         string npcId = GetNpcId();
-        QuestController.Instance.RegisterObjectiveProgress(ObjectiveType.TalkNPC, npcId, 1);
-
-        if (!string.IsNullOrWhiteSpace(dialogueData.npcName))
+        if (!string.IsNullOrWhiteSpace(npcId))
         {
-            QuestController.Instance.RegisterObjectiveProgress(ObjectiveType.TalkNPC, dialogueData.npcName, 1);
+            QuestController.Instance.RegisterObjectiveProgress(ObjectiveType.TalkNPC, npcId, 1);
         }
     }
 
@@ -251,13 +297,7 @@ public class NPC : MonoBehaviour, IInteractable
 
     private void NextLine()
     {
-        if (dialogueData == null || dialogueData.dialogueLines == null || dialogueData.dialogueLines.Length == 0)
-        {
-            EndDialogue();
-            return;
-        }
-
-        if (dialogueIndex < 0 || dialogueIndex >= dialogueData.dialogueLines.Length)
+        if (dialogueData == null || !dialogueData.HasLines || !dialogueData.IsValidLineIndex(dialogueIndex))
         {
             EndDialogue();
             return;
@@ -279,9 +319,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         dialogueUI.ClearChoices();
 
-        if (dialogueData.endDialogueLines != null &&
-            dialogueIndex < dialogueData.endDialogueLines.Length &&
-            dialogueData.endDialogueLines[dialogueIndex])
+        if (dialogueData.ShouldEndDialogue(dialogueIndex))
         {
             EndDialogue();
             return;
@@ -292,16 +330,26 @@ public class NPC : MonoBehaviour, IInteractable
             return;
         }
 
-        dialogueIndex++;
+        TryMoveToLine(dialogueIndex + 1);
+    }
 
-        if (dialogueIndex < dialogueData.dialogueLines.Length)
-        {
-            DisplayCurrentLine();
-        }
-        else
+    private bool TryMoveToLine(int nextIndex)
+    {
+        if (!dialogueData.IsValidLineIndex(nextIndex))
         {
             EndDialogue();
+            return false;
         }
+
+        if (!CanEnterLine(nextIndex, true))
+        {
+            EndDialogue();
+            return false;
+        }
+
+        dialogueIndex = nextIndex;
+        DisplayCurrentLine();
+        return true;
     }
 
     private IEnumerator TypeLine()
@@ -330,9 +378,7 @@ public class NPC : MonoBehaviour, IInteractable
             yield break;
         }
 
-        if (dialogueData.autoProgressLines != null &&
-            dialogueIndex < dialogueData.autoProgressLines.Length &&
-            dialogueData.autoProgressLines[dialogueIndex])
+        if (dialogueData.ShouldAutoProgress(dialogueIndex))
         {
             yield return new WaitForSecondsRealtime(dialogueData.autoProgressDelay);
             NextLine();
@@ -341,31 +387,26 @@ public class NPC : MonoBehaviour, IInteractable
 
     private string GetCurrentDisplayLine()
     {
-        if (dialogueData == null || dialogueData.dialogueLines == null || dialogueIndex < 0 || dialogueIndex >= dialogueData.dialogueLines.Length)
-        {
-            return string.Empty;
-        }
+        string line = dialogueData != null ? dialogueData.GetLine(dialogueIndex) : string.Empty;
+        return TranslateText(line);
+    }
 
-        string line = dialogueData.dialogueLines[dialogueIndex];
-        return LanguageManager.Instance != null ? LanguageManager.Instance.TranslateDialogueLine(line) : line;
+    private string TranslateText(string text)
+    {
+        return LanguageManager.Instance != null
+            ? LanguageManager.Instance.TranslateDialogueLine(text)
+            : text;
     }
 
     private bool TryShowChoicesForCurrentLine()
     {
-        if (dialogueData == null || dialogueData.choices == null)
+        if (dialogueData == null)
         {
             return false;
         }
 
-        foreach (DialogueChoice dialogueChoice in dialogueData.choices)
-        {
-            if (dialogueChoice != null && dialogueChoice.dialogueIndex == dialogueIndex)
-            {
-                return DisplayChoice(dialogueChoice);
-            }
-        }
-
-        return false;
+        DialogueChoice choice = dialogueData.GetChoiceForLine(dialogueIndex);
+        return choice != null && DisplayChoice(choice);
     }
 
     private bool DisplayChoice(DialogueChoice choice)
@@ -373,27 +414,22 @@ public class NPC : MonoBehaviour, IInteractable
         dialogueUI.ClearChoices();
         choicesVisible = false;
 
-        if (choice.choices == null || choice.nextDialogueIndexes == null)
+        if (choice == null || choice.OptionCount <= 0)
         {
             Debug.LogWarning("NPC: hay una eleccion de dialogo mal configurada en " + gameObject.name + ".");
             return false;
         }
 
-        int amount = Mathf.Min(choice.choices.Length, choice.nextDialogueIndexes.Length);
-
-        if (amount <= 0)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < choice.OptionCount; i++)
         {
             int capturedNextIndex = choice.nextDialogueIndexes[i];
-            bool capturedGivesQuest = choice.givesQuest != null && i < choice.givesQuest.Length && choice.givesQuest[i];
-            string choiceText = choice.choices[i];
-            string displayChoiceText = LanguageManager.Instance != null ? LanguageManager.Instance.TranslateDialogueLine(choiceText) : choiceText;
+            bool capturedGivesQuest = choice.GivesQuestAt(i);
+            string displayChoiceText = TranslateText(choice.choices[i]);
 
-            GameObject button = dialogueUI.CreateChoiceButton(displayChoiceText, () => ChooseOption(capturedNextIndex, capturedGivesQuest));
+            GameObject button = dialogueUI.CreateChoiceButton(
+                displayChoiceText,
+                () => ChooseOption(capturedNextIndex, capturedGivesQuest)
+            );
 
             if (button != null)
             {
@@ -422,100 +458,97 @@ public class NPC : MonoBehaviour, IInteractable
             return;
         }
 
-        dialogueIndex = Mathf.Clamp(nextIndex, 0, dialogueData.dialogueLines.Length - 1);
-        DisplayCurrentLine();
+        TryMoveToLine(nextIndex);
     }
 
     private void DisplayCurrentLine()
     {
-        if (dialogueData == null || dialogueData.dialogueLines == null || dialogueIndex < 0 || dialogueIndex >= dialogueData.dialogueLines.Length)
+        if (dialogueData == null || !dialogueData.IsValidLineIndex(dialogueIndex))
         {
             EndDialogue();
             return;
         }
 
-        ApplyLineEffects();
+        if (!ApplyLineEffects())
+        {
+            EndDialogue();
+            return;
+        }
+
         StopAllCoroutines();
         isTyping = false;
         choicesVisible = false;
         StartCoroutine(TypeLine());
     }
 
-    private void ApplyLineEffects()
+    private bool CanEnterLine(int lineIndex, bool showFeedback)
     {
-        if (dialogueData == null || dialogueData.lineEffects == null)
+        if (dialogueData == null || !dialogueData.IsValidLineIndex(lineIndex))
         {
-            return;
+            return false;
+        }
+
+        if (dialogueData.lineEffects == null)
+        {
+            return true;
         }
 
         for (int i = 0; i < dialogueData.lineEffects.Length; i++)
         {
             DialogueLineEffect effect = dialogueData.lineEffects[i];
 
-            if (effect == null || effect.dialogueIndex != dialogueIndex)
+            if (!IsEffectForLine(effect, lineIndex) || !CanRunLineEffect(effect))
             {
                 continue;
             }
 
-            if (!CanRunLineEffect(effect))
+            if (!HasRequiredItems(effect, showFeedback))
             {
-                continue;
-            }
-
-            LanguageManager.Instance?.HearWords(effect.wordsToHear);
-            LanguageManager.Instance?.GuessWords(effect.wordsToGuess);
-            LanguageManager.Instance?.LearnWords(effect.wordsToLearn);
-            AlienNameManager.Instance?.LearnItemNames(effect.itemNameIdsToLearn);
-
-            if (AlienNameManager.Instance != null && effect.characterNameIdsToLearn != null)
-            {
-                for (int j = 0; j < effect.characterNameIdsToLearn.Length; j++)
-                {
-                    AlienNameManager.Instance.LearnCharacterName(effect.characterNameIdsToLearn[j]);
-                }
-            }
-
-            if (!HasRequiredItemsForEffect(effect))
-            {
-                continue;
-            }
-
-            if (effect.consumeRequiredItems)
-            {
-                ConsumeRequiredItemsForEffect(effect);
-            }
-
-            if (!string.IsNullOrWhiteSpace(effect.objectiveID) && QuestController.Instance != null)
-            {
-                QuestController.Instance.RegisterObjectiveProgress(
-                    effect.objectiveType,
-                    effect.objectiveID,
-                    Mathf.Max(1, effect.objectiveAmount)
-                );
-            }
-
-            GiveLineEffectItems(effect);
-
-            if (AlienDiaryManager.Instance != null && effect.diaryEntriesToUnlock != null)
-            {
-                for (int j = 0; j < effect.diaryEntriesToUnlock.Length; j++)
-                {
-                    AlienDiaryEntry entry = effect.diaryEntriesToUnlock[j];
-
-                    if (entry == null)
-                    {
-                        continue;
-                    }
-
-                    AlienDiaryManager.Instance.UnlockEntry(
-                        entry.entryId,
-                        entry.title,
-                        entry.content,
-                        entry.category
-                    );
-                }
+                return false;
             }
         }
+
+        return true;
+    }
+
+    private bool ApplyLineEffects()
+    {
+        if (dialogueData == null || dialogueData.lineEffects == null)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < dialogueData.lineEffects.Length; i++)
+        {
+            DialogueLineEffect effect = dialogueData.lineEffects[i];
+
+            if (!IsEffectForLine(effect, dialogueIndex) || !CanRunLineEffect(effect))
+            {
+                continue;
+            }
+
+            if (!HasRequiredItems(effect, true))
+            {
+                return false;
+            }
+
+            if (effect.consumeRequiredItems && !ConsumeRequiredItems(effect))
+            {
+                return false;
+            }
+
+            ApplyKnowledgeEffects(effect);
+            RegisterLineObjective(effect);
+            GiveLineEffectItems(effect);
+            UnlockDiaryEntries(effect.diaryEntriesToUnlock);
+        }
+
+        return true;
+    }
+
+    private bool IsEffectForLine(DialogueLineEffect effect, int lineIndex)
+    {
+        return effect != null && effect.dialogueIndex == lineIndex;
     }
 
     private bool CanRunLineEffect(DialogueLineEffect effect)
@@ -530,12 +563,64 @@ public class NPC : MonoBehaviour, IInteractable
             return true;
         }
 
-        if (AlienDiaryManager.Instance == null)
+        return AlienDiaryManager.Instance == null ||
+               !AlienDiaryManager.Instance.IsEntryUnlocked(effect.runOnlyIfDiaryEntryLocked);
+    }
+
+    private void ApplyKnowledgeEffects(DialogueLineEffect effect)
+    {
+        LanguageManager.Instance?.HearWords(effect.wordsToHear);
+        LanguageManager.Instance?.GuessWords(effect.wordsToGuess);
+        LanguageManager.Instance?.LearnWords(effect.wordsToLearn);
+        AlienNameManager.Instance?.LearnItemNames(effect.itemNameIdsToLearn);
+
+        if (AlienNameManager.Instance == null || effect.characterNameIdsToLearn == null)
         {
-            return true;
+            return;
         }
 
-        return !AlienDiaryManager.Instance.IsEntryUnlocked(effect.runOnlyIfDiaryEntryLocked);
+        for (int i = 0; i < effect.characterNameIdsToLearn.Length; i++)
+        {
+            AlienNameManager.Instance.LearnCharacterName(effect.characterNameIdsToLearn[i]);
+        }
+    }
+
+    private void RegisterLineObjective(DialogueLineEffect effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect.objectiveID) || QuestController.Instance == null)
+        {
+            return;
+        }
+
+        QuestController.Instance.RegisterObjectiveProgress(
+            effect.objectiveType,
+            effect.objectiveID,
+            Mathf.Max(1, effect.objectiveAmount)
+        );
+    }
+
+    private void UnlockDiaryEntries(AlienDiaryEntry[] entries)
+    {
+        if (AlienDiaryManager.Instance == null || entries == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < entries.Length; i++)
+        {
+            AlienDiaryEntry entry = entries[i];
+            if (entry == null)
+            {
+                continue;
+            }
+
+            AlienDiaryManager.Instance.UnlockEntry(
+                entry.entryId,
+                entry.title,
+                entry.content,
+                entry.category
+            );
+        }
     }
 
     private void GiveLineEffectItems(DialogueLineEffect effect)
@@ -555,32 +640,89 @@ public class NPC : MonoBehaviour, IInteractable
         {
             DialogueItemGrant grant = effect.itemsToGive[i];
 
-            if (grant == null)
+            if (grant == null || string.IsNullOrWhiteSpace(grant.itemId))
             {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(grant.itemId))
-            {
-                Debug.LogWarning("NPC: hay un itemId vacío en un efecto de diálogo.");
+                Debug.LogWarning("NPC: hay un itemId vacio en un efecto de dialogo.");
                 continue;
             }
 
             int amount = Mathf.Max(1, grant.amount);
-
-            Debug.Log("NPC entrega item: " + grant.itemId + " x" + amount);
-
             RewardController.Instance.GiveItemReward(grant.itemId, amount);
-
-            if (AlienNameManager.Instance != null)
-            {
-                AlienNameManager.Instance.ObserveItem(grant.itemId);
-            }
+            AlienNameManager.Instance?.ObserveItem(grant.itemId);
         }
+    }
+
+    private bool HasRequiredItems(DialogueLineEffect effect, bool showFeedback)
+    {
+        if (effect == null || !effect.HasRequiredItems)
+        {
+            return true;
+        }
+
+        if (RewardController.Instance == null)
+        {
+            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden comprobar objetos requeridos.");
+
+            if (showFeedback)
+            {
+                ShowRequirementFeedback("No se puede acceder al inventario.");
+            }
+
+            return false;
+        }
+
+        bool hasItems = RewardController.Instance.HasRequiredItems(effect.itemsRequired);
+
+        if (!hasItems && showFeedback)
+        {
+            ShowRequirementFeedback(effect.GetMissingItemsMessage());
+        }
+
+        return hasItems;
+    }
+
+    private bool ConsumeRequiredItems(DialogueLineEffect effect)
+    {
+        if (effect == null || !effect.HasRequiredItems)
+        {
+            return true;
+        }
+
+        if (RewardController.Instance == null)
+        {
+            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden consumir objetos requeridos.");
+            return false;
+        }
+
+        bool removed = RewardController.Instance.TakeRequiredItems(effect.itemsRequired);
+
+        if (!removed)
+        {
+            Debug.LogWarning("NPC: no se pudieron consumir los objetos requeridos.");
+            ShowRequirementFeedback(effect.GetMissingItemsMessage());
+        }
+
+        return removed;
+    }
+
+    private void ShowRequirementFeedback(string message)
+    {
+        if (ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+            return;
+        }
+
+        Debug.Log(message);
     }
 
     public void EndDialogue()
     {
+        if (!isDialogueActive)
+        {
+            return;
+        }
+
         if (questState == LocalQuestState.Completed &&
             dialogueData != null &&
             dialogueData.quest != null &&
@@ -598,7 +740,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (dialogueUI != null)
         {
-            dialogueUI.SetDialogueText("");
+            dialogueUI.SetDialogueText(string.Empty);
             dialogueUI.ClearChoices();
             dialogueUI.ShowDialogueUI(false);
         }
@@ -624,15 +766,21 @@ public class NPC : MonoBehaviour, IInteractable
             return;
         }
 
-        if (friendship != null)
+        if (friendship == null)
         {
-            int gainedHalfHearts = friendship.RegisterQuestCompleted();
-            dialogueUI?.RefreshFriendship();
+            return;
+        }
 
-            if (gainedHalfHearts > 0 && ToastManager.Instance != null)
-            {
-                ToastManager.Instance.ShowToast("+" + FormatHalfHearts(gainedHalfHearts) + " corazón con " + GetDisplayedNpcName(), ToastType.Success, "Heart");
-            }
+        int gainedHalfHearts = friendship.RegisterQuestCompleted();
+        dialogueUI?.RefreshFriendship();
+
+        if (gainedHalfHearts > 0 && ToastManager.Instance != null)
+        {
+            ToastManager.Instance.ShowToast(
+                "+" + FormatHalfHearts(gainedHalfHearts) + " corazon con " + GetDisplayedNpcName(),
+                ToastType.Success,
+                "Heart"
+            );
         }
     }
 
@@ -665,10 +813,16 @@ public class NPC : MonoBehaviour, IInteractable
 
         if (AlienNameManager.Instance == null)
         {
-            return string.IsNullOrWhiteSpace(dialogueData.npcName) ? gameObject.name : dialogueData.npcName;
+            return string.IsNullOrWhiteSpace(dialogueData.npcName)
+                ? gameObject.name
+                : dialogueData.npcName;
         }
 
-        return AlienNameManager.Instance.GetCharacterDisplayName(GetNpcId(), dialogueData.npcName, dialogueData.alienNpcName);
+        return AlienNameManager.Instance.GetCharacterDisplayName(
+            GetNpcId(),
+            dialogueData.npcName,
+            dialogueData.alienNpcName
+        );
     }
 
     public string GetNameForUI()
@@ -678,69 +832,49 @@ public class NPC : MonoBehaviour, IInteractable
 
     private string FormatHalfHearts(int halfHearts)
     {
-        if (halfHearts % 2 == 0)
-        {
-            return (halfHearts / 2).ToString();
-        }
-
-        return (halfHearts * 0.5f).ToString("0.0");
+        return halfHearts % 2 == 0
+            ? (halfHearts / 2).ToString()
+            : (halfHearts * 0.5f).ToString("0.0");
     }
 
     private void BlockDialogueInputBriefly()
     {
-        nextAllowedDialogueInputTime = Time.unscaledTime + inputCooldown;
+        nextAllowedDialogueInputTime = Time.unscaledTime + Mathf.Max(0f, inputCooldown);
     }
 
-    private bool HasRequiredItemsForEffect(DialogueLineEffect effect)
+    private int GetReadyRequiredItemsLineIndex()
     {
-        if (effect == null || effect.itemsRequired == null || effect.itemsRequired.Length == 0)
+        if (dialogueData == null ||
+            dialogueData.lineEffects == null ||
+            RewardController.Instance == null)
         {
-            return true;
+            return -1;
         }
 
-        if (RewardController.Instance == null)
+        for (int i = 0; i < dialogueData.lineEffects.Length; i++)
         {
-            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden comprobar objetos requeridos.");
-            return false;
-        }
+            DialogueLineEffect effect = dialogueData.lineEffects[i];
 
-        bool hasItems = RewardController.Instance.HasRequiredItems(effect.itemsRequired);
-
-        if (!hasItems)
-        {
-            string message = string.IsNullOrWhiteSpace(effect.missingRequiredItemsMessage)
-                ? "No tienes los objetos necesarios."
-                : effect.missingRequiredItemsMessage;
-
-            if (ToastManager.Instance != null)
+            if (effect == null ||
+                !effect.HasRequiredItems ||
+                !CanRunLineEffect(effect))
             {
-                ToastManager.Instance.ShowToast(message, ToastType.Warning, "Error");
+                continue;
             }
 
-            Debug.Log("NPC: faltan objetos requeridos para ejecutar el efecto de diálogo.");
+            if (!dialogueData.IsValidLineIndex(effect.dialogueIndex))
+            {
+                continue;
+            }
+
+            if (RewardController.Instance.HasRequiredItems(
+                effect.itemsRequired
+            ))
+            {
+                return effect.dialogueIndex;
+            }
         }
 
-        return hasItems;
-    }
-
-    private void ConsumeRequiredItemsForEffect(DialogueLineEffect effect)
-    {
-        if (effect == null || effect.itemsRequired == null || effect.itemsRequired.Length == 0)
-        {
-            return;
-        }
-
-        if (RewardController.Instance == null)
-        {
-            Debug.LogWarning("NPC: no existe RewardController en la escena. No se pueden consumir objetos requeridos.");
-            return;
-        }
-
-        bool removed = RewardController.Instance.TakeRequiredItems(effect.itemsRequired);
-
-        if (!removed)
-        {
-            Debug.LogWarning("NPC: no se pudieron consumir los objetos requeridos.");
-        }
+        return -1;
     }
 }

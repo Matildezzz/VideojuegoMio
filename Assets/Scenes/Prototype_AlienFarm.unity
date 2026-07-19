@@ -50935,7 +50935,8 @@ MonoBehaviour:
   - {fileID: 1859477972}
   previewHotbarSlotOnHover: 1
   itemNameText: {fileID: 1112827063}
-  hoverNameDelay: 0.7
+  hoverNameDelay: 0
+  itemNameDuration: 1.5
 --- !u!1 &1541973649
 GameObject:
   m_ObjectHideFlags: 0

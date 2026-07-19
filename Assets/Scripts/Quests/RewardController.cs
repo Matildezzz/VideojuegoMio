@@ -327,23 +327,14 @@ public class RewardController : MonoBehaviour
 
     public bool HasRequiredItems(DialogueItemGrant[] requiredItems)
     {
-        if (requiredItems == null || requiredItems.Length == 0)
+        if (!TryBuildRequiredItemTotals(requiredItems, out Dictionary<ItemData, int> requiredTotals))
         {
-            return true;
+            return false;
         }
 
-        for (int i = 0; i < requiredItems.Length; i++)
+        foreach (KeyValuePair<ItemData, int> pair in requiredTotals)
         {
-            DialogueItemGrant requiredItem = requiredItems[i];
-
-            if (requiredItem == null)
-            {
-                continue;
-            }
-
-            int amount = Mathf.Max(1, requiredItem.amount);
-
-            if (!HasItem(requiredItem.itemId, amount))
+            if (!playerInventory.HasItem(pair.Key, pair.Value))
             {
                 return false;
             }
@@ -354,14 +345,52 @@ public class RewardController : MonoBehaviour
 
     public bool TakeRequiredItems(DialogueItemGrant[] requiredItems)
     {
-        if (!HasRequiredItems(requiredItems))
+        if (!TryBuildRequiredItemTotals(requiredItems, out Dictionary<ItemData, int> requiredTotals))
         {
             return false;
         }
 
+        foreach (KeyValuePair<ItemData, int> pair in requiredTotals)
+        {
+            if (!playerInventory.HasItem(pair.Key, pair.Value))
+            {
+                return false;
+            }
+        }
+
+        foreach (KeyValuePair<ItemData, int> pair in requiredTotals)
+        {
+            if (!playerInventory.RemoveItem(pair.Key, pair.Value))
+            {
+                Debug.LogWarning("RewardController: no se pudo retirar un requisito ya validado -> " + pair.Key.ItemId);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool TryBuildRequiredItemTotals(
+        DialogueItemGrant[] requiredItems,
+        out Dictionary<ItemData, int> requiredTotals)
+    {
+        requiredTotals = new Dictionary<ItemData, int>();
+
         if (requiredItems == null || requiredItems.Length == 0)
         {
             return true;
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogWarning("RewardController: no hay ItemDatabase para comprobar requisitos.");
+            return false;
+        }
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("RewardController: no hay PlayerInventory para comprobar requisitos.");
+            return false;
         }
 
         for (int i = 0; i < requiredItems.Length; i++)
@@ -373,14 +402,32 @@ public class RewardController : MonoBehaviour
                 continue;
             }
 
+            if (string.IsNullOrWhiteSpace(requiredItem.itemId))
+            {
+                Debug.LogWarning("RewardController: hay un itemId vacio en los requisitos de dialogo.");
+                return false;
+            }
+
+            ItemData itemData = itemDatabase.GetItemById(requiredItem.itemId);
+            if (itemData == null)
+            {
+                Debug.LogWarning("RewardController: itemId requerido no existe -> " + requiredItem.itemId);
+                return false;
+            }
+
             int amount = Mathf.Max(1, requiredItem.amount);
 
-            if (!TakeItem(requiredItem.itemId, amount))
+            if (requiredTotals.ContainsKey(itemData))
             {
-                return false;
+                requiredTotals[itemData] += amount;
+            }
+            else
+            {
+                requiredTotals.Add(itemData, amount);
             }
         }
 
         return true;
     }
+
 }

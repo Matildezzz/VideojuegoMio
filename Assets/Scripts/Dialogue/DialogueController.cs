@@ -18,14 +18,13 @@ public class DialogueController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
     }
 
     private void Start()
@@ -62,11 +61,7 @@ public class DialogueController : MonoBehaviour
 
     public void SetDialogueText(string text)
     {
-        if (dialogueText != null)
-        {
-            dialogueText.text = text;
-            dialogueText.maxVisibleCharacters = int.MaxValue;
-        }
+        SetDialogueText(text, int.MaxValue);
     }
 
     public void SetFriendship(NPCFriendship friendship)
@@ -100,9 +95,11 @@ public class DialogueController : MonoBehaviour
             return;
         }
 
-        foreach (Transform child in choiceContainer)
+        for (int i = choiceContainer.childCount - 1; i >= 0; i--)
         {
-            Destroy(child.gameObject);
+            GameObject child = choiceContainer.GetChild(i).gameObject;
+            child.SetActive(false);
+            Destroy(child);
         }
     }
 
@@ -122,12 +119,16 @@ public class DialogueController : MonoBehaviour
         }
 
         Button button = choiceButton.GetComponent<Button>();
-        if (button != null)
+        if (button == null)
         {
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(onClick);
+            Debug.LogWarning("DialogueController: el prefab de eleccion no tiene un componente Button.");
+            choiceButton.SetActive(false);
+            Destroy(choiceButton);
+            return null;
         }
 
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(onClick);
         return choiceButton;
     }
 
@@ -138,10 +139,8 @@ public class DialogueController : MonoBehaviour
             return 0;
         }
 
-        dialogueText.text = text;
-        dialogueText.maxVisibleCharacters = 0;
+        SetDialogueText(text, 0);
         dialogueText.ForceMeshUpdate();
-
         return dialogueText.textInfo.characterCount;
     }
 
@@ -155,10 +154,17 @@ public class DialogueController : MonoBehaviour
 
     public void ShowFullDialogueText(string text)
     {
-        if (dialogueText != null)
+        SetDialogueText(text);
+    }
+
+    private void SetDialogueText(string text, int maxVisibleCharacters)
+    {
+        if (dialogueText == null)
         {
-            dialogueText.text = text;
-            dialogueText.maxVisibleCharacters = int.MaxValue;
+            return;
         }
+
+        dialogueText.text = text ?? string.Empty;
+        dialogueText.maxVisibleCharacters = maxVisibleCharacters;
     }
 }

@@ -18,14 +18,14 @@ MonoBehaviour:
   npcPortrait: {fileID: 5748397993053558359, guid: 52d5898a291400f4cb692170e6d0e4b7, type: 3}
   dialogueLines:
   - Eh... tu [casa|nogar] humea y tiene piezas que no deberian existir. Interesante.
-  - Trae una [comida|numa] roja y ese [fragmento|klak] brillante. Puedo mirar tu
-    [nave|zark].
-  - Vale. El [fragmento|klak] encaja. Ve a la [nave|zark] y prueba a reiniciar el
-    traductor.
+  - Necesito tres [comida|numa] rojas y ese [fragmento|klak] brillante. Traemelos
+    y podre revisar tu [nave|zark].
+  - "\xA1Si! Esto es justo lo que buscaba. Y el [fragmento|klak] encaja. Ve a la
+    [nave|zark] y prueba a reiniciar el traductor."
   - Si el traductor funciona, intenta decir [gracias|glaruk]. Los humanos lo usan
     cuando no quieren parecer peligrosos.
   autoProgressLines: 00000000
-  endDialogueLines: 00000001
+  endDialogueLines: 00000101
   autoProgressDelay: 1.5
   typingSpeed: 0.05
   voiceSound: {fileID: 0}
@@ -50,13 +50,11 @@ MonoBehaviour:
       category: Humanos observados
       unlocked: 1
     objectiveType: 4
-    objectiveID: give_tomato_lia
+    objectiveID: 
     objectiveAmount: 1
     itemsToGive: []
-    itemsRequired:
-    - itemId: tomato
-      amount: 3
-    consumeRequiredItems: 1
+    itemsRequired: []
+    consumeRequiredItems: 0
     missingRequiredItemsMessage: 'Necesito una bolita roja blanda antes de poder
       revisar la nave. '
   - dialogueIndex: 2
@@ -77,12 +75,16 @@ MonoBehaviour:
       category: Secretos del pueblo
       unlocked: 1
     objectiveType: 4
-    objectiveID: 
+    objectiveID: give_tomato_lia
     objectiveAmount: 1
     itemsToGive: []
-    itemsRequired: []
-    consumeRequiredItems: 0
-    missingRequiredItemsMessage: No tienes los objetos necesarios.
+    itemsRequired:
+    - itemId: tomato
+      amount: 3
+    consumeRequiredItems: 1
+    missingRequiredItemsMessage: Necesito tres bolitas rojas blandas antes de poder
+      revisar la nave.
   questInProgressIndex: 0
   questCompletedIndex: 3
-  quest: {fileID: 11400000, guid: 6d402042e9e7498a8ad568c04ef2e505, type: 2}
+  repeatDialogueIndex: 3
+  quest: {fileID: 11400000, guid: 697522ee7e788e14c9b6497632ca5f2e, type: 2}
