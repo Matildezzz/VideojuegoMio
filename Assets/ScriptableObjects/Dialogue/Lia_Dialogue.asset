@@ -15,7 +15,7 @@ MonoBehaviour:
   npcID: lia
   npcName: Lia
   alienNpcName: Humana metalica
-  npcPortrait: {fileID: 0}
+  npcPortrait: {fileID: 5748397993053558359, guid: 52d5898a291400f4cb692170e6d0e4b7, type: 3}
   dialogueLines:
   - Eh... tu [casa|nogar] humea y tiene piezas que no deberian existir. Interesante.
   - Trae una [comida|numa] roja y ese [fragmento|klak] brillante. Puedo mirar tu
@@ -34,6 +34,8 @@ MonoBehaviour:
   lineEffects:
   - dialogueIndex: 1
     runOnlyIfDiaryEntryLocked: lia_suspects_ship
+    wordsToHear: []
+    wordsToGuess: []
     wordsToLearn:
     - casa
     - comida
@@ -59,6 +61,8 @@ MonoBehaviour:
       revisar la nave. '
   - dialogueIndex: 2
     runOnlyIfDiaryEntryLocked: translator_plan
+    wordsToHear: []
+    wordsToGuess: []
     wordsToLearn:
     - nave
     - fragmento

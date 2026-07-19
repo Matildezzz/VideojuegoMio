@@ -266,7 +266,7 @@ public class NPC : MonoBehaviour, IInteractable
         if (isTyping)
         {
             StopAllCoroutines();
-            dialogueUI.SetDialogueText(GetCurrentDisplayLine());
+            dialogueUI.ShowFullDialogueText(GetCurrentDisplayLine());
             isTyping = false;
             TryShowChoicesForCurrentLine();
             return;
@@ -307,15 +307,15 @@ public class NPC : MonoBehaviour, IInteractable
     private IEnumerator TypeLine()
     {
         isTyping = true;
-        dialogueUI.SetDialogueText("");
 
         string currentLine = GetCurrentDisplayLine();
+        int visibleCharacterCount = dialogueUI.PrepareDialogueTextForTyping(currentLine);
 
-        for (int i = 0; i < currentLine.Length; i++)
+        for (int i = 0; i <= visibleCharacterCount; i++)
         {
-            dialogueUI.SetDialogueText(currentLine.Substring(0, i + 1));
+            dialogueUI.SetVisibleDialogueCharacters(i);
 
-            if (dialogueData.voiceSound != null)
+            if (i > 0 && dialogueData.voiceSound != null)
             {
                 SoundEffectManager.PlayVoice(dialogueData.voiceSound, dialogueData.voicePitch);
             }
@@ -462,6 +462,8 @@ public class NPC : MonoBehaviour, IInteractable
                 continue;
             }
 
+            LanguageManager.Instance?.HearWords(effect.wordsToHear);
+            LanguageManager.Instance?.GuessWords(effect.wordsToGuess);
             LanguageManager.Instance?.LearnWords(effect.wordsToLearn);
             AlienNameManager.Instance?.LearnItemNames(effect.itemNameIdsToLearn);
 
@@ -667,6 +669,11 @@ public class NPC : MonoBehaviour, IInteractable
         }
 
         return AlienNameManager.Instance.GetCharacterDisplayName(GetNpcId(), dialogueData.npcName, dialogueData.alienNpcName);
+    }
+
+    public string GetNameForUI()
+    {
+        return GetDisplayedNpcName();
     }
 
     private string FormatHalfHearts(int halfHearts)

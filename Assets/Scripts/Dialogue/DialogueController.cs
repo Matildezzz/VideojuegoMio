@@ -65,6 +65,7 @@ public class DialogueController : MonoBehaviour
         if (dialogueText != null)
         {
             dialogueText.text = text;
+            dialogueText.maxVisibleCharacters = int.MaxValue;
         }
     }
 
@@ -128,5 +129,36 @@ public class DialogueController : MonoBehaviour
         }
 
         return choiceButton;
+    }
+
+    public int PrepareDialogueTextForTyping(string text)
+    {
+        if (dialogueText == null)
+        {
+            return 0;
+        }
+
+        dialogueText.text = text;
+        dialogueText.maxVisibleCharacters = 0;
+        dialogueText.ForceMeshUpdate();
+
+        return dialogueText.textInfo.characterCount;
+    }
+
+    public void SetVisibleDialogueCharacters(int amount)
+    {
+        if (dialogueText != null)
+        {
+            dialogueText.maxVisibleCharacters = amount;
+        }
+    }
+
+    public void ShowFullDialogueText(string text)
+    {
+        if (dialogueText != null)
+        {
+            dialogueText.text = text;
+            dialogueText.maxVisibleCharacters = int.MaxValue;
+        }
     }
 }

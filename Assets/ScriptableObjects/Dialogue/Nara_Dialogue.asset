@@ -15,11 +15,12 @@ MonoBehaviour:
   npcID: nara
   npcName: Nara
   alienNpcName: Cria humana detectora
-  npcPortrait: {fileID: 0}
+  npcPortrait: {fileID: 6114687363436026765, guid: c5ca637b7c6a8bf44b984b0382db5825, type: 3}
   dialogueLines:
-  - "Yo no creo que seas un monstruo. Los monstruos no miran las zanahorias con miedo."
-  - "Si no entiendes a los mayores, no pasa nada. A veces yo tampoco."
-  - "Puedes apuntarlo en tu diario. Eso hacen los cientificos y las personas que no quieren olvidar cosas raras."
+  - Yo no creo que seas un monstruo. Los monstruos no miran las zanahorias con miedo.
+  - Si no entiendes a los mayores, no pasa nada. A veces yo tampoco.
+  - Puedes apuntarlo en tu diario. Eso hacen los cientificos y las personas que no
+    quieren olvidar cosas raras.
   autoProgressLines: 000000
   endDialogueLines: 000001
   autoProgressDelay: 1.5
@@ -30,6 +31,8 @@ MonoBehaviour:
   lineEffects:
   - dialogueIndex: 0
     runOnlyIfDiaryEntryLocked: nara_understands
+    wordsToHear: []
+    wordsToGuess: []
     wordsToLearn: []
     itemNameIdsToLearn: []
     characterNameIdsToLearn:
@@ -37,13 +40,17 @@ MonoBehaviour:
     diaryEntriesToUnlock:
     - entryId: nara_understands
       title: Cria humana recomendada
-      content: La cria humana parece detectar extranjeria sin alarma. Tal vez sea una traductora emocional no oficial.
+      content: La cria humana parece detectar extranjeria sin alarma. Tal vez sea
+        una traductora emocional no oficial.
       category: Humanos observados
       unlocked: 1
     objectiveType: 4
     objectiveID: 
     objectiveAmount: 1
     itemsToGive: []
+    itemsRequired: []
+    consumeRequiredItems: 0
+    missingRequiredItemsMessage: No tienes los objetos necesarios.
   questInProgressIndex: 1
   questCompletedIndex: 2
   quest: {fileID: 0}

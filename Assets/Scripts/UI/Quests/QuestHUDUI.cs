@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class QuestHUDUI : MonoBehaviour
 {
@@ -10,18 +9,16 @@ public class QuestHUDUI : MonoBehaviour
     [Header("Textos")]
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text objectiveText;
-    [SerializeField] private TMP_Text progressText;
-    [SerializeField] private TMP_Text stateText;
 
-    [Header("Entrega")]
+    [Header("Objetos antiguos que se ocultan")]
+    [SerializeField] private GameObject stateTextObject;
+    [SerializeField] private GameObject progressTextObject;
     [SerializeField] private GameObject readyToHandInRoot;
-    [SerializeField] private Image npcIconImage;
-    [SerializeField] private TMP_Text handInHintText;
 
-    [Header("Colores")]
-    [SerializeField] private Color activeColor = Color.white;
-    [SerializeField] private Color completedColor = Color.green;
-    [SerializeField] private Color warningColor = Color.yellow;
+    private void Awake()
+    {
+        HideOldElements();
+    }
 
     private void OnEnable()
     {
@@ -43,6 +40,8 @@ public class QuestHUDUI : MonoBehaviour
 
     public void UpdateQuestHUD()
     {
+        HideOldElements();
+
         QuestController questController = QuestController.Instance;
 
         if (questController == null)
@@ -63,107 +62,57 @@ public class QuestHUDUI : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.text = "Misión activa:\n" + quest.quest.questName;
+            titleText.text = quest.quest.questName;
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text = GetNextObjectiveText(quest);
+        }
+    }
+
+    private string GetNextObjectiveText(QuestProgress quest)
+    {
+        if (quest == null)
+        {
+            return "";
         }
 
         if (quest.state == QuestState.Completed)
         {
-            ShowReadyToHandIn(quest, questController);
-            return;
+            if (quest.quest != null && !string.IsNullOrWhiteSpace(quest.quest.handInHint))
+            {
+                return quest.quest.handInHint;
+            }
+
+            return "Misión completada";
         }
 
-        ShowActiveQuest(quest);
+        QuestObjective currentObjective = quest.GetCurrentObjective();
+
+        if (currentObjective == null)
+        {
+            return "";
+        }
+
+        return currentObjective.description;
     }
 
-    private void ShowActiveQuest(QuestProgress quest)
+    private void HideOldElements()
     {
-        QuestObjective currentObjective = quest.GetCurrentObjective();
+        if (stateTextObject != null)
+        {
+            stateTextObject.SetActive(false);
+        }
+
+        if (progressTextObject != null)
+        {
+            progressTextObject.SetActive(false);
+        }
 
         if (readyToHandInRoot != null)
         {
             readyToHandInRoot.SetActive(false);
-        }
-
-        if (npcIconImage != null)
-        {
-            npcIconImage.enabled = false;
-        }
-
-        if (handInHintText != null)
-        {
-            handInHintText.text = string.Empty;
-        }
-
-        if (stateText != null)
-        {
-            stateText.text = "En progreso";
-            stateText.color = activeColor;
-        }
-
-        if (currentObjective == null)
-        {
-            if (objectiveText != null)
-            {
-                objectiveText.text = "Sin objetivo asignado";
-                objectiveText.color = warningColor;
-            }
-
-            if (progressText != null)
-            {
-                progressText.text = string.Empty;
-            }
-
-            return;
-        }
-
-        if (objectiveText != null)
-        {
-            objectiveText.text = currentObjective.description;
-            objectiveText.color = currentObjective.IsCompleted ? completedColor : activeColor;
-        }
-
-        if (progressText != null)
-        {
-            progressText.text = currentObjective.currentAmount + " / " + currentObjective.requiredAmount;
-            progressText.color = currentObjective.IsCompleted ? completedColor : activeColor;
-        }
-    }
-
-    private void ShowReadyToHandIn(QuestProgress quest, QuestController questController)
-    {
-        if (stateText != null)
-        {
-            stateText.text = "Lista para entregar";
-            stateText.color = completedColor;
-        }
-
-        if (objectiveText != null)
-        {
-            objectiveText.text = "✓ Objetivo completado";
-            objectiveText.color = completedColor;
-        }
-
-        if (progressText != null)
-        {
-            progressText.text = "Vuelve con el NPC";
-            progressText.color = completedColor;
-        }
-
-        if (readyToHandInRoot != null)
-        {
-            readyToHandInRoot.SetActive(true);
-        }
-
-        if (handInHintText != null)
-        {
-            handInHintText.text = questController.GetHandInHint(quest);
-        }
-
-        if (npcIconImage != null)
-        {
-            Sprite icon = questController.GetHandInIcon(quest);
-            npcIconImage.sprite = icon;
-            npcIconImage.enabled = icon != null;
         }
     }
 

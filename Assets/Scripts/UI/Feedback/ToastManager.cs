@@ -16,6 +16,10 @@ public sealed class ToastManager : MonoBehaviour
 {
     public static ToastManager Instance { get; private set; }
 
+    [Header("Activación")]
+    [SerializeField] private bool enableToasts = false;
+    [SerializeField] private bool logDisabledToasts = false;
+
     [Header("Referencias UI")]
     [SerializeField] private GameObject toastPanel;
     [SerializeField] private CanvasGroup canvasGroup;
@@ -83,6 +87,16 @@ public sealed class ToastManager : MonoBehaviour
 
     public void ShowToast(string message, ToastType toastType, string soundName)
     {
+        if (!enableToasts)
+        {
+            if (logDisabledToasts && !string.IsNullOrWhiteSpace(message))
+            {
+                Debug.Log("[Toast desactivado] " + message);
+            }
+
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(message))
         {
             return;

@@ -46,6 +46,8 @@ public class DialogueLineEffect
     [Tooltip("Si se rellena, este efecto solo se ejecuta si esa entrada del diario todavía NO está desbloqueada.")]
     public string runOnlyIfDiaryEntryLocked;
 
+    public string[] wordsToHear;
+    public string[] wordsToGuess;
     public string[] wordsToLearn;
     public string[] itemNameIdsToLearn;
     public string[] characterNameIdsToLearn;

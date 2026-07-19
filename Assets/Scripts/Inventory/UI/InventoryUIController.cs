@@ -10,23 +10,36 @@ public sealed class InventoryUIController : MonoBehaviour
     [SerializeField] private GameObject inventoryRoot;
 
     [Header("Hotbar UI")]
-    [SerializeField] private List<InventorySlotUI> hotbarSlotUIs = new List<InventorySlotUI>();
+    [SerializeField]
+    private List<InventorySlotUI> hotbarSlotUIs =
+        new List<InventorySlotUI>();
 
     [Header("Backpack UI")]
-    [SerializeField] private List<InventorySlotUI> backpackSlotUIs = new List<InventorySlotUI>();
+    [SerializeField]
+    private List<InventorySlotUI> backpackSlotUIs =
+        new List<InventorySlotUI>();
+
+    [Header("Preview")]
+    [SerializeField] private bool previewHotbarSlotOnHover = true;
+
+    private int previewHotbarIndex = -1;
 
     private InventoryUISlotSource draggingSource;
     private int draggingSlotIndex = -1;
+
     private Image dragIconImage;
     private RectTransform dragIconRect;
 
-    public bool IsOpen => inventoryRoot != null && inventoryRoot.activeSelf;
+    public bool IsOpen =>
+        inventoryRoot != null &&
+        inventoryRoot.activeSelf;
 
     private void Awake()
     {
         if (playerInventory == null)
         {
-            playerInventory = FindFirstObjectByType<PlayerInventory>();
+            playerInventory =
+                FindFirstObjectByType<PlayerInventory>();
         }
     }
 
@@ -40,6 +53,8 @@ public sealed class InventoryUIController : MonoBehaviour
     {
         Unsubscribe();
         HideDragIcon();
+
+        previewHotbarIndex = -1;
         draggingSlotIndex = -1;
     }
 
@@ -66,7 +81,11 @@ public sealed class InventoryUIController : MonoBehaviour
         }
 
         HideDragIcon();
+
+        previewHotbarIndex = -1;
         draggingSlotIndex = -1;
+
+        RefreshHotbar();
     }
 
     public void ToggleInventory()
@@ -90,7 +109,11 @@ public sealed class InventoryUIController : MonoBehaviour
         else
         {
             HideDragIcon();
+
+            previewHotbarIndex = -1;
             draggingSlotIndex = -1;
+
+            RefreshHotbar();
         }
     }
 
@@ -101,11 +124,17 @@ public sealed class InventoryUIController : MonoBehaviour
             return;
         }
 
-        playerInventory.OnInventoryChanged -= HandleInventoryChanged;
-        playerInventory.OnInventoryChanged += HandleInventoryChanged;
+        playerInventory.OnInventoryChanged -=
+            HandleInventoryChanged;
 
-        playerInventory.OnSelectedHotbarChanged -= HandleSelectedHotbarChanged;
-        playerInventory.OnSelectedHotbarChanged += HandleSelectedHotbarChanged;
+        playerInventory.OnInventoryChanged +=
+            HandleInventoryChanged;
+
+        playerInventory.OnSelectedHotbarChanged -=
+            HandleSelectedHotbarChanged;
+
+        playerInventory.OnSelectedHotbarChanged +=
+            HandleSelectedHotbarChanged;
     }
 
     private void Unsubscribe()
@@ -115,8 +144,11 @@ public sealed class InventoryUIController : MonoBehaviour
             return;
         }
 
-        playerInventory.OnInventoryChanged -= HandleInventoryChanged;
-        playerInventory.OnSelectedHotbarChanged -= HandleSelectedHotbarChanged;
+        playerInventory.OnInventoryChanged -=
+            HandleInventoryChanged;
+
+        playerInventory.OnSelectedHotbarChanged -=
+            HandleSelectedHotbarChanged;
     }
 
     private void HandleInventoryChanged()
@@ -146,7 +178,8 @@ public sealed class InventoryUIController : MonoBehaviour
             playerInventory.Hotbar,
             hotbarSlotUIs,
             InventoryUISlotSource.Hotbar,
-            true);
+            true
+        );
     }
 
     private void RefreshBackpack()
@@ -160,7 +193,8 @@ public sealed class InventoryUIController : MonoBehaviour
             playerInventory.Backpack,
             backpackSlotUIs,
             InventoryUISlotSource.Backpack,
-            false);
+            false
+        );
     }
 
     private void BindContainerToUI(
@@ -177,31 +211,48 @@ public sealed class InventoryUIController : MonoBehaviour
         for (int i = 0; i < slotUIs.Count; i++)
         {
             InventorySlotUI slotUI = slotUIs[i];
+
             if (slotUI == null)
             {
                 continue;
             }
 
-            InventorySlot slot = i < container.SlotCount ? container.GetSlot(i) : null;
+            InventorySlot slot =
+                i < container.SlotCount
+                    ? container.GetSlot(i)
+                    : null;
 
-            bool isSelected = allowSelectionHighlight &&
-                              source == InventoryUISlotSource.Hotbar &&
-                              i == playerInventory.SelectedHotbarIndex;
+            bool isSelected =
+                allowSelectionHighlight &&
+                source == InventoryUISlotSource.Hotbar &&
+                i == playerInventory.SelectedHotbarIndex;
+
+            bool isPreviewed =
+                previewHotbarSlotOnHover &&
+                source == InventoryUISlotSource.Hotbar &&
+                i == previewHotbarIndex;
 
             slotUI.Bind(
                 source,
                 i,
                 slot,
                 isSelected,
+                isPreviewed,
                 HandleSlotClicked,
+                HandleSlotHoverEnter,
+                HandleSlotHoverExit,
                 HandleBeginDrag,
                 HandleDrag,
                 HandleEndDrag,
-                HandleDrop);
+                HandleDrop
+            );
         }
     }
 
-    private void HandleSlotClicked(InventoryUISlotSource source, int slotIndex, PointerEventData eventData)
+    private void HandleSlotClicked(
+        InventoryUISlotSource source,
+        int slotIndex,
+        PointerEventData eventData)
     {
         if (playerInventory == null)
         {
@@ -220,13 +271,70 @@ public sealed class InventoryUIController : MonoBehaviour
         }
     }
 
-    private void HandleHotbarClick(int slotIndex, PointerEventData eventData)
+    private void HandleSlotHoverEnter(
+        InventoryUISlotSource source,
+        int slotIndex,
+        PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (!previewHotbarSlotOnHover)
         {
-            if (InventoryInputState.IsQuickMoveModifierPressed())
+            return;
+        }
+
+        if (source != InventoryUISlotSource.Hotbar)
+        {
+            return;
+        }
+
+        if (playerInventory == null ||
+            playerInventory.Hotbar == null)
+        {
+            return;
+        }
+
+        if (slotIndex < 0 ||
+            slotIndex >= playerInventory.Hotbar.SlotCount)
+        {
+            return;
+        }
+
+        previewHotbarIndex = slotIndex;
+        RefreshHotbar();
+    }
+
+    private void HandleSlotHoverExit(
+        InventoryUISlotSource source,
+        int slotIndex,
+        PointerEventData eventData)
+    {
+        if (source != InventoryUISlotSource.Hotbar)
+        {
+            return;
+        }
+
+        if (previewHotbarIndex != slotIndex)
+        {
+            return;
+        }
+
+        previewHotbarIndex = -1;
+        RefreshHotbar();
+    }
+
+    private void HandleHotbarClick(
+        int slotIndex,
+        PointerEventData eventData)
+    {
+        if (eventData.button ==
+            PointerEventData.InputButton.Left)
+        {
+            if (InventoryInputState
+                .IsQuickMoveModifierPressed())
             {
-                playerInventory.MoveHotbarToBackpack(slotIndex);
+                playerInventory.MoveHotbarToBackpack(
+                    slotIndex
+                );
+
                 return;
             }
 
@@ -234,25 +342,35 @@ public sealed class InventoryUIController : MonoBehaviour
             return;
         }
 
-        if (eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button ==
+            PointerEventData.InputButton.Right)
         {
             playerInventory.SelectSlot(slotIndex);
             playerInventory.UseSelectedItem();
         }
     }
 
-    private void HandleBackpackClick(int slotIndex, PointerEventData eventData)
+    private void HandleBackpackClick(
+        int slotIndex,
+        PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (eventData.button !=
+            PointerEventData.InputButton.Left)
         {
-            if (InventoryInputState.IsQuickMoveModifierPressed())
-            {
-                playerInventory.MoveBackpackToHotbar(slotIndex);
-            }
+            return;
+        }
+
+        if (InventoryInputState
+            .IsQuickMoveModifierPressed())
+        {
+            playerInventory.MoveBackpackToHotbar(slotIndex);
         }
     }
 
-    private void HandleBeginDrag(InventoryUISlotSource source, int slotIndex, PointerEventData eventData)
+    private void HandleBeginDrag(
+        InventoryUISlotSource source,
+        int slotIndex,
+        PointerEventData eventData)
     {
         InventorySlot slot = GetSlot(source, slotIndex);
 
@@ -264,12 +382,17 @@ public sealed class InventoryUIController : MonoBehaviour
         draggingSource = source;
         draggingSlotIndex = slotIndex;
 
-        ShowDragIcon(slot.Item != null ? slot.Item.Icon : null, eventData.position);
+        Sprite icon = slot.Item != null
+            ? slot.Item.Icon
+            : null;
+
+        ShowDragIcon(icon, eventData.position);
     }
 
     private void HandleDrag(PointerEventData eventData)
     {
-        if (draggingSlotIndex < 0 || dragIconRect == null)
+        if (draggingSlotIndex < 0 ||
+            dragIconRect == null)
         {
             return;
         }
@@ -277,13 +400,19 @@ public sealed class InventoryUIController : MonoBehaviour
         dragIconRect.position = eventData.position;
     }
 
-    private void HandleEndDrag(InventoryUISlotSource source, int slotIndex, PointerEventData eventData)
+    private void HandleEndDrag(
+        InventoryUISlotSource source,
+        int slotIndex,
+        PointerEventData eventData)
     {
         draggingSlotIndex = -1;
         HideDragIcon();
     }
 
-    private void HandleDrop(InventoryUISlotSource targetSource, int targetSlotIndex, PointerEventData eventData)
+    private void HandleDrop(
+        InventoryUISlotSource targetSource,
+        int targetSlotIndex,
+        PointerEventData eventData)
     {
         if (draggingSlotIndex < 0)
         {
@@ -293,7 +422,12 @@ public sealed class InventoryUIController : MonoBehaviour
         int sourceIndex = draggingSlotIndex;
         InventoryUISlotSource source = draggingSource;
 
-        bool moved = MoveOrMergeBetweenSlots(source, sourceIndex, targetSource, targetSlotIndex);
+        bool moved = MoveOrMergeBetweenSlots(
+            source,
+            sourceIndex,
+            targetSource,
+            targetSlotIndex
+        );
 
         if (moved)
         {
@@ -301,7 +435,8 @@ public sealed class InventoryUIController : MonoBehaviour
         }
     }
 
-    private InventoryContainer GetContainer(InventoryUISlotSource source)
+    private InventoryContainer GetContainer(
+        InventoryUISlotSource source)
     {
         if (playerInventory == null)
         {
@@ -315,15 +450,31 @@ public sealed class InventoryUIController : MonoBehaviour
 
             case InventoryUISlotSource.Backpack:
                 return playerInventory.Backpack;
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
-    private InventorySlot GetSlot(InventoryUISlotSource source, int slotIndex)
+    private InventorySlot GetSlot(
+        InventoryUISlotSource source,
+        int slotIndex)
     {
-        InventoryContainer container = GetContainer(source);
-        return container != null ? container.GetSlot(slotIndex) : null;
+        InventoryContainer container =
+            GetContainer(source);
+
+        if (container == null)
+        {
+            return null;
+        }
+
+        if (slotIndex < 0 ||
+            slotIndex >= container.SlotCount)
+        {
+            return null;
+        }
+
+        return container.GetSlot(slotIndex);
     }
 
     private bool MoveOrMergeBetweenSlots(
@@ -332,23 +483,45 @@ public sealed class InventoryUIController : MonoBehaviour
         InventoryUISlotSource targetType,
         int targetIndex)
     {
-        InventoryContainer sourceContainer = GetContainer(sourceType);
-        InventoryContainer targetContainer = GetContainer(targetType);
+        InventoryContainer sourceContainer =
+            GetContainer(sourceType);
 
-        if (sourceContainer == null || targetContainer == null)
+        InventoryContainer targetContainer =
+            GetContainer(targetType);
+
+        if (sourceContainer == null ||
+            targetContainer == null)
         {
             return false;
         }
 
-        if (sourceContainer == targetContainer && sourceIndex == targetIndex)
+        if (sourceIndex < 0 ||
+            sourceIndex >= sourceContainer.SlotCount)
         {
             return false;
         }
 
-        InventorySlot sourceSlot = sourceContainer.GetSlot(sourceIndex);
-        InventorySlot targetSlot = targetContainer.GetSlot(targetIndex);
+        if (targetIndex < 0 ||
+            targetIndex >= targetContainer.SlotCount)
+        {
+            return false;
+        }
 
-        if (sourceSlot == null || targetSlot == null || sourceSlot.IsEmpty)
+        if (sourceContainer == targetContainer &&
+            sourceIndex == targetIndex)
+        {
+            return false;
+        }
+
+        InventorySlot sourceSlot =
+            sourceContainer.GetSlot(sourceIndex);
+
+        InventorySlot targetSlot =
+            targetContainer.GetSlot(targetIndex);
+
+        if (sourceSlot == null ||
+            targetSlot == null ||
+            sourceSlot.IsEmpty)
         {
             return false;
         }
@@ -357,22 +530,35 @@ public sealed class InventoryUIController : MonoBehaviour
         {
             targetSlot.Item = sourceSlot.Item;
             targetSlot.Amount = sourceSlot.Amount;
+
             sourceSlot.Clear();
 
-            NotifyContainers(sourceContainer, targetContainer);
+            NotifyContainers(
+                sourceContainer,
+                targetContainer
+            );
+
             return true;
         }
 
-        if (targetSlot.Item == sourceSlot.Item && targetSlot.Item.Stackable)
+        if (targetSlot.Item == sourceSlot.Item &&
+            targetSlot.Item.Stackable)
         {
-            int freeSpace = Mathf.Max(0, targetSlot.Item.MaxStack - targetSlot.Amount);
+            int freeSpace = Mathf.Max(
+                0,
+                targetSlot.Item.MaxStack -
+                targetSlot.Amount
+            );
 
             if (freeSpace <= 0)
             {
                 return false;
             }
 
-            int moveAmount = Mathf.Min(freeSpace, sourceSlot.Amount);
+            int moveAmount = Mathf.Min(
+                freeSpace,
+                sourceSlot.Amount
+            );
 
             targetSlot.Amount += moveAmount;
             sourceSlot.Amount -= moveAmount;
@@ -382,34 +568,46 @@ public sealed class InventoryUIController : MonoBehaviour
                 sourceSlot.Clear();
             }
 
-            NotifyContainers(sourceContainer, targetContainer);
+            NotifyContainers(
+                sourceContainer,
+                targetContainer
+            );
+
             return moveAmount > 0;
         }
 
-        ItemData tempItem = targetSlot.Item;
-        int tempAmount = targetSlot.Amount;
+        ItemData temporaryItem = targetSlot.Item;
+        int temporaryAmount = targetSlot.Amount;
 
         targetSlot.Item = sourceSlot.Item;
         targetSlot.Amount = sourceSlot.Amount;
 
-        sourceSlot.Item = tempItem;
-        sourceSlot.Amount = tempAmount;
+        sourceSlot.Item = temporaryItem;
+        sourceSlot.Amount = temporaryAmount;
 
-        NotifyContainers(sourceContainer, targetContainer);
+        NotifyContainers(
+            sourceContainer,
+            targetContainer
+        );
+
         return true;
     }
 
-    private void NotifyContainers(InventoryContainer a, InventoryContainer b)
+    private void NotifyContainers(
+        InventoryContainer first,
+        InventoryContainer second)
     {
-        a.ForceNotifyChanged();
+        first.ForceNotifyChanged();
 
-        if (b != a)
+        if (second != first)
         {
-            b.ForceNotifyChanged();
+            second.ForceNotifyChanged();
         }
     }
 
-    private void ShowDragIcon(Sprite icon, Vector2 screenPosition)
+    private void ShowDragIcon(
+        Sprite icon,
+        Vector2 screenPosition)
     {
         if (icon == null)
         {
@@ -419,13 +617,15 @@ public sealed class InventoryUIController : MonoBehaviour
 
         EnsureDragIconExists();
 
-        if (dragIconImage == null || dragIconRect == null)
+        if (dragIconImage == null ||
+            dragIconRect == null)
         {
             return;
         }
 
         dragIconImage.sprite = icon;
         dragIconImage.enabled = true;
+
         dragIconRect.position = screenPosition;
         dragIconImage.gameObject.SetActive(true);
     }
@@ -458,19 +658,30 @@ public sealed class InventoryUIController : MonoBehaviour
             "InventoryDragIcon",
             typeof(RectTransform),
             typeof(CanvasGroup),
-            typeof(Image));
+            typeof(Image)
+        );
 
-        dragIconObject.transform.SetParent(parentCanvas.transform, false);
+        dragIconObject.transform.SetParent(
+            parentCanvas.transform,
+            false
+        );
 
-        dragIconRect = dragIconObject.GetComponent<RectTransform>();
-        dragIconRect.sizeDelta = new Vector2(72f, 72f);
+        dragIconRect =
+            dragIconObject.GetComponent<RectTransform>();
 
-        CanvasGroup canvasGroup = dragIconObject.GetComponent<CanvasGroup>();
+        dragIconRect.sizeDelta =
+            new Vector2(72f, 72f);
+
+        CanvasGroup canvasGroup =
+            dragIconObject.GetComponent<CanvasGroup>();
+
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
         canvasGroup.ignoreParentGroups = true;
 
-        dragIconImage = dragIconObject.GetComponent<Image>();
+        dragIconImage =
+            dragIconObject.GetComponent<Image>();
+
         dragIconImage.raycastTarget = false;
         dragIconImage.preserveAspect = true;
 
