@@ -1,3 +1,5 @@
+using System.Collections;
+using TMPro;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,6 +23,14 @@ public sealed class InventoryUIController : MonoBehaviour
 
     [Header("Preview")]
     [SerializeField] private bool previewHotbarSlotOnHover = true;
+
+    [Header("Item Name")]
+    [SerializeField] private TMP_Text itemNameText;
+    [SerializeField] private float hoverNameDelay = 2f;
+    [SerializeField] private float itemNameDuration = 2f;
+
+    private Coroutine hoverNameCoroutine;
+    private Coroutine hideNameCoroutine;
 
     private int previewHotbarIndex = -1;
 
@@ -47,12 +57,18 @@ public sealed class InventoryUIController : MonoBehaviour
     {
         Subscribe();
         RefreshAll();
+        ShowSelectedItemName();
     }
 
     private void OnDisable()
     {
         Unsubscribe();
+
+        CancelHoverNamePreview();
+        CancelHideNameTimer();
+
         HideDragIcon();
+        HideItemName();
 
         previewHotbarIndex = -1;
         draggingSlotIndex = -1;
@@ -158,7 +174,9 @@ public sealed class InventoryUIController : MonoBehaviour
 
     private void HandleSelectedHotbarChanged(int selectedIndex)
     {
+        CancelHoverNamePreview();
         RefreshHotbar();
+        ShowSelectedItemName();
     }
 
     private void RefreshAll()
@@ -300,6 +318,8 @@ public sealed class InventoryUIController : MonoBehaviour
 
         previewHotbarIndex = slotIndex;
         RefreshHotbar();
+
+        StartHoverNamePreview(slotIndex);
     }
 
     private void HandleSlotHoverExit(
@@ -318,6 +338,11 @@ public sealed class InventoryUIController : MonoBehaviour
         }
 
         previewHotbarIndex = -1;
+
+        CancelHoverNamePreview();
+        CancelHideNameTimer();
+
+        HideItemName();
         RefreshHotbar();
     }
 
@@ -686,5 +711,149 @@ public sealed class InventoryUIController : MonoBehaviour
         dragIconImage.preserveAspect = true;
 
         dragIconObject.SetActive(false);
+    }
+
+    private void StartHoverNamePreview(int slotIndex)
+    {
+        CancelHoverNamePreview();
+
+        InventorySlot slot = GetSlot(
+            InventoryUISlotSource.Hotbar,
+            slotIndex
+        );
+
+        if (slot == null ||
+            slot.IsEmpty ||
+            slot.Item == null)
+        {
+            return;
+        }
+
+        hoverNameCoroutine = StartCoroutine(
+            ShowHoveredItemNameAfterDelay(
+                slotIndex,
+                slot.Item
+            )
+        );
+    }
+
+    private IEnumerator ShowHoveredItemNameAfterDelay(
+        int slotIndex,
+        ItemData item)
+    {
+        yield return new WaitForSecondsRealtime(
+            hoverNameDelay
+        );
+
+        if (previewHotbarIndex != slotIndex)
+        {
+            hoverNameCoroutine = null;
+            yield break;
+        }
+
+        hoverNameCoroutine = null;
+
+        ShowItemName(
+            item,
+            false
+        );
+    }
+
+    private void CancelHoverNamePreview()
+    {
+        if (hoverNameCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(hoverNameCoroutine);
+        hoverNameCoroutine = null;
+    }
+
+    private void ShowSelectedItemName()
+    {
+        if (playerInventory == null)
+        {
+            HideItemName();
+            return;
+        }
+
+        InventorySlot selectedSlot =
+            playerInventory.GetSelectedSlot();
+
+        if (selectedSlot == null ||
+            selectedSlot.IsEmpty ||
+            selectedSlot.Item == null)
+        {
+            HideItemName();
+            return;
+        }
+
+        ShowItemName(
+            selectedSlot.Item,
+            true
+        );
+    }
+
+        private void ShowItemName(
+        ItemData item,
+        bool hideAutomatically)
+    {
+        if (itemNameText == null || item == null)
+        {
+            HideItemName();
+            return;
+        }
+
+        CancelHideNameTimer();
+
+        itemNameText.text = item.DisplayName;
+        itemNameText.gameObject.SetActive(true);
+
+        if (hideAutomatically)
+        {
+            RestartHideNameTimer();
+        }
+    }
+
+    private void HideItemName()
+    {
+        if (itemNameText == null)
+        {
+            return;
+        }
+
+        itemNameText.text = string.Empty;
+        itemNameText.gameObject.SetActive(false);
+    }
+
+    private void RestartHideNameTimer()
+    {
+        CancelHideNameTimer();
+
+        hideNameCoroutine = StartCoroutine(
+            HideItemNameAfterDelay()
+        );
+    }
+
+    private IEnumerator HideItemNameAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(
+            itemNameDuration
+        );
+
+        hideNameCoroutine = null;
+        HideItemName();
+    }
+
+    private void CancelHideNameTimer()
+    {
+        if (hideNameCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(hideNameCoroutine);
+        hideNameCoroutine = null;
     }
 }
